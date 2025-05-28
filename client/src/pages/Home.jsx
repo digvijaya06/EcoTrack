@@ -78,7 +78,7 @@ const Home = () => {
           <div className="md:grid md:grid-cols-2 md:gap-12 items-center">
             <div className="mb-12 md:mb-0">
               <img 
-                src="https://www.pexels.com/photo/person-pressing-the-soil-on-the-glass-bowl-5831003/" 
+                src="https://images.pexels.com/photos/5831003/pexels-photo-5831003.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
                 alt="Person planting a tree"
                 className="rounded-xl shadow-xl max-w-full h-auto"
               />
