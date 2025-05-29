@@ -1,17 +1,49 @@
-
+const dotenv = require('dotenv');
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-require("dotenv").config();
-const authRoutes = require('./routes/auth');
 
-
+dotenv.config();
 const app = express();
+
+// Set default JWT_SECRET if not set (for development/testing only)
+if (!process.env.JWT_SECRET) {
+  console.warn('Warning: JWT_SECRET is not set. Using default secret for development/testing.');
+  process.env.JWT_SECRET = 'default_jwt_secret_key_change_me';
+}
+
+//Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/api/auth',authRoutes);
 
+//Routes
+
+// API base URL for authentication routes
+const authRoutes = require('./routes/auth');
+app.use('/api/auth',authRoutes); // Base URL: /api/auth
+
+// API base URL for dashboard routes
+const dashboard= require('./routes/dashboard');
+app.use('/api', dashboard); // Base URL: /api/dashboard
+
+// API base URL for reward routes
+const reward= require('./routes/reward');
+app.use('/api/rewards', reward); // Base URL: /api/rewards
+
+// API base URL for action routes
+const action = require('./routes/action');
+app.use('/api/actions', action); // Base URL: /api/actions
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err.stack || err);
+  res.status(500).json({ message: 'Internal server error' });
+});
+
+ // Start Server
 const PORT = process.env.PORT || 5000;
+
+console.log('MONGO_URI:', process.env.MONGO_URI);
 
 // Connect DB
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -21,3 +53,4 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 app.get("/", (req, res) => res.send("GreenPoints API Running"));
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  

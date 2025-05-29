@@ -1,95 +1,127 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Leaf, Twitter, Facebook, Instagram, Linkedin, Github } from 'lucide-react';
 
 const Footer = () => {
+  
   return (
-    <footer className="bg-white shadow-inner">
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-xl">🌿</span>
-              <span className="font-bold text-lg text-primary-800">GreenPoints</span>
+    <footer className="bg-gray-50 border-t border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="col-span-1 md:col-span-1">
+            <div className="flex items-center">
+              <Leaf className="h-8 w-8 text-primary-600" />
+              <span className="ml-2 text-xl font-semibold text-gray-900">EcoTrack</span>
             </div>
-            <p className="text-gray-600 max-w-xs">
-              Track your eco-friendly actions, earn points, and make a positive impact on our planet.
+            <p className="mt-4 text-gray-600 max-w-xs">
+              Track your environmental impact and join a community committed to sustainable living.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-500 hover:text-primary-600" aria-label="Twitter">
-                <span className="text-lg">🐦</span>
+            <div className="mt-6 flex space-x-4">
+              <a href="#" className="text-gray-500 hover:text-primary-600 transition-colors">
+                <Twitter size={20} />
+                <span className="sr-only">Twitter</span>
               </a>
-              <a href="#" className="text-gray-500 hover:text-primary-600" aria-label="Instagram">
-                <span className="text-lg">📸</span>
+              <a href="#" className="text-gray-500 hover:text-primary-600 transition-colors">
+                <Facebook size={20} />
+                <span className="sr-only">Facebook</span>
               </a>
-              <a href="#" className="text-gray-500 hover:text-primary-600" aria-label="GitHub">
-                <span className="text-lg">💻</span>
+              <a href="#" className="text-gray-500 hover:text-primary-600 transition-colors">
+                <Instagram size={20} />
+                <span className="sr-only">Instagram</span>
               </a>
-              <a href="#" className="text-gray-500 hover:text-primary-600" aria-label="Email">
-                <span className="text-lg">✉️</span>
+              <a href="#" className="text-gray-500 hover:text-primary-600 transition-colors">
+                <Linkedin size={20} />
+                <span className="sr-only">LinkedIn</span>
+              </a>
+              <a href="#" className="text-gray-500 hover:text-primary-600 transition-colors">
+                <Github size={20} />
+                <span className="sr-only">GitHub</span>
               </a>
             </div>
           </div>
-
-          {/* Quick Links */}
-          <div className="md:mx-auto">
-            <h3 className="font-semibold text-gray-900 mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+          
+          <div className="col-span-1">
+            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase">Features</h3>
+            <ul className="mt-4 space-y-3">
               <li>
-                <Link to="/dashboard" className="text-gray-600 hover:text-primary-600">
+                <Link to="/dashboard" className="text-gray-600 hover:text-primary-600 transition-colors">
                   Dashboard
                 </Link>
               </li>
               <li>
-                <Link to="/actions" className="text-gray-600 hover:text-primary-600">
+                <Link to="/actions" className="text-gray-600 hover:text-primary-600 transition-colors">
                   Log Actions
                 </Link>
               </li>
               <li>
-                <Link to="/leaderboard" className="text-gray-600 hover:text-primary-600">
-                  Leaderboard
+                <Link to="/goals" className="text-gray-600 hover:text-primary-600 transition-colors">
+                  Set Goals
                 </Link>
               </li>
               <li>
-                <Link to="/resources" className="text-gray-600 hover:text-primary-600">
+                <Link to="/community" className="text-gray-600 hover:text-primary-600 transition-colors">
+                  Community
+                </Link>
+              </li>
+              <li>
+                <Link to="/resources" className="text-gray-600 hover:text-primary-600 transition-colors">
                   Resources
                 </Link>
               </li>
             </ul>
           </div>
-
-          {/* Support Links */}
-          <div className="md:mx-auto">
-            <h3 className="font-semibold text-gray-900 mb-4">Support</h3>
-            <ul className="space-y-2">
+          
+          <div className="col-span-1">
+            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase">Company</h3>
+            <ul className="mt-4 space-y-3">
               <li>
-                <a href="#" className="text-gray-600 hover:text-primary-600">
-                  Help Center
-                </a>
+                <Link to="/about" className="text-gray-600 hover:text-primary-600 transition-colors">
+                  About Us
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-primary-600">
+                <Link to="/contact" className="text-gray-600 hover:text-primary-600 transition-colors">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/careers" className="text-gray-600 hover:text-primary-600 transition-colors">
+                  Careers
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-gray-600 hover:text-primary-600 transition-colors">
+                  Blog
+                </Link>
+              </li>
+            </ul>
+          </div>
+          
+          <div className="col-span-1">
+            <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase">Legal</h3>
+            <ul className="mt-4 space-y-3">
+              <li>
+                <Link to="/privacy" className="text-gray-600 hover:text-primary-600 transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-primary-600">
+                <Link to="/terms" className="text-gray-600 hover:text-primary-600 transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-primary-600">
-                  Contact Us
-                </a>
+                <Link to="/cookie-policy" className="text-gray-600 hover:text-primary-600 transition-colors">
+                  Cookie Policy
+                </Link>
               </li>
             </ul>
           </div>
         </div>
-
-        {/* Footer Bottom */}
-        <div className="mt-8 pt-8 border-t border-gray-200 text-center">
-          <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} GreenPoints. All rights reserved.
+        
+        <div className="mt-12 border-t border-gray-200 pt-8">
+          <p className="text-sm text-gray-500 text-center">
+            &copy; {new Date().getFullYear()} EcoTrack. All rights reserved.
           </p>
         </div>
       </div>

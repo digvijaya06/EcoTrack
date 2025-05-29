@@ -65,13 +65,13 @@ const Resources = () => {
   const getResourceIcon = (type) => {
     switch (type) {
       case 'article':
-        return <BookOpen size={16} className="text-primary" />;
+        return <BookOpen size={16} className="text-primary-600" />;
       case 'video':
-        return <Film size={16} className="text-info" />;
+        return <Film size={16} className="text-accent-600" />;
       case 'event':
-        return <Calendar size={16} className="text-secondary" />;
+        return <Calendar size={16} className="text-secondary-600" />;
       case 'guide':
-        return <Award size={16} className="text-success" />;
+        return <Award size={16} className="text-success-600" />;
       default:
         return null;
     }
@@ -80,42 +80,42 @@ const Resources = () => {
   const getResourceTypeColor = (type) => {
     switch (type) {
       case 'article':
-        return 'bg-primary bg-opacity-10 text-primary';
+        return 'bg-primary-50 text-primary-700';
       case 'video':
-        return 'bg-info bg-opacity-10 text-info';
+        return 'bg-accent-50 text-accent-700';
       case 'event':
-        return 'bg-secondary bg-opacity-10 text-secondary';
+        return 'bg-secondary-50 text-secondary-700';
       case 'guide':
-        return 'bg-success bg-opacity-10 text-success';
+        return 'bg-success-50 text-success-700';
       default:
-        return 'bg-light text-secondary';
+        return 'bg-gray-50 text-gray-700';
     }
   };
 
   return (
-    <div className="bg-light min-vh-100 pb-4">
-      <div className="container pt-4">
-        <div className="pb-3 border-bottom mb-4">
-          <h1 className="h3 fw-bold text-dark">Educational Resources</h1>
-          <p className="mt-1 text-muted">
+    <div className="bg-gray-50 min-h-screen pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="pb-5 border-b border-gray-200 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Educational Resources</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Discover articles, guides, videos, and events to help you live more sustainably
           </p>
         </div>
 
         {/* Search and Filter */}
-        <div className="mb-4">
-          <div className="position-relative">
-            <div className="position-absolute top-50 start-0 translate-middle-y ps-3 pointer-events-none">
-              <Search size={18} className="text-muted" />
+        <div className="mb-8">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={18} className="text-gray-400" />
             </div>
             <input
               type="text"
-              className="form-control ps-5"
+              className="input pl-10"
               placeholder="Search for resources..."
             />
           </div>
 
-          <div className="mt-3 d-flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className={`${getResourceTypeColor('article')} border-0`}>
               Articles
             </Button>
@@ -132,30 +132,27 @@ const Resources = () => {
         </div>
 
         {/* Resources Grid */}
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {resources.map((resource) => (
-            <Card key={resource.id} className="overflow-hidden shadow-sm h-100">
-              <div className="overflow-hidden" style={{height: '12rem'}}>
+            <Card key={resource.id} className="overflow-hidden hover:shadow-md transition-shadow duration-300">
+              <div className="h-48 overflow-hidden">
                 <img
                   src={resource.imageUrl}
                   alt={resource.title}
-                  className="w-100 h-100 object-fit-cover"
-                  style={{transition: 'transform 0.3s'}}
-                  onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                  onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                 />
               </div>
-              <CardContent className="p-3">
-                <div className="d-flex align-items-center mb-2">
+              <CardContent className="p-6">
+                <div className="flex items-center mb-3">
                   <span
-                    className={`d-inline-flex align-items-center px-2 py-1 rounded-pill fs-7 fw-medium ${getResourceTypeColor(resource.type)}`}
+                    className={`flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getResourceTypeColor(resource.type)}`}
                   >
                     {getResourceIcon(resource.type)}
-                    <span className="ms-1 text-capitalize">{resource.type}</span>
+                    <span className="ml-1 capitalize">{resource.type}</span>
                   </span>
 
                   {resource.date && (
-                    <span className="ms-2 fs-7 text-muted">
+                    <span className="ml-2 text-xs text-gray-500">
                       {new Date(resource.date).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
@@ -165,14 +162,14 @@ const Resources = () => {
                   )}
                 </div>
 
-                <h3 className="h5 fw-semibold text-dark mb-2">{resource.title}</h3>
-                <p className="text-secondary fs-7 mb-3">{resource.description}</p>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{resource.title}</h3>
+                <p className="text-gray-600 text-sm mb-4">{resource.description}</p>
 
-                <div className="d-flex flex-wrap gap-2 mb-3">
+                <div className="flex flex-wrap gap-2 mb-4">
                   {resource.tags.map((tag, index) => (
                     <span
                       key={index}
-                      className="badge bg-light text-secondary rounded-pill px-3 py-1 fs-7"
+                      className="inline-block bg-gray-100 rounded-full px-3 py-1 text-xs font-medium text-gray-600"
                     >
                       #{tag}
                     </span>
@@ -183,9 +180,9 @@ const Resources = () => {
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="d-inline-flex align-items-center text-primary text-decoration-none"
+                  className="inline-flex items-center text-primary-600 hover:text-primary-700"
                 >
-                  <span className="me-1">Read more</span>
+                  <span className="mr-1">Read more</span>
                   <ExternalLink size={14} />
                 </a>
               </CardContent>
@@ -194,26 +191,26 @@ const Resources = () => {
         </div>
 
         {/* Newsletter Signup */}
-        <Card className="mt-4 bg-primary text-white">
-          <CardContent className="p-4">
-            <div className="mx-auto text-center" style={{maxWidth: '36rem'}}>
-              <h2 className="h4 fw-bold mb-3">Stay Updated with the Latest Resources</h2>
-              <p className="mb-3">
+        <Card className="mt-12 bg-gradient-to-r from-primary-500 to-primary-600 text-white">
+          <CardContent className="p-8">
+            <div className="max-w-3xl mx-auto text-center">
+              <h2 className="text-2xl font-bold mb-4">Stay Updated with the Latest Resources</h2>
+              <p className="mb-6">
                 Join our newsletter to receive curated sustainability resources, tips, and updates directly to your inbox.
               </p>
 
-              <div className="d-flex flex-column flex-sm-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <input
                   type="email"
                   placeholder="Enter your email address"
-                  className="form-control flex-grow-1 text-dark"
+                  className="input flex-1 text-gray-800"
                 />
-                <Button className="btn btn-light text-primary">
+                <Button className="bg-white text-primary-600 hover:bg-gray-100">
                   Subscribe
                 </Button>
               </div>
 
-              <p className="mt-3 fs-7 text-primary-opacity-75">
+              <p className="mt-4 text-sm text-primary-100">
                 We respect your privacy. Unsubscribe at any time.
               </p>
             </div>

@@ -7,6 +7,8 @@ import { Card, CardContent } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import LeaderboardTable from '../components/leaderboard/LeaderboardTable';
 
+
+// PropTypes definitions for your data shapes
 const CommunityPostPropType = PropTypes.shape({
   id: PropTypes.string.isRequired,
   user: PropTypes.shape({
@@ -97,29 +99,28 @@ const Community = () => {
   ];
 
   return (
-    <div className="bg-light min-vh-100 pb-4">
-      <div className="container pt-4">
-        <div className="pb-3 border-bottom mb-4">
-          <h1 className="h3 fw-bold text-dark">Community</h1>
-          <p className="mt-1 text-muted">
+    <div className="bg-gray-50 min-h-screen pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="pb-5 border-b border-gray-200 mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Community</h1>
+          <p className="mt-1 text-sm text-gray-500">
             Connect with like-minded individuals committed to sustainability
           </p>
         </div>
-        <div className="row g-4">
-          <div className="col-lg-8">
-            <Card className="mb-4">
-              <CardContent className="p-3">
-                <div className="d-flex align-items-start gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Card className="mb-8">
+              <CardContent className="p-6">
+                <div className="flex space-x-3">
                   <img
                     src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg"
                     alt="Your profile"
-                    className="rounded-circle"
-                    style={{width: '40px', height: '40px', objectFit: 'cover'}}
+                    className="h-10 w-10 rounded-full"
                   />
-                  <div className="flex-grow-1">
-                    <textarea className="form-control" style={{minHeight: '80px'}} placeholder="Share your eco-friendly actions and ideas..." />
-                    <div className="mt-3 d-flex justify-content-between align-items-center">
-                      <div className="d-flex gap-2">
+                  <div className="flex-1">
+                    <textarea className="input min-h-[80px]" placeholder="Share your eco-friendly actions and ideas..." />
+                    <div className="mt-3 flex justify-between items-center">
+                      <div className="flex space-x-2">
                         <Button variant="outline" size="sm">
                           Add Photo
                         </Button>
@@ -134,46 +135,46 @@ const Community = () => {
               </CardContent>
             </Card>
 
-            <div className="d-flex flex-column gap-3">
+            <div className="space-y-6">
               {posts.map((post) => (
                 <Card key={post.id}>
-                  <CardContent className="p-3">
-                    <div className="d-flex align-items-start gap-3">
-                      <img src={post.user.avatar} alt={post.user.name} className="rounded-circle" style={{width: '40px', height: '40px', objectFit: 'cover'}} />
-                      <div className="flex-grow-1">
-                        <div className="d-flex align-items-center">
-                          <h3 className="fw-semibold text-dark mb-0">{post.user.name}</h3>
-                          <span className="mx-2 text-muted">•</span>
-                          <span className="small text-muted">{formatDate(post.date)}</span>
+                  <CardContent className="p-6">
+                    <div className="flex items-start space-x-3">
+                      <img src={post.user.avatar} alt={post.user.name} className="h-10 w-10 rounded-full" />
+                      <div className="flex-1">
+                        <div className="flex items-center">
+                          <h3 className="font-semibold text-gray-900">{post.user.name}</h3>
+                          <span className="mx-2 text-gray-300">•</span>
+                          <span className="text-sm text-gray-500">{formatDate(post.date)}</span>
                         </div>
-                        <p className="small text-muted d-flex align-items-center mt-1 mb-2">
-                          <MapPin size={14} className="me-1" />
+                        <p className="text-sm text-gray-500 flex items-center mt-1">
+                          <MapPin size={14} className="mr-1" />
                           {post.user.location}
                         </p>
-                        <p className="mt-2 text-secondary">{post.content}</p>
+                        <p className="mt-3 text-gray-700">{post.content}</p>
                         {post.images && (
-                          <div className="mt-3">
-                            <img src={post.images[0]} alt="Post content" className="rounded shadow-sm w-100" style={{maxHeight: '24rem', objectFit: 'cover'}} />
+                          <div className="mt-4">
+                            <img src={post.images[0]} alt="Post content" className="rounded-lg max-h-96 w-full object-cover" />
                           </div>
                         )}
-                        <div className="mt-3 d-flex flex-wrap gap-2">
+                        <div className="mt-4 flex flex-wrap gap-2">
                           {post.tags.map((tag, index) => (
                             <span
                               key={index}
-                              className="badge bg-light text-secondary rounded-pill px-3 py-1 small"
+                              className="inline-block bg-gray-100 rounded-full px-3 py-1 text-xs font-medium text-gray-600"
                             >
                               #{tag}
                             </span>
                           ))}
                         </div>
-                        <div className="mt-3 pt-3 border-top d-flex justify-content-between">
-                          <Button variant="ghost" size="sm" className="text-secondary d-flex align-items-center" leftIcon={<ThumbsUp size={16} />}>
+                        <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between">
+                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<ThumbsUp size={16} />}>
                             {post.likes}
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-secondary d-flex align-items-center" leftIcon={<MessageSquare size={16} />}>
+                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<MessageSquare size={16} />}>
                             {post.comments}
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-secondary d-flex align-items-center" leftIcon={<Share2 size={16} />}>
+                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<Share2 size={16} />}>
                             {post.shares}
                           </Button>
                         </div>
@@ -184,23 +185,23 @@ const Community = () => {
               ))}
             </div>
           </div>
-          <div className="col-lg-4">
-            <Card className="mb-4">
-              <CardContent className="p-3">
-                <div className="d-flex align-items-center mb-3">
-                  <Award size={20} className="text-primary me-2" />
-                  <h2 className="h5 fw-semibold mb-0">Top Contributors</h2>
+          <div>
+            <Card className="mb-8">
+              <CardContent className="p-6">
+                <div className="flex items-center mb-4">
+                  <Award size={20} className="text-primary-600 mr-2" />
+                  <h2 className="text-lg font-semibold">Top Contributors</h2>
                 </div>
-                <div className="d-flex flex-column gap-3">
+                <div className="space-y-4">
                   {leaderboard.map((user) => (
-                    <div key={user.id} className="d-flex align-items-center gap-3">
-                      <span className="fw-semibold text-secondary">#{user.rank}</span>
-                      <img src={user.avatar} alt={user.name} className="rounded-circle" style={{width: '32px', height: '32px', objectFit: 'cover'}} />
-                      <div className="flex-grow-1">
-                        <p className="fw-semibold mb-0">{user.name}</p>
-                        <p className="small text-muted mb-0">{user.impactScore} impact points</p>
+                    <div key={user.id} className="flex items-center space-x-3">
+                      <span className="font-semibold text-gray-600">#{user.rank}</span>
+                      <img src={user.avatar} alt={user.name} className="h-8 w-8 rounded-full" />
+                      <div className="flex-1">
+                        <p className="font-semibold">{user.name}</p>
+                        <p className="text-xs text-gray-500">{user.impactScore} impact points</p>
                       </div>
-                      <div className="d-flex gap-1">
+                      <div className="flex space-x-1">
                         {user.badges.map((badge, i) => (
                           <span key={i} title="Badge">{badge}</span>
                         ))}
@@ -212,12 +213,12 @@ const Community = () => {
             </Card>
 
             <Card>
-              <CardContent className="p-3">
-                <div className="d-flex align-items-center mb-3">
-                  <Users size={20} className="text-primary me-2" />
-                  <h2 className="h5 fw-semibold mb-0">Community Stats</h2>
+              <CardContent className="p-6">
+                <div className="flex items-center mb-4">
+                  <Users size={20} className="text-primary-600 mr-2" />
+                  <h2 className="text-lg font-semibold">Community Stats</h2>
                 </div>
-                <ul className="text-secondary list-unstyled">
+                <ul className="text-gray-700 space-y-2">
                   <li>
                     <strong>Users:</strong> 5,000+
                   </li>
@@ -233,7 +234,7 @@ const Community = () => {
                 </ul>
               </CardContent>
             </Card>
-            <div className="mt-4">
+            <div className="mt-8">
               <LeaderboardTable />
             </div>
           </div>

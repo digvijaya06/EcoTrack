@@ -29,33 +29,33 @@ const blogPosts = [
 
 const Blog = () => {
   return (
-    <div className="container py-5" style={{ maxWidth: '72rem' }}>
-      <h1 className="display-4 fw-bold text-center mb-4">🌱 EcoLog Blog</h1>
-      <p className="text-center text-secondary mx-auto mb-5" style={{ maxWidth: '40rem' }}>
+    <div className="max-w-6xl mx-auto px-4 py-12">
+      <h1 className="text-4xl font-bold text-center mb-4">🌱 EcoLog Blog</h1>
+      <p className="text-center text-gray-600 max-w-2xl mx-auto mb-10">
         Read real stories, tips, and ideas from people building a greener world — one action at a time.
       </p>
 
-      <div className="row g-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         {blogPosts.map((post, index) => (
-          <div key={index} className="card rounded shadow-sm overflow-hidden">
-            <img src={post.image} alt={post.title} className="card-img-top" style={{ height: '12rem', objectFit: 'cover' }} />
-            <div className="card-body">
-              <span className="badge bg-success bg-opacity-25 text-success small px-2 py-1 mb-2 d-inline-block">
+          <div key={index} className="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden">
+            <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
+            <div className="p-5">
+              <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded mb-2">
                 {post.tag}
               </span>
-              <h2 className="h5 fw-semibold text-dark mb-2">{post.title}</h2>
-              <p className="text-secondary small mb-3">{post.summary}</p>
-              <div className="small text-secondary">
-                By <span className="fw-medium">{post.author}</span> • {post.date}
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">{post.title}</h2>
+              <p className="text-gray-600 text-sm mb-3">{post.summary}</p>
+              <div className="text-sm text-gray-500">
+                By <span className="font-medium">{post.author}</span> • {post.date}
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="text-center mt-5 text-secondary">
+      <div className="text-center mt-12 text-gray-600">
         Want to contribute your own blog? ✍️ <br />
-        Email us at <a href="mailto:ecolog@yourwebsite.com" className="text-success text-decoration-underline">ecolog@yourwebsite.com</a> or share your journey in our community!
+        Email us at <a href="mailto:ecolog@yourwebsite.com" className="text-green-600 underline">ecolog@yourwebsite.com</a> or share your journey in our community!
       </div>
     </div>
   );

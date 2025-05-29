@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const protect = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -10,16 +11,17 @@ router.post('/register', async (req, res) => {
   try {
     const { name, username, email, password } = req.body;
 
-    // Check if email or username already exists
+    if (!name || !username || !email || !password) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
       return res.status(400).json({ message: 'Email or username already exists' });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user
     const user = new User({
       name,
       username,
@@ -29,10 +31,8 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    // Create JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-    // Send user data without password
     res.status(201).json({
       token,
       user: {
@@ -55,19 +55,20 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Create JWT
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
@@ -83,6 +84,17 @@ router.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error('Login Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get logged-in user's info
+router.get('/me', protect, async (req, res) => {
+  try {
+    const { password, ...safeUser } = req.user._doc;
+    res.json(safeUser);
+  } catch (error) {
+    console.error('Get Me Error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

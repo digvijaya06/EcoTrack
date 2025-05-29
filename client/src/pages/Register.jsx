@@ -1,46 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext} from '../context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { register, authError, setAuthError } = useContext(AuthContext);
+
   const [formData, setFormData] = useState({
+    name: '',
     username: '',
     email: '',
     password: '',
   });
-
-  const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    if (authError) {
+      setAuthError(null);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setAuthError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-
+      await register(formData.name, formData.email, formData.password);
       alert('Registration successful! Please login.');
       navigate('/login');
     } catch (err) {
-      setError(err.message);
+      // authError is set in context
     }
   };
 
@@ -48,8 +40,20 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {authError && <p className="text-red-500 text-center mb-4">{authError}</p>}
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              name="name"
+              id="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="mt-1 p-2 w-full border rounded-xl"
+            />
+          </div>
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
             <input

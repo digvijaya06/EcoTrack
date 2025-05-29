@@ -48,19 +48,19 @@ const Actions = () => {
   });
 
   return (
-    <div className="bg-light min-vh-100 pb-4">
-      <div className="container pt-4">
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h1 className="h3 fw-bold text-dark">Log Actions</h1>
+    <div className="bg-gray-50 min-h-screen pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Log Actions</h1>
           <Button variant="primary" leftIcon={<Plus />}>
             Add Action
           </Button>
         </div>
-        <div className="d-flex flex-column flex-sm-row gap-3 mb-4">
-          <div className="d-flex align-items-center mb-3 mb-sm-0">
-            <Filter className="me-2 text-secondary" size={16} />
+        <div className="flex flex-col sm:flex-row sm:space-x-4 mb-6">
+          <div className="flex items-center mb-4 sm:mb-0">
+            <Filter className="h-4 w-4 text-gray-500 mr-2" />
             <select
-              className="form-select"
+              className="input-field"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
             >
@@ -72,26 +72,26 @@ const Actions = () => {
               {/* Add more categories as needed */}
             </select>
           </div>
-          <div className="position-relative flex-grow-1">
-            <div className="position-absolute top-50 start-0 translate-middle-y ps-3 pointer-events-none">
-              <Search className="text-muted" size={16} />
+          <div className="relative rounded-md shadow-sm flex-1">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
             </div>
             <input
               type="text"
-              className="form-control ps-5"
+              className="input-field pl-10"
               placeholder="Search actions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
         </div>
-        <div className="d-flex flex-column gap-3">
+        <div className="space-y-4">
           {filteredActions.length > 0 ? (
             filteredActions.map((action) => (
               <ActionCard key={action.id} action={action} />
             ))
           ) : (
-            <p className="text-secondary">No actions found.</p>
+            <p className="text-gray-500">No actions found.</p>
           )}
         </div>
       </div>
