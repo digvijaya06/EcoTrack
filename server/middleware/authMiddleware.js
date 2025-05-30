@@ -12,6 +12,9 @@ const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     req.user = await User.findById(decoded.id).select('-password'); // exclude password
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not found, authorization denied' });
+    }
     next();
 
   } catch (error) {
@@ -21,83 +24,3 @@ const protect = async (req, res, next) => {
 };
 
 module.exports = protect;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

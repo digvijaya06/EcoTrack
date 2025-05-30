@@ -15,6 +15,7 @@ const rewardSchema = new mongoose.Schema({
   imageUrl: {
     type: String,
   },
+  description:String,
   createdAt: {
     type: Date,
     default: Date.now,

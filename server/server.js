@@ -6,7 +6,7 @@ const cors = require("cors");
 dotenv.config();
 const app = express();
 
-// Set default JWT_SECRET if not set (for development/testing only)
+
 if (!process.env.JWT_SECRET) {
   console.warn('Warning: JWT_SECRET is not set. Using default secret for development/testing.');
   process.env.JWT_SECRET = 'default_jwt_secret_key_change_me';
@@ -18,21 +18,25 @@ app.use(express.json());
 
 //Routes
 
+const adminRoutes = require('./routes/admin');
+app.use('/api/admin', adminRoutes);
+
+
 // API base URL for authentication routes
 const authRoutes = require('./routes/auth');
-app.use('/api/auth',authRoutes); // Base URL: /api/auth
+app.use('/api/auth',authRoutes);
 
 // API base URL for dashboard routes
 const dashboard= require('./routes/dashboard');
-app.use('/api', dashboard); // Base URL: /api/dashboard
+app.use('/api', dashboard); 
 
 // API base URL for reward routes
 const reward= require('./routes/reward');
-app.use('/api/rewards', reward); // Base URL: /api/rewards
+app.use('/api/rewards', reward); 
 
 // API base URL for action routes
 const action = require('./routes/action');
-app.use('/api/actions', action); // Base URL: /api/actions
+app.use('/api/actions', action); 
 
 // Error handling middleware
 app.use((err, req, res, next) => {

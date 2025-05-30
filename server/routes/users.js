@@ -1,15 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
+const protect = require('../middleware/authMiddleware');
 const User = require('../models/User');
 
 // @route   GET /api/users/me
 // @desc    Get current user profile
 // @access  Private
-router.get('/me', auth, async (req, res) => {
+router.get('/me', protect, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password');
-    res.json(user);
+    res.json(req.user);  // req.user set by protect middleware
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -19,11 +18,11 @@ router.get('/me', auth, async (req, res) => {
 // @route   PUT /api/users/me
 // @desc    Update user profile
 // @access  Private
-router.put('/me', auth, async (req, res) => {
+router.put('/me', protect, async (req, res) => {
   try {
     const { name, location, bio, website, avatar } = req.body;
-    
-    const user = await User.findById(req.user.userId);
+
+    const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
