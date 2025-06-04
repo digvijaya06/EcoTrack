@@ -1,4 +1,3 @@
-// Using Vite's env variables
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 export const ACTION_CATEGORIES = [
@@ -28,4 +27,87 @@ export const BADGES = [
   { id: 'waste-reducer', name: 'Waste Reducer', description: 'Log 10 waste reduction actions', icon: 'Recycle' },
   { id: 'green-traveler', name: 'Green Traveler', description: 'Log 10 eco-friendly transport actions', icon: 'Bike' },
   { id: 'consistent-logger', name: 'Consistency Champion', description: 'Log actions for 7 days in a row', icon: 'Calendar' }
+];
+
+export const ECO_ACTION_DETAILS = [
+  {
+    category: "Tree & Nature Care",
+    title: "Tree & Nature Care",
+    actionType: "Plant a sapling / Adopt a tree",
+    impactMetric: "Trees Planted",
+    gamification: "\"Green Thumb\" badge",
+    inspiration: "Inspired by the Big Tree Movement"
+  },
+  {
+    category: "Water Conservation",
+    title: "Water Conservation",
+    actionType: "Use buckets, fix leaks, rainwater harvesting",
+    impactMetric: "Litres Saved",
+    gamification: "\"Water Warrior\" badge",
+    inspiration: "Inspired by local river conservation efforts"
+  },
+  {
+    category: "Plastic-Free Lifestyle",
+    title: "Plastic-Free Lifestyle",
+    actionType: "Say no to plastic bags / Use steel bottles",
+    impactMetric: "Plastic Items Avoided",
+    gamification: "\"Plastic Buster\" badge",
+    inspiration: "Live a Plastic-Free Lifestyle"
+  },
+  {
+    category: "Eco-Friendly Fashion",
+    title: "Eco-Friendly Fashion",
+    actionType: "Donate clothes / Upcycle old clothes",
+    impactMetric: "Items Reused",
+    gamification: "\"Style with Purpose\" badge",
+    inspiration: "Inspired by the Legacy of Clothing"
+  },
+  {
+    category: "E-Waste Recycling",
+    title: "E-Waste Recycling",
+    actionType: "Submit old phones/laptops at authorized centers",
+    impactMetric: "KG Recycled",
+    gamification: "\"Tech Recycler\" badge",
+    inspiration: "Modern Sustainability through E-Waste Recycling"
+  },
+  {
+    category: "Waste Management",
+    title: "Waste Management",
+    actionType: "Composting / Proper garbage sorting",
+    impactMetric: "KG Waste Diverted from Landfills",
+    gamification: "\"Compost Champ\" badge",
+    inspiration: "Promoting Responsible Waste Habits"
+  },
+  {
+    category: "Eco Transport",
+    title: "Eco Transport",
+    actionType: "Public transport / Carpool / Cycling",
+    impactMetric: "CO₂ Saved (kg)",
+    gamification: "\"Green Commuter\" badge",
+    inspiration: "Choose Greener Ways to Travel"
+  },
+  {
+    category: "Awareness Actions",
+    title: "Awareness Actions",
+    actionType: "Attend clean-up events / Campaign posts",
+    impactMetric: "Actions Logged",
+    gamification: "\"Eco Advocate\" badge",
+    inspiration: "Raise Your Voice for the Earth"
+  },
+  {
+    category: "Wellness with Nature",
+    title: "Wellness with Nature",
+    actionType: "Yoga in nature / Tree hugging / mindful walks",
+    impactMetric: "Self-Care Sessions",
+    gamification: "\"Nature Soul\" badge",
+    inspiration: "Meditate and Heal with Nature"
+  },
+  {
+    category: "Natural Living",
+    title: "Natural Living",
+    actionType: "Herbal gardening / Ayurvedic habits / Earthenware use",
+    impactMetric: "Days Sustained",
+    gamification: "\"Sattvik Star\" badge",
+    inspiration: "Let Nature Smile Through Your Lifestyle"
+  }
 ];

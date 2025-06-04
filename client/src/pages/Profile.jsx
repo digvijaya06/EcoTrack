@@ -1,60 +1,109 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Camera, User, Mail, MapPin, Award, Edit2, Globe, Check, X } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/Card';
 import { formatDate } from '../utils/formatterrs';
+import { useAuth } from '../context/AuthContext';
+import axios from 'axios';
+import femaleAvatar from '../assets/user-female-svgrepo-com.svg';
+import maleAvatar from '../assets/user-male-alt-svgrepo-com.svg';
+import ProfileForm from '../components/profile/ProfileForm';
+
+const placeholderAvatar = femaleAvatar; // fallback placeholder avatar
 
 const Profile = () => {
+  const { user, updateUser, token } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-
-  // Mock user data
-  const user = {
-    id: '123',
-    name: 'Dimple Nagda',
-    email: 'yashwininobody@example.com',
-    avatar: 'https://media.istockphoto.com/id/98291293/photo/top-view.jpg?s=2048x2048&w=is&k=20&c=Pwej2UVUfZomstvxFAkB3un2_kxF6Baq3rCSvvMjfuY=',
-    location: 'Udaipur, Rajasthan',
-    bio: 'Passionate about sustainability and making a positive impact on our planet. Software engineer by day, eco-warrior by night!',
-    website: 'abc.com',
-    joinedDate: '2023-01-15',
-    stats: {
-      totalActions: 132,
-      co2Saved: 425,
-      completedGoals: 8,
-    },
-    badges: [
-      { id: '1', name: 'Early Adopter', icon: '🌱', earnedDate: '2023-01-20' },
-      { id: '2', name: 'Carbon Conscious', icon: '🌿', earnedDate: '2023-03-15' },
-      { id: '3', name: 'Waste Warrior', icon: '♻️', earnedDate: '2023-05-10' },
-    ],
-  };
+  const [loading, setLoading] = useState(true);
+  const [actions, setActions] = useState([]);
 
   const [editedUser, setEditedUser] = useState({
-    name: user.name,
-    location: user.location,
-    bio: user.bio,
-    website: user.website,
+    name: '',
+    location: '',
+    bio: '',
+    website: '',
+    avatar: '',
+    gender: 'unknown',
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditedUser(prev => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    if (user) {
+      setEditedUser({
+        name: user.name || '',
+        location: user.location || '',
+        bio: user.bio || '',
+        website: user.website || '',
+        avatar: user.avatar || '',
+        gender: user.gender || 'unknown',
+      });
+      setLoading(false);
+    }
+  }, [user]);
 
-  const handleSave = () => {
-    console.log('Saving profile data:', editedUser);
-    setIsEditing(false);
+  useEffect(() => {
+    const fetchActions = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/actions', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setActions(response.data);
+      } catch (error) {
+        console.error('Error fetching actions:', error);
+      }
+    };
+
+    if (token) {
+      fetchActions();
+    }
+  }, [token]);
+
+  const handleSave = async (updatedData) => {
+    try {
+      const response = await axios.put('http://localhost:5000/api/users/me', updatedData);
+      updateUser(response.data);
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      // Optionally show error to user
+    }
   };
 
   const handleCancel = () => {
-    setEditedUser({
-      name: user.name,
-      location: user.location,
-      bio: user.bio,
-      website: user.website,
-    });
+    if (user) {
+      setEditedUser({
+        name: user.name || '',
+        location: user.location || '',
+        bio: user.bio || '',
+        website: user.website || '',
+        avatar: user.avatar || '',
+        gender: user.gender || 'unknown',
+      });
+    }
     setIsEditing(false);
   };
+
+  if (loading) {
+    return <div>Loading profile...</div>;
+  }
+
+  const getDefaultAvatar = (gender) => {
+    if (gender === 'female') return femaleAvatar;
+    if (gender === 'male') return maleAvatar;
+    return placeholderAvatar;
+  };
+
+  // Validate avatar URL (basic check)
+  const isValidAvatarUrl = (url) => {
+    if (!url) return false;
+    try {
+      const parsedUrl = new URL(url);
+      return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  };
+
+  const avatarToShow = isValidAvatarUrl(editedUser.avatar) ? editedUser.avatar : getDefaultAvatar(editedUser.gender);
 
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
@@ -85,130 +134,61 @@ const Profile = () => {
                 <CardTitle>Profile Information</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col md:flex-row md:items-center">
-                  <div className="relative mb-6 md:mb-0 md:mr-8">
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-32 h-32 rounded-full object-cover"
-                    />
-                    {isEditing && (
-                      <button className="absolute -right-2 -bottom-2 bg-primary-600 text-white p-2 rounded-full hover:bg-primary-700">
-                        <Camera size={16} />
-                      </button>
-                    )}
-                  </div>
+                {isEditing ? (
+                  <ProfileForm
+                    initialData={editedUser}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
+                  />
+                ) : (
+                  <div className="flex flex-col md:flex-row md:items-center">
+                    <div className="relative mb-6 md:mb-0 md:mr-8">
+                      <img
+                        src={avatarToShow}
+                        alt={editedUser.name || 'User Avatar'}
+                        className="w-32 h-32 rounded-full object-cover"
+                      />
+                    </div>
 
-                  <div className="flex-1">
-                    {isEditing ? (
-                      <div className="space-y-4">
-                        <div>
-                          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                            Name
-                          </label>
-                          <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={editedUser.name}
-                            onChange={handleInputChange}
-                            className="input w-full border rounded px-3 py-2"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                            Location
-                          </label>
-                          <input
-                            type="text"
-                            id="location"
-                            name="location"
-                            value={editedUser.location}
-                            onChange={handleInputChange}
-                            className="input w-full border rounded px-3 py-2"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
-                            Website
-                          </label>
-                          <input
-                            type="text"
-                            id="website"
-                            name="website"
-                            value={editedUser.website}
-                            onChange={handleInputChange}
-                            className="input w-full border rounded px-3 py-2"
-                          />
-                        </div>
-
-                        <div>
-                          <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-1">
-                            Bio
-                          </label>
-                          <textarea
-                            id="bio"
-                            name="bio"
-                            rows={4}
-                            value={editedUser.bio}
-                            onChange={handleInputChange}
-                            className="input w-full border rounded px-3 py-2"
-                          />
-                        </div>
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center">
+                        <User size={18} className="text-gray-400 mr-2" />
+                        <h2 className="text-xl font-semibold text-gray-900">{editedUser.name}</h2>
                       </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="flex items-center">
-                          <User size={18} className="text-gray-400 mr-2" />
-                          <h2 className="text-xl font-semibold text-gray-900">{user.name}</h2>
-                        </div>
 
-                        <div className="flex items-center">
-                          <Mail size={18} className="text-gray-400 mr-2" />
-                          <p className="text-gray-600">{user.email}</p>
-                        </div>
-
-                        <div className="flex items-center">
-                          <MapPin size={18} className="text-gray-400 mr-2" />
-                          <p className="text-gray-600">{user.location}</p>
-                        </div>
-
-                        {user.website && (
-                          <div className="flex items-center">
-                            <Globe size={18} className="text-gray-400 mr-2" />
-                            <a
-                              href={`https://${user.website}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-primary-600 hover:text-primary-700"
-                            >
-                              {user.website}
-                            </a>
-                          </div>
-                        )}
-
-                        <p className="text-gray-600 mt-4">{user.bio}</p>
-
-                        <p className="text-sm text-gray-500 mt-4">
-                          Joined on {formatDate(user.joinedDate)}
-                        </p>
+                      <div className="flex items-center">
+                        <Mail size={18} className="text-gray-400 mr-2" />
+                        <p className="text-gray-600">{user.email}</p>
                       </div>
-                    )}
+
+                      <div className="flex items-center">
+                        <MapPin size={18} className="text-gray-400 mr-2" />
+                        <p className="text-gray-600">{editedUser.location}</p>
+                      </div>
+
+                      {editedUser.website && (
+                        <div className="flex items-center">
+                          <Globe size={18} className="text-gray-400 mr-2" />
+                          <a
+                            href={`https://${editedUser.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary-600 hover:text-primary-700"
+                          >
+                            {editedUser.website}
+                          </a>
+                        </div>
+                      )}
+
+                      <p className="text-gray-600 mt-4">{editedUser.bio}</p>
+
+                      <p className="text-sm text-gray-500 mt-4">
+                        Joined on {formatDate(user.joinedDate)}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                )}
               </CardContent>
-              {isEditing && (
-                <CardFooter className="flex justify-end space-x-3 border-t border-gray-100 pt-4">
-                  <Button variant="outline" onClick={handleCancel} leftIcon={<X size={16} />}>
-                    Cancel
-                  </Button>
-                  <Button variant="primary" onClick={handleSave} leftIcon={<Check size={16} />}>
-                    Save Changes
-                  </Button>
-                </CardFooter>
-              )}
             </Card>
 
             {/* Achievements */}
@@ -221,7 +201,7 @@ const Profile = () => {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  {user.badges.map((badge) => (
+                  {user.badges && user.badges.map((badge) => (
                     <div
                       key={badge.id}
                       className="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors"
@@ -236,6 +216,10 @@ const Profile = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Actions Logged */}
+            {/* Removed from Profile page to keep it clean as per feedback */}
+            {/* The detailed actions list will be shown on /actions page */}
           </div>
 
           {/* Stats */}
@@ -248,19 +232,25 @@ const Profile = () => {
                 <div className="space-y-6">
                   <div className="bg-primary-50 rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Actions Logged</h3>
-                    <p className="text-4xl font-bold text-primary-600">{user.stats.totalActions}</p>
-                    <p className="text-sm text-gray-600 mt-1">Eco-friendly activities tracked</p>
-                  </div>
+                  <p className="text-4xl font-bold text-primary-600">{actions.length}</p>
+                  <p className="text-sm text-gray-600 mt-1">Eco-friendly activities tracked</p>
+                  <button
+                    onClick={() => window.location.href = '/actions'}
+                    className="mt-2 text-primary-600 hover:underline font-semibold"
+                  >
+                    View Actions
+                  </button>
+                </div>
 
                   <div className="bg-secondary-50 rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">CO2 Saved</h3>
-                    <p className="text-4xl font-bold text-secondary-600">{user.stats.co2Saved} kg</p>
+                    <p className="text-4xl font-bold text-secondary-600">{user.stats?.co2Saved || 0} kg</p>
                     <p className="text-sm text-gray-600 mt-1">Equivalent to planting 7 trees</p>
                   </div>
 
                   <div className="bg-accent-50 rounded-lg p-6">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Goals Completed</h3>
-                    <p className="text-4xl font-bold text-accent-600">{user.stats.completedGoals}</p>
+                    <p className="text-4xl font-bold text-accent-600">{user.stats?.completedGoals || 0}</p>
                     <p className="text-sm text-gray-600 mt-1">Sustainability targets achieved</p>
                   </div>
                 </div>

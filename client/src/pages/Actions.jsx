@@ -69,7 +69,8 @@ const Actions = () => {
               <option value="transportation">Transportation</option>
               <option value="waste">Waste</option>
               <option value="water">Water</option>
-              {/* Add more categories as needed */}
+             
+             
             </select>
           </div>
           <div className="relative rounded-md shadow-sm flex-1">

@@ -20,7 +20,11 @@ const registerUser = async (req, res) => {
       name,
       username,
       email,
-      password
+      password,
+      location: '',
+      bio: '',
+      website: '',
+      avatar: ''
     });
 
     await user.save();
@@ -35,7 +39,11 @@ const registerUser = async (req, res) => {
         username: user.username,
         email: user.email,
         isAdmin: user.isAdmin,
-        createdAt: user.createdAt
+        createdAt: user.createdAt,
+        location: user.location,
+        bio: user.bio,
+        website: user.website,
+        avatar: user.avatar
       }
     });
 

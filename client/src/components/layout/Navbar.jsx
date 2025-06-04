@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Leaf, BarChart2, Calendar, Target, Users, BookOpen, User } from 'lucide-react';
+import React, { useState, useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Menu, X, Leaf, BarChart2, Calendar, Target,
+  Users, BookOpen, User
+} from 'lucide-react';
 import Button from '../ui/Button';
+import { AuthContext } from '../../context/AuthContext';
 
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  
+  const { user, isAuthenticated, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -16,14 +22,32 @@ const Navbar = () => {
     return location.pathname === path;
   };
 
+  // Roles allowed to see protected links
+  // const allowedRoles = ['registered', 'admin'];
+
+  // Show all links unconditionally
   const navLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
-    { name: 'Log Actions', path: '/actions', icon: <Calendar size={20} /> },
+    { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
     { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
     { name: 'Community', path: '/community', icon: <Users size={20} /> },
     { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
     { name: 'Contact', path: '/contact', icon: <Leaf size={20} /> },
+    // Show Profile link only if user is NOT authenticated
+    ...(!isAuthenticated ? [{ name: 'Profile', path: '/profile', icon: <User size={20} /> }] : []),
+    { name: 'About', path: '/about', icon: <Leaf size={20} /> },
   ];
+
+  // Links that require authentication
+  const protectedPaths = ['/dashboard', '/actions', '/goals', '/community', '/resources'];
+
+  // Handler for unauthenticated clicks on protected links
+  const handleProtectedClick = (e, path) => {
+    if (!isAuthenticated && protectedPaths.includes(path)) {
+      e.preventDefault();
+      alert('Please login to access this feature.');
+    }
+  };
 
   return (
     <nav className="bg-white shadow-sm">
@@ -39,6 +63,7 @@ const Navbar = () => {
                 <Link
                   key={link.path}
                   to={link.path}
+                  onClick={(e) => handleProtectedClick(e, link.path)}
                   className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-200 
                     ${isActive(link.path) 
                       ? 'text-primary-600 border-b-2 border-primary-600' 
@@ -51,20 +76,28 @@ const Navbar = () => {
             </div>
           </div>
           <div className="hidden md:flex md:items-center">
-            <Link to="/profile">
-              <Button
-                variant="ghost"
-                className="flex items-center"
-                leftIcon={<User size={18} />}
-              >
-                Profile
-              </Button>
-            </Link>
-            <Link to="/login" className="ml-4">
-              <Button variant="primary">
-                Sign In
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link to="/profile">
+                  <Button
+                    variant="ghost"
+                    className="flex items-center"
+                    leftIcon={<User size={18} />}
+                  >
+                    Profile
+                  </Button>
+                </Link>
+                <Button variant="primary" className="ml-4" onClick={() => { logout(); navigate('/login'); }}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <Link to="/login" className="ml-4">
+                <Button variant="primary">
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
           <div className="flex items-center md:hidden">
             <button 
@@ -86,37 +119,46 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="pt-2 pb-4 space-y-1 bg-white">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`flex items-center pl-3 pr-4 py-3 text-base font-medium ${
-                  isActive(link.path)
-                    ? 'bg-primary-50 text-primary-600 border-l-4 border-primary-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:border-l-4 hover:border-primary-300 hover:text-primary-600'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <span className="mr-3">{link.icon}</span>
-                {link.name}
-              </Link>
-            ))}
+              {navLinks.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  onClick={(e) => {
+                    handleProtectedClick(e, link.path);
+                    setIsMenuOpen(false);
+                  }}
+                  className={`flex items-center pl-3 pr-4 py-3 text-base font-medium ${
+                    isActive(link.path)
+                      ? 'bg-primary-50 text-primary-600 border-l-4 border-primary-600'
+                      : 'text-gray-600 hover:bg-gray-50 hover:border-l-4 hover:border-primary-300 hover:text-primary-600'
+                  }`}
+                >
+                  <span className="mr-3">{link.icon}</span>
+                  {link.name}
+                </Link>
+              ))}
             <hr className="my-2" />
-            <Link
-              to="/profile"
-              className="flex items-center pl-3 pr-4 py-3 text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-l-4 hover:border-primary-300 hover:text-primary-600"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <User size={20} className="mr-3" />
-              Profile
-            </Link>
-            <div className="pt-2 pb-3 px-5">
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to="/profile"
+                  className="flex items-center pl-3 pr-4 py-3 text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-l-4 hover:border-primary-300 hover:text-primary-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <User size={20} className="mr-3" />
+                  Profile
+                </Link>
+                <Button variant="primary" className="w-full" onClick={() => { logout(); navigate('/login'); }}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
               <Link to="/login" onClick={() => setIsMenuOpen(false)}>
                 <Button variant="primary" className="w-full">
                   Sign In
                 </Button>
               </Link>
-            </div>
+            )}
           </div>
         </div>
       )}

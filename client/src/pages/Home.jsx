@@ -16,8 +16,8 @@ const Home = () => {
               Join thousands making a difference through everyday eco-friendly actions. Track, earn points, and see your positive impact on the planet.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 justify-center md:justify-start">
-              <Link to="/register" className="bg-white text-green-700 hover:bg-gray-100 font-semibold text-lg px-8 py-3 rounded-md">
-                Get Started
+              <Link to="/about" className="bg-white text-green-700 hover:bg-gray-100 font-semibold text-lg px-8 py-3 rounded-md">
+                Learn More
               </Link>
               <Link to="/login" className="border border-white text-white hover:bg-green-700 font-medium text-lg px-6 py-3 rounded-md">
                 Sign In

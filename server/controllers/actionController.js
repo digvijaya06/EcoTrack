@@ -1,4 +1,5 @@
 const Action = require('../models/Action');
+const User = require('../models/User');
 
 // Get all actions (user accessible)
 exports.getActions = async (req, res) => {
@@ -26,15 +27,36 @@ exports.getActionById = async (req, res) => {
 // Create new action (user accessible)
 exports.createAction = async (req, res) => {
   try {
-    const action = new Action({
-      ...req.body,
-      user: req.user._id,
+    console.log('Create Action Request Body:', req.body);
+    const { title, category, type, points, notes } = req.body;
+    const userId = req.user.id;
+
+    if (!title || !category || !points) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const newAction = new Action({
+      user: userId,
+      title,
+      category,
+      type,
+      points,
+      notes,
     });
-    await action.save();
-    res.status(201).json(action);
+
+    await newAction.save();
+
+    // Update user points
+    const user = await User.findById(userId);
+    if (user) {
+      user.points += points;
+      await user.save();
+    }
+
+    res.status(201).json(newAction);
   } catch (error) {
     console.error('Create Action Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error while creating action' });
   }
 };
 
@@ -63,5 +85,32 @@ exports.deleteAction = async (req, res) => {
   } catch (error) {
     console.error('Delete Action Error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+// Get available types and categories for dropdowns
+exports.getActionMeta = async (req, res) => {
+  try {
+    const types = [
+      'Tree Plantation',
+      'Bicycle Commute',
+      'Carpool',
+      'Energy Saving',
+      'Water Conservation',
+      'Recycling'
+    ];
+
+    const categories = [
+      'plantation',
+      'transport',
+      'energy',
+      'water',
+      'waste',
+      'food'
+    ];
+
+    res.json({ types, categories });
+  } catch (error) {
+    console.error('Get Meta Error:', error);
+    res.status(500).json({ message: 'Failed to fetch action metadata' });
   }
 };

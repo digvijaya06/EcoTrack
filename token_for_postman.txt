@@ -1,0 +1,24 @@
+To generate a valid JWT token for testing in Postman, you can use the following Node.js script snippet:
+
+```js
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
+
+const userId = 'your_user_id_here'; // Replace with a valid user ID from your database
+const secret = process.env.JWT_SECRET;
+
+const token = jwt.sign({ id: userId }, secret, { expiresIn: '7d' });
+
+console.log('Generated JWT token:', token);
+```
+
+Steps:
+1. Save this snippet in a file, e.g., generateToken.js in your server directory.
+2. Ensure your .env file has the correct JWT_SECRET value.
+3. Replace 'your_user_id_here' with a valid user ID from your database.
+4. Run the script with `node generateToken.js`.
+5. Copy the printed token and use it in Postman Authorization header as `Bearer <token>`.
+
+Alternatively, if you want me to generate a token for you, please provide a valid user ID.
+
+Make sure to restart your server after any environment variable changes.

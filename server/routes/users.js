@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const protect = require('../middleware/authMiddleware');
 const User = require('../models/User');
+const { getBadges } = require('../controllers/userController');
 
 // @route   GET /api/users/me
 // @desc    Get current user profile
@@ -41,5 +42,10 @@ router.put('/me', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// @route   GET /api/users/me/badges
+// @desc    Get current user badges
+// @access  Private
+router.get('/me/badges', protect, getBadges);
 
 module.exports = router;

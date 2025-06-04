@@ -31,3 +31,14 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+exports.getBadges = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('badges');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ badges: user.badges });
+  } catch (error) {
+    console.error('Get Badges Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

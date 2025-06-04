@@ -3,58 +3,74 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-dotenv.config();
+dotenv.config({ path: './server/.env' });
+console.log('Loaded MONGO_URI:', process.env.MONGO_URI);
 const app = express();
 
-
+// ====== JWT SECRET CHECK ======
 if (!process.env.JWT_SECRET) {
   console.warn('Warning: JWT_SECRET is not set. Using default secret for development/testing.');
   process.env.JWT_SECRET = 'default_jwt_secret_key_change_me';
 }
 
-//Middleware
-app.use(cors());
-app.use(express.json());
+// ====== MIDDLEWARE ======
+app.use(cors());                // Enable CORS for frontend
+app.use(express.json());       // Parse JSON bodies
 
-//Routes
+// ====== ROUTES ======
 
+// Admin Routes
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
+// Profile Routes (includes public and private)
+const profileRoutes = require('./routes/profile');
+app.use('/api/profile', profileRoutes); // 🔥 This includes `/api/profile/public`
 
-// API base URL for authentication routes
+// Auth Routes
 const authRoutes = require('./routes/auth');
-app.use('/api/auth',authRoutes);
+app.use('/api/auth', authRoutes);
 
-// API base URL for dashboard routes
-const dashboard= require('./routes/dashboard');
+// User Routes
+const userRoutes = require('./routes/users');
+app.use('/api/users', userRoutes);
+
+// Dashboard Routes
+const dashboard = require('./routes/dashboard');
 app.use('/api', dashboard); 
 
-// API base URL for reward routes
-const reward= require('./routes/reward');
+// Reward Routes
+const reward = require('./routes/reward');
 app.use('/api/rewards', reward); 
 
-// API base URL for action routes
+// Action Routes
 const action = require('./routes/action');
 app.use('/api/actions', action); 
 
-// Error handling middleware
+
+
+// ====== ERROR HANDLING ======
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.stack || err);
   res.status(500).json({ message: 'Internal server error' });
 });
 
- // Start Server
+// ====== DATABASE + SERVER START ======
 const PORT = process.env.PORT || 5000;
 
 console.log('MONGO_URI:', process.env.MONGO_URI);
 
-// Connect DB
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error(err));
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => {
+  console.log("MongoDB connected");
 
-app.get("/", (req, res) => res.send("GreenPoints API Running"));
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+})
+.catch((err) => {
+  console.error('MongoDB connection failed:', err);
+});

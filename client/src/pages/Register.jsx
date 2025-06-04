@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext} from '../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -28,11 +28,11 @@ const Register = () => {
     setAuthError(null);
 
     try {
-      await register(formData.name, formData.email, formData.password);
-      alert('Registration successful! Please login.');
-      navigate('/login');
+      await register(formData.name, formData.username, formData.email, formData.password);
+      alert('Registration successful! Please complete your profile.');
+      navigate('/create-profile'); // 🔁 Redirect to profile creation form
     } catch (err) {
-      // authError is set in context
+      // Error already handled via authError in context
     }
   };
 

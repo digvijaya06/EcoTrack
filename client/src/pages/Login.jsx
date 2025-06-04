@@ -13,7 +13,7 @@ const Login = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = location.state?.from?.pathname || '/dashboard';
+  const redirectTo = location.state?.from?.pathname || '/profile';
 
   // Validation function
   const validate = () => {
@@ -51,7 +51,11 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      await login(formData.email, formData.password); // Ensure this returns success or throws
+      console.log('Attempting login with:', formData.email);
+      await login(formData.email, formData.password);
+      console.log('Login successful, token should be stored');
+
+      // Navigate directly after login success
       navigate(redirectTo, { replace: true });
     } catch (err) {
       console.error("Login error:", err);
@@ -156,7 +160,7 @@ const Login = () => {
         </div>
       </div>
 
-      {/* RIGHT: Image/Info */}
+    
       <div className="hidden lg:block relative w-0 flex-1 bg-green-800">
         <img
           src="https://images.pexels.com/photos/2990647/pexels-photo-2990647.jpeg"

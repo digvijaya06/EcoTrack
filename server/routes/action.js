@@ -11,5 +11,6 @@ router.get('/:id', actionController.getActionById);
 router.post('/', actionController.createAction);
 router.put('/:id', actionController.updateAction);
 router.delete('/:id', actionController.deleteAction);
+router.get('/meta/dropdowns', actionController.getActionMeta);
 
 module.exports = router;

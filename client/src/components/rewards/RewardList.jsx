@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { fetchRewards, deleteReward } from '../../api/rewardActions';
 import RewardForm from './RewardForm';
 import { AuthContext } from '../../context/AuthContext';
+import { Trash2, Edit2, Gift } from 'lucide-react';
 
 const RewardList = () => {
   const { user, token } = useContext(AuthContext);
@@ -49,25 +50,69 @@ const RewardList = () => {
   };
 
   if (!user || !user.isAdmin) {
-    return <p>You do not have permission to view rewards.</p>;
+    return (
+      <div className="text-center mt-10 text-red-600 font-semibold">
+        🔒 You do not have permission to manage rewards.
+      </div>
+    );
   }
 
   return (
-    <div>
-      <h2>Rewards</h2>
-      <button onClick={handleAdd} className="btn btn-primary mb-3">Add Reward</button>
+    <div className="max-w-4xl mx-auto py-8 px-4">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+          <Gift className="mr-2 text-yellow-500" /> Manage Rewards
+        </h2>
+        <button
+          onClick={handleAdd}
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+        >
+          ➕ Add Reward
+        </button>
+      </div>
+
       {showForm && (
-        <RewardForm reward={editingReward} onClose={handleFormClose} />
+        <div className="mb-6">
+          <RewardForm reward={editingReward} onClose={handleFormClose} />
+        </div>
       )}
-      <ul>
-        {rewards.map((reward) => (
-          <li key={reward._id} className="mb-2">
-            <strong>{reward.title}</strong> - {reward.description} - Points Required: {reward.pointsRequired}
-            <button onClick={() => handleEdit(reward)} className="btn btn-sm btn-secondary ml-2">Edit</button>
-            <button onClick={() => handleDelete(reward._id)} className="btn btn-sm btn-danger ml-2">Delete</button>
-          </li>
-        ))}
-      </ul>
+
+      <div className="space-y-4">
+        {rewards.length === 0 ? (
+          <p className="text-gray-500">No rewards added yet.</p>
+        ) : (
+          rewards.map((reward) => (
+            <div
+              key={reward._id}
+              className="bg-white shadow-md p-4 rounded-lg flex justify-between items-center"
+            >
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">{reward.title}</h3>
+                <p className="text-sm text-gray-600">{reward.description}</p>
+                <p className="text-sm text-blue-600 font-semibold mt-1">
+                  🎯 Points Required: {reward.pointsRequired}
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleEdit(reward)}
+                  className="text-blue-600 hover:text-blue-800"
+                  title="Edit"
+                >
+                  <Edit2 size={18} />
+                </button>
+                <button
+                  onClick={() => handleDelete(reward._id)}
+                  className="text-red-600 hover:text-red-800"
+                  title="Delete"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
