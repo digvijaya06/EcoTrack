@@ -7,7 +7,10 @@ const goalSchema = new mongoose.Schema({
   progress: { type: Number, default: 0 },
   target: { type: Number, default: 1 },
   status: { type: String, default: 'In Progress' },
+  deadline: { type: Date, default: null },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  isVerified:{type:Boolean, default:false},
+  verificationNote:{type:String, default: ''},
   progressHistory: [
     {
       value: { type: Number, required: true },

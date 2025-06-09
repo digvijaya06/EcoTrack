@@ -2,7 +2,8 @@ import React, { useState, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Menu, X, Leaf, BarChart2, Calendar, Target,
-  Users, BookOpen, User
+  Users, BookOpen, User,
+  TrendingUp
 } from 'lucide-react';
 import Button from '../ui/Button';
 import { AuthContext } from '../../context/AuthContext';
@@ -30,10 +31,11 @@ const Navbar = () => {
     { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
     { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
     { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
+    {name: 'Analytics', path: '/analytics', icon: <TrendingUp size={20} />},
     { name: 'Community', path: '/community', icon: <Users size={20} /> },
     { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
     { name: 'Contact', path: '/contact', icon: <Leaf size={20} /> },
-    // Show Profile link only if user is NOT authenticated
+    
     ...(!isAuthenticated ? [{ name: 'Profile', path: '/profile', icon: <User size={20} /> }] : []),
     { name: 'About', path: '/about', icon: <Leaf size={20} /> },
   ];

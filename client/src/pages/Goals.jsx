@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import GoalCard from '../components/goals/GoalCard';
+import GoalAnalytics from '../components/goals/GoalAnalytics';
 import { API_URL } from '../config/constants';
 import axios from 'axios';
 import { updateGoal } from '../api/goalService';
+import { AuthContext } from '../context/AuthContext';
 
 const categories = ['ENERGY', 'WATER', 'WASTE', 'TRANSPORTATION', 'FOOD', 'COMMUNITY', 'OTHER'];
 
@@ -14,6 +16,7 @@ const Goals = () => {
     category: 'ENERGY',
     targetValue: '',
     unit: '',
+    deadline: '',
   });
 
   const [filters, setFilters] = useState({
@@ -22,10 +25,19 @@ const Goals = () => {
     showCompleted: true,
   });
 
+  const { updateUser } = useContext(AuthContext);
+
   // Fetch all goals from backend
   const fetchGoals = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/goals`);
+      // Get userId from stored user object in localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user || !user._id) {
+        console.error('User ID not found in localStorage user object');
+        return;
+      }
+      const userId = user._id;
+      const res = await axios.get(`${API_URL}/api/goals/${userId}`);
       setGoals(res.data);
     } catch (err) {
       console.error('Error fetching goals:', err);
@@ -37,14 +49,26 @@ const Goals = () => {
   }, []);
 
   const handleAddGoal = async () => {
-    if (!newGoal.title.trim() || !newGoal.targetValue.trim() || !newGoal.unit.trim()) return;
+    if (!newGoal.title.trim() || !newGoal.targetValue.trim() || !newGoal.unit.trim()) {
+      alert('Please fill in all required fields: Title, Target Value, and Unit.');
+      return;
+    }
 
     try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user || !user._id) {
+        alert('User not logged in. Please login to add goals.');
+        return;
+      }
+      const userId = user._id;
+
       const res = await axios.post(`${API_URL}/api/goals`, {
         ...newGoal,
+        userId,
         currentValue: 0,
         completed: false,
         createdAt: new Date(),
+        deadline: newGoal.deadline ? new Date(newGoal.deadline) : null,
       });
 
       setGoals([res.data, ...goals]);
@@ -54,9 +78,14 @@ const Goals = () => {
         category: 'ENERGY',
         targetValue: '',
         unit: '',
+        deadline: '',
       });
+
+      // Show success popup
+      alert('Goal added successfully!');
     } catch (err) {
       console.error('Error creating goal:', err);
+      alert('Failed to add goal. Please try again.');
     }
   };
 
@@ -101,10 +130,12 @@ const Goals = () => {
   };
 
   const filteredGoals = goals.filter((goal) => {
-    const matchSearch = goal.title.toLowerCase().includes(filters.search.toLowerCase());
+   
     const matchCategory = filters.category === 'all' || goal.category === filters.category;
     const matchCompletion = filters.showCompleted || !goal.completed;
-    return matchSearch && matchCategory && matchCompletion;
+    
+    // return matchSearch && matchCategory && matchCompletion;
+    return matchCategory && matchCompletion;
   });
 
   return (
@@ -140,16 +171,23 @@ const Goals = () => {
           <input
             type="text"
             placeholder="Target value"
-            className="border px-3 py-2 rounded w-1/3"
+            className="border px-3 py-2 rounded w-1/4"
             value={newGoal.targetValue}
             onChange={(e) => setNewGoal({ ...newGoal, targetValue: e.target.value })}
           />
           <input
             type="text"
             placeholder="Unit (e.g., kWh, liters)"
-            className="border px-3 py-2 rounded w-1/3"
+            className="border px-3 py-2 rounded w-1/4"
             value={newGoal.unit}
             onChange={(e) => setNewGoal({ ...newGoal, unit: e.target.value })}
+          />
+          <input
+            type="date"
+            placeholder="Deadline"
+            className="border px-3 py-2 rounded w-1/4"
+            value={newGoal.deadline}
+            onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
           />
           <button
             onClick={handleAddGoal}
@@ -162,13 +200,7 @@ const Goals = () => {
 
       {/* Filters */}
       <div className="bg-white shadow-md p-4 rounded-md mb-6 flex flex-wrap gap-4 items-center">
-        <input
-          type="text"
-          placeholder="Search goals..."
-          className="border px-3 py-2 rounded w-full sm:w-auto flex-grow"
-          value={filters.search}
-          onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-        />
+       
         <select
           value={filters.category}
           onChange={(e) => setFilters({ ...filters, category: e.target.value })}
@@ -199,6 +231,8 @@ const Goals = () => {
           <p className="text-gray-500">No goals match the filter.</p>
         )}
       </div>
+
+      <GoalAnalytics goals={goals} />
     </div>
   );
 };

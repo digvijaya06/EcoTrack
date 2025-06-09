@@ -39,6 +39,10 @@ app.use('/api/users', userRoutes);
 const dashboard = require('./routes/dashboard');
 app.use('/api', dashboard); 
 
+// Goal Routes
+const goalRoutes = require('./routes/goals');
+app.use('/api/goals', goalRoutes);
+
 // Reward Routes
 const reward = require('./routes/reward');
 app.use('/api/rewards', reward); 
@@ -47,8 +51,18 @@ app.use('/api/rewards', reward);
 const action = require('./routes/action');
 app.use('/api/actions', action); 
 
+// Analytics Routes
+const analyticsRoutes = require('./routes/analytics');
+app.use('/api/analytics', analyticsRoutes);
 
+const cron = require('node-cron');
+const {updateUserStreaks} = require ('./utils/streakHelper');
 
+//Run every day at midnight
+cron.schedule('0 0 * * *', () => {
+  console.log('Running daily streak updater...');
+  updateUserStreaks();
+});
 // ====== ERROR HANDLING ======
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err.stack || err);

@@ -19,6 +19,12 @@ const userSchema = new mongoose.Schema({
   points: { type: Number, default: 0 },
   badges: { type: [String], default: [] },
 
+  // Stats
+  stats: {
+    streak: { type: Number, default: 0 },
+    lastActionDate: { type: Date, default: null }
+  },
+
   // Admin and Timestamps
   isAdmin: { type: Boolean, default: false },
   joinedAt: { type: Date, default: Date.now }

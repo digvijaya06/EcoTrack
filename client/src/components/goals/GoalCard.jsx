@@ -7,8 +7,11 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [progressInput, setProgressInput] = useState(goal.currentValue || 0);
 
+  // Parse targetValue as number with fallback to 0
+  const targetValue = Number(goal.targetValue) || 0;
+
   const progressPercentage = Math.min(
-    Math.round((goal.currentValue / goal.targetValue) * 100),
+    Math.round((goal.currentValue / targetValue) * 100),
     100
   );
 
@@ -55,14 +58,30 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
     if (
       !isNaN(numericProgress) &&
       numericProgress >= 0 &&
-      numericProgress <= goal.targetValue
+      (targetValue === 0 || numericProgress <= targetValue)
     ) {
       updateProgress(goal._id, numericProgress);
       closeModal();
     } else {
-      alert(`Please enter a valid number between 0 and ${goal.targetValue}`);
+      alert(
+        targetValue === 0
+          ? 'Please enter a valid non-negative number'
+          : `Please enter a valid number between 0 and ${targetValue}`
+      );
     }
   };
+
+  // Calculate days remaining if deadline exists and goal not completed
+  const calculateDaysRemaining = (deadline) => {
+    if (!deadline) return null;
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    const diffTime = deadlineDate - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 ? diffDays : 0;
+  };
+
+  const daysRemaining = !goal.completed ? calculateDaysRemaining(goal.deadline) : null;
 
   return (
     <>
@@ -88,9 +107,12 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
                 Completed
               </span>
             ) : goal.deadline ? (
-              <span className="inline-flex items-center text-gray-500 text-sm">
+              <span className="inline-flex items-center text-gray-500 text-sm space-x-2">
                 <Clock size={16} className="mr-1" />
-                Due {formatDate(goal.deadline)}
+                <span>Due {formatDate(goal.deadline)}</span>
+                {daysRemaining !== null && (
+                  <span>({daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left)</span>
+                )}
               </span>
             ) : null}
           </div>
@@ -149,7 +171,7 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
             <input
               type="number"
               min="0"
-              max={goal.targetValue}
+              max={targetValue === 0 ? undefined : targetValue}
               value={progressInput}
               onChange={handleProgressChange}
               className="border px-3 py-2 rounded w-full mb-4"

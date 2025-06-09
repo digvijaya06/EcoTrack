@@ -1,263 +1,358 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, User, Mail, MapPin, Award, Edit2, Globe, Check, X } from 'lucide-react';
-import Button from '../components/ui/Button';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/Card';
-import { formatDate } from '../utils/formatterrs';
+import { motion } from 'framer-motion';
+import { 
+  User, 
+  Mail, 
+  Calendar, 
+  MapPin, 
+  Award, 
+  Target, 
+  TrendingUp,
+  Settings,
+  Edit,
+  Camera,
+  Save,
+  X
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import femaleAvatar from '../assets/user-female-svgrepo-com.svg';
-import maleAvatar from '../assets/user-male-alt-svgrepo-com.svg';
-import ProfileForm from '../components/profile/ProfileForm';
 
-const placeholderAvatar = femaleAvatar; // fallback placeholder avatar
+import { fetchUserActions } from '../api/userActions';
 
 const Profile = () => {
-  const { user, updateUser, token } = useAuth();
+  const { user, token, updateUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [actions, setActions] = useState([]);
-
   const [editedUser, setEditedUser] = useState({
     name: '',
+    email: '',
     location: '',
     bio: '',
-    website: '',
-    avatar: '',
-    gender: 'unknown',
+    phone: ''
   });
+  const [actionsCount, setActionsCount] = useState(0);
+  const [recentActivity, setRecentActivity] = useState([]);
 
   useEffect(() => {
     if (user) {
       setEditedUser({
         name: user.name || '',
+        email: user.email || '',
         location: user.location || '',
         bio: user.bio || '',
-        website: user.website || '',
-        avatar: user.avatar || '',
-        gender: user.gender || 'unknown',
+        phone: user.phone || ''
       });
-      setLoading(false);
     }
   }, [user]);
 
   useEffect(() => {
-    const fetchActions = async () => {
+    const fetchActionsCount = async () => {
+      if (!token) return;
       try {
         const response = await axios.get('http://localhost:5000/api/actions', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setActions(response.data);
+        setActionsCount(response.data.length);
       } catch (error) {
-        console.error('Error fetching actions:', error);
+        console.error('Error fetching actions count:', error);
       }
     };
-
-    if (token) {
-      fetchActions();
-    }
+    fetchActionsCount();
   }, [token]);
 
-  const handleSave = async (updatedData) => {
+  useEffect(() => {
+    const loadRecentActivity = async () => {
+      if (!token) return;
+      try {
+        const data = await fetchUserActions();
+        setRecentActivity(data);
+      } catch (error) {
+        console.error('Error fetching recent activity:', error);
+      }
+    };
+    loadRecentActivity();
+  }, [token]);
+
+  const handleSaveProfile = async () => {
     try {
-      const response = await axios.put('http://localhost:5000/api/users/me', updatedData);
+        const response = await axios.put('http://localhost:5000/api/profile', editedUser, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
       updateUser(response.data);
       setIsEditing(false);
     } catch (error) {
-      console.error('Error updating profile:', error);
-      // Optionally show error to user
+      console.error('Error saving profile:', error);
     }
   };
 
-  const handleCancel = () => {
-    if (user) {
-      setEditedUser({
-        name: user.name || '',
-        location: user.location || '',
-        bio: user.bio || '',
-        website: user.website || '',
-        avatar: user.avatar || '',
-        gender: user.gender || 'unknown',
-      });
+  const tabs = [
+    { id: 'overview', name: 'Overview', icon: User },
+    { id: 'achievements', name: 'Achievements', icon: Award },
+    { id: 'settings', name: 'Settings', icon: Settings }
+  ];
+
+  const stats = [
+    { label: 'Total Points', value: user?.totalPoints || 0, icon: Award, color: 'eco' },
+    { label: 'Actions Completed', value: actionsCount, icon: Target, color: 'blue' },
+    { label: 'Days Active', value: '89', icon: Calendar, color: 'purple' },
+    { label: 'Community Rank', value: '#42', icon: TrendingUp, color: 'orange' }
+  ];
+
+  const badges = [
+    { 
+      id: 1, 
+      name: 'Eco Warrior', 
+      description: 'Completed 100+ environmental actions',
+      icon: '🌍',
+      earned: true,
+      rarity: 'Epic'
+    },
+    { 
+      id: 2, 
+      name: 'Carbon Neutral', 
+      description: 'Offset 1 ton of CO₂ emissions',
+      icon: '🌱',
+      earned: true,
+      rarity: 'Rare'
+    },
+    { 
+      id: 3, 
+      name: 'Energy Saver', 
+      description: 'Saved 500kWh of energy',
+      icon: '⚡',
+      earned: false,
+      rarity: 'Common'
+    },
+    { 
+      id: 4, 
+      name: 'Recycling Champion', 
+      description: 'Recycled 1000+ items',
+      icon: '♻️',
+      earned: true,
+      rarity: 'Epic'
+    },
+    { 
+      id: 5, 
+      name: 'Community Leader', 
+      description: 'Led 5+ community challenges',
+      icon: '👥',
+      earned: false,
+      rarity: 'Legendary'
+    },
+    { 
+      id: 6, 
+      name: 'Water Guardian', 
+      description: 'Saved 10,000L of water',
+      icon: '💧',
+      earned: true,
+      rarity: 'Rare'
     }
-    setIsEditing(false);
-  };
-
-  if (loading) {
-    return <div>Loading profile...</div>;
-  }
-
-  const getDefaultAvatar = (gender) => {
-    if (gender === 'female') return femaleAvatar;
-    if (gender === 'male') return maleAvatar;
-    return placeholderAvatar;
-  };
-
-  // Validate avatar URL (basic check)
-  const isValidAvatarUrl = (url) => {
-    if (!url) return false;
-    try {
-      const parsedUrl = new URL(url);
-      return parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
-    } catch {
-      return false;
-    }
-  };
-
-  const avatarToShow = isValidAvatarUrl(editedUser.avatar) ? editedUser.avatar : getDefaultAvatar(editedUser.gender);
+  ];
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="pb-5 border-b border-gray-200 mb-6 flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Profile</h1>
-            <p className="mt-1 text-sm text-gray-500">Manage your account and view your impact</p>
-          </div>
-          {!isEditing && (
-            <div className="mt-4 md:mt-0">
-              <Button
-                variant="primary"
-                leftIcon={<Edit2 size={18} />}
-                onClick={() => setIsEditing(true)}
-              >
-                Edit Profile
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Info */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isEditing ? (
-                  <ProfileForm
-                    initialData={editedUser}
-                    onSave={handleSave}
-                    onCancel={handleCancel}
-                  />
-                ) : (
-                  <div className="flex flex-col md:flex-row md:items-center">
-                    <div className="relative mb-6 md:mb-0 md:mr-8">
-                      <img
-                        src={avatarToShow}
-                        alt={editedUser.name || 'User Avatar'}
-                        className="w-32 h-32 rounded-full object-cover"
+    <div className="min-h-screen bg-gradient-to-br from-eco-50 via-white to-earth-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Profile Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-xl shadow-lg overflow-hidden mb-8"
+        >
+          <div className="h-32 bg-gradient-to-r from-eco-500 to-eco-600"></div>
+          <div className="relative px-6 pb-6">
+            <div className="flex flex-col md:flex-row md:items-end md:space-x-6">
+              <div className="relative -mt-16 mb-4 md:mb-0">
+                <img
+                  src={user?.avatar}
+                  alt={user?.name}
+                  className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
+                />
+                <button className="absolute bottom-2 right-2 w-8 h-8 bg-eco-600 rounded-full flex items-center justify-center text-white hover:bg-eco-700 transition-colors">
+                  <Camera className="w-4 h-4" />
+                </button>
+              </div>
+              
+              <div className="flex-1">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900">{user?.name}</h1>
+                    <p className="text-lg text-eco-600 font-medium">Level {user?.level || 1}</p>
+                    <div className="flex items-center space-x-4 mt-2 text-gray-600">
+                      <div className="flex items-center space-x-1">
+                        <Mail className="w-4 h-4" />
+                        <span className="text-sm">{user?.email}</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
+                        <span className="text-sm">Joined {new Date(user?.joinDate).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-eco-600 text-white rounded-lg hover:bg-eco-700 transition-colors"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    {isEditing ? 'Cancel' : 'Edit Profile'}
+                  </button>
+                </div>
+                {isEditing && (
+                  <div className="mt-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                      <input
+                        type="text"
+                        value={editedUser.name}
+                        onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
                       />
                     </div>
-
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-center">
-                        <User size={18} className="text-gray-400 mr-2" />
-                        <h2 className="text-xl font-semibold text-gray-900">{editedUser.name}</h2>
-                      </div>
-
-                      <div className="flex items-center">
-                        <Mail size={18} className="text-gray-400 mr-2" />
-                        <p className="text-gray-600">{user.email}</p>
-                      </div>
-
-                      <div className="flex items-center">
-                        <MapPin size={18} className="text-gray-400 mr-2" />
-                        <p className="text-gray-600">{editedUser.location}</p>
-                      </div>
-
-                      {editedUser.website && (
-                        <div className="flex items-center">
-                          <Globe size={18} className="text-gray-400 mr-2" />
-                          <a
-                            href={`https://${editedUser.website}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary-600 hover:text-primary-700"
-                          >
-                            {editedUser.website}
-                          </a>
-                        </div>
-                      )}
-
-                      <p className="text-gray-600 mt-4">{editedUser.bio}</p>
-
-                      <p className="text-sm text-gray-500 mt-4">
-                        Joined on {formatDate(user.joinedDate)}
-                      </p>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={editedUser.email}
+                        onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                      <input
+                        type="text"
+                        value={editedUser.location}
+                        onChange={(e) => setEditedUser({ ...editedUser, location: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                      <textarea
+                        value={editedUser.bio}
+                        onChange={(e) => setEditedUser({ ...editedUser, bio: e.target.value })}
+                        rows="3"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                      <input
+                        type="text"
+                        value={editedUser.phone}
+                        onChange={(e) => setEditedUser({ ...editedUser, phone: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
+                      />
+                    </div>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={handleSaveProfile}
+                        className="flex-1 bg-eco-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-eco-700 transition-colors"
+                      >
+                        <Save className="w-4 h-4 inline mr-2" />
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setIsEditing(false)}
+                        className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                      >
+                        <X className="w-4 h-4 inline mr-2" />
+                        Cancel
+                      </button>
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
-
-            {/* Achievements */}
-            <Card className="mt-8">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Award size={20} className="mr-2 text-primary-600" />
-                  Achievements & Badges
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  {user.badges && user.badges.map((badge) => (
-                    <div
-                      key={badge.id}
-                      className="bg-gray-50 rounded-lg p-4 text-center hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="text-4xl mb-2">{badge.icon}</div>
-                      <h3 className="font-semibold text-gray-900">{badge.name}</h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Earned on {formatDate(badge.earnedDate)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Actions Logged */}
-            {/* Removed from Profile page to keep it clean as per feedback */}
-            {/* The detailed actions list will be shown on /actions page */}
+              </div>
+            </div>
           </div>
 
-          {/* Stats */}
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Impact Stats</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="bg-primary-50 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Actions Logged</h3>
-                  <p className="text-4xl font-bold text-primary-600">{actions.length}</p>
-                  <p className="text-sm text-gray-600 mt-1">Eco-friendly activities tracked</p>
-                  <button
-                    onClick={() => window.location.href = '/actions'}
-                    className="mt-2 text-primary-600 hover:underline font-semibold"
-                  >
-                    View Actions
-                  </button>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white rounded-xl p-6 shadow-lg text-center"
+              >
+                <div className={`w-12 h-12 bg-${stat.color}-100 rounded-lg flex items-center justify-center mx-auto mb-3`}>
+                  <Icon className={`w-6 h-6 text-${stat.color}-600`} />
                 </div>
+                <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
+                <div className="text-sm text-gray-600">{stat.label}</div>
+              </motion.div>
+            );
+          })}
+        </div>
 
-                  <div className="bg-secondary-50 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">CO2 Saved</h3>
-                    <p className="text-4xl font-bold text-secondary-600">{user.stats?.co2Saved || 0} kg</p>
-                    <p className="text-sm text-gray-600 mt-1">Equivalent to planting 7 trees</p>
-                  </div>
-
-                  <div className="bg-accent-50 rounded-lg p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Goals Completed</h3>
-                    <p className="text-4xl font-bold text-accent-600">{user.stats?.completedGoals || 0}</p>
-                    <p className="text-sm text-gray-600 mt-1">Sustainability targets achieved</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Badges Section */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Achievements & Badges</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            {badges.map((badge) => (
+              <div
+                key={badge.id}
+                className={`p-4 rounded-lg text-center cursor-default ${
+                  badge.earned ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-400'
+                }`}
+                title={`${badge.name} - ${badge.description}`}
+              >
+                <div className="text-3xl mb-2">{badge.icon}</div>
+                <div className="font-semibold">{badge.name}</div>
+                <div className="text-xs">{badge.rarity}</div>
+              </div>
+            ))}
           </div>
         </div>
+
+        {/* Main Content Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recent Activity */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+            <ul className="space-y-3">
+              {recentActivity.length === 0 ? (
+                <li className="text-center text-gray-500">No recent activity found.</li>
+              ) : (
+                recentActivity.map((activity, idx) => (
+                  <li
+                    key={idx}
+                    className="border border-gray-200 rounded-lg p-4 flex justify-between items-center"
+                  >
+                    <div>
+                      <div className="font-semibold">{activity.title || activity.action}</div>
+                      <div className="text-xs text-gray-500">{new Date(activity.date).toLocaleDateString()}</div>
+                    </div>
+                    <div className="text-green-600 font-semibold">+{activity.points}</div>
+                  </li>
+                ))
+              )}
+            </ul>
+          </div>
+
+          {/* Profile Information */}
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
+            <div className="space-y-3 text-gray-700">
+              <div className="flex items-center space-x-2">
+                <MapPin className="w-5 h-5 text-gray-400" />
+                    <span>{user?.location || 'No location set'}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <User className="w-5 h-5 text-gray-400" />
+                    <span>{user?.bio || 'No bio available'}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Mail className="w-5 h-5 text-gray-400" />
+                    <span>{user?.phone || 'No phone number set'}</span>
+                  </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
       </div>
     </div>
   );

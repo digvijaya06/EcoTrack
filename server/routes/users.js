@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const protect = require('../middleware/authMiddleware');
 const User = require('../models/User');
-const { getBadges } = require('../controllers/userController');
+const { getBadges, getAchievements } = require('../controllers/userController');
 
 // @route   GET /api/users/me
 // @desc    Get current user profile
@@ -47,5 +47,10 @@ router.put('/me', protect, async (req, res) => {
 // @desc    Get current user badges
 // @access  Private
 router.get('/me/badges', protect, getBadges);
+
+// @route   GET /api/users/me/achievements
+// @desc    Get current user achievements
+// @access  Private
+router.get('/me/achievements', protect, getAchievements);
 
 module.exports = router;

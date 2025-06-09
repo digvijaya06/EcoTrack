@@ -28,12 +28,24 @@ exports.getActionById = async (req, res) => {
 exports.createAction = async (req, res) => {
   try {
     console.log('Create Action Request Body:', req.body);
-    const { title, category, type, points, notes } = req.body;
+    const { title, category, type, notes } = req.body;
     const userId = req.user.id;
 
-    if (!title || !category || !points) {
+    if (!title || !category || !type) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
+
+    // Points mapping based on action type
+    const pointsMapping = {
+      'Tree Plantation': 20,
+      'Bicycle Commute': 10,
+      'Carpool': 15,
+      'Energy Saving': 5,
+      'Water Conservation': 5,
+      'Recycling': 10
+    };
+
+    const points = pointsMapping[type] || 0;
 
     const newAction = new Action({
       user: userId,
@@ -112,5 +124,44 @@ exports.getActionMeta = async (req, res) => {
   } catch (error) {
     console.error('Get Meta Error:', error);
     res.status(500).json({ message: 'Failed to fetch action metadata' });
+  }
+};
+
+// GET /api/actions/stats/categories
+// Returns count of actions grouped by category for pie chart
+exports.getStatsByCategory = async (req, res) => {
+  try {
+    const stats = await Action.aggregate([
+      { $match: { user: req.user._id } },
+      { $group: { _id: '$category', count: { $sum: 1 } } }
+    ]);
+    res.json(stats);
+  } catch (error) {
+    console.error('Get Stats By Category Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// GET /api/actions/stats/weekly
+// Returns count of actions grouped by week for bar chart
+exports.getStatsWeekly = async (req, res) => {
+  try {
+    const stats = await Action.aggregate([
+      { $match: { user: req.user._id } },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            week: { $isoWeek: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.year': 1, '_id.week': 1 } }
+    ]);
+    res.json(stats);
+  } catch (error) {
+    console.error('Get Stats Weekly Error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

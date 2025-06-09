@@ -1,100 +1,365 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Filter, Search, Calendar } from 'lucide-react';
-
-import ActionCard from '../components/actions/ActionCard';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
-import Button from '../components/ui/Button';
-
-// import your backend API utility 
-import axios from 'axios';
+import { motion } from 'framer-motion';
+import { 
+  Plus, 
+  Search, 
+  Calendar,
+  MapPin,
+  Trash2,
+  Edit,
+  CheckCircle,
+} from 'lucide-react';
+import { useUser } from '../context/UserContext';
+import { fetchUserActions, addAction, deleteAction } from '../api/userActions';
 
 const Actions = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const { user, updatePoints } = useUser();
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [actionsData, setActionsData] = useState([]);
-  
-  // Fetch actions from backend on component mount
+  const [showAddAction, setShowAddAction] = useState(false);
+  const [actions, setActions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const categories = [
+    { id: 'all', name: 'All Actions', icon: CheckCircle, color: 'gray' },
+    { id: 'recycling', name: 'Recycling', icon: CheckCircle, color: 'eco' },
+    { id: 'energy', name: 'Energy', icon: CheckCircle, color: 'yellow' },
+    { id: 'transportation', name: 'Transport', icon: CheckCircle, color: 'blue' },
+    { id: 'water', name: 'Water', icon: CheckCircle, color: 'cyan' },
+    { id: 'nature', name: 'Nature', icon: CheckCircle, color: 'green' },
+    { id: 'home', name: 'Home', icon: CheckCircle, color: 'purple' }
+  ];
+
+  const types = [
+    'Tree Plantation',
+    'Bicycle Commute',
+    'Carpool',
+    'Energy Saving',
+    'Water Conservation',
+    'Recycling'
+  ];
+
+  const [newAction, setNewAction] = useState({
+    title: '',
+    category: 'recycling',
+    type: types[0],
+    notes: ''
+  });
+
   useEffect(() => {
-    const fetchActions = async () => {
+    const loadActions = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
-        const response = await axios.get('/api/actions'); 
-        console.log('API Response:', response.data);
-        if (Array.isArray(response.data)) {
-          setActionsData(response.data);
-        } else if (response.data && Array.isArray(response.data.actions)) {
-          setActionsData(response.data.actions);
-        } else {
-          console.warn('Unexpected API response format for actions:', response.data);
-          setActionsData([]);
-        }
+        const data = await fetchUserActions();
+        setActions(data);
       } catch (error) {
-        console.error('Error fetching actions:', error);
+        console.error('Failed to fetch user actions:', error);
+      } finally {
+        setLoading(false);
       }
     };
+    loadActions();
+  }, [user]);
 
-    fetchActions();
-  }, []);
-
-  // Filtering Logic
-  const filteredActions = actionsData.filter(action => {
-    const matchesSearch =
-      action.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      action.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesCategory =
-      selectedCategory === 'all' || action.category === selectedCategory;
-
+  const filteredActions = actions.filter(action => {
+    const matchesSearch = action.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         action.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || action.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
+  const handleAddAction = async (e) => {
+    e.preventDefault();
+    // Create a copy of newAction without points field
+    const actionToAdd = {
+      title: newAction.title,
+      category: newAction.category,
+      type: newAction.type,
+      notes: newAction.notes
+    };
+    console.log('handleAddAction called with newAction:', actionToAdd);
+    try {
+      const addedAction = await addAction(actionToAdd);
+      console.log('Action added:', addedAction);
+      setActions([addedAction, ...actions]);
+      updatePoints(addedAction.points || 0);
+      setNewAction({
+        title: '',
+        category: 'recycling',
+        type: types[0],
+        notes: ''
+      });
+      setTimeout(() => setShowAddAction(false), 100);
+    } catch (error) {
+      console.error('Failed to add action:', error);
+    }
+  };
+
+  const handleDeleteAction = async (id) => {
+    try {
+      await deleteAction(id);
+      setActions(actions.filter(action => action.id !== id));
+    } catch (error) {
+      console.error('Failed to delete action:', error);
+    }
+  };
+
+  const getCategoryColor = (category) => {
+    const cat = categories.find(c => c.id === category);
+    return cat ? cat.color : 'gray';
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading actions...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Please log in to view and add your actions.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gray-50 min-h-screen pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Log Actions</h1>
-          <Button variant="primary" leftIcon={<Plus />}>
+    <div className="min-h-screen bg-gradient-to-br from-eco-50 via-white to-earth-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
+        >
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Environmental Actions</h1>
+            <p className="text-gray-600">Track and manage your eco-friendly activities</p>
+          </div>
+          <button
+            onClick={() => setShowAddAction(true)}
+            className="mt-4 md:mt-0 inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+          >
+            <Plus className="w-5 h-5 mr-2" />
             Add Action
-          </Button>
-        </div>
-        <div className="flex flex-col sm:flex-row sm:space-x-4 mb-6">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <Filter className="h-4 w-4 text-gray-500 mr-2" />
-            <select
-              className="input-field"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-            >
-              <option value="all">All Categories</option>
-              <option value="energy">Energy</option>
-              <option value="transportation">Transportation</option>
-              <option value="waste">Waste</option>
-              <option value="water">Water</option>
-             
-             
-            </select>
-          </div>
-          <div className="relative rounded-md shadow-sm flex-1">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400" />
+          </button>
+        </motion.div>
+
+        {/* Filters */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-xl p-6 shadow-lg mb-8"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search actions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500 focus:border-transparent"
+              />
             </div>
-            <input
-              type="text"
-              className="input-field pl-10"
-              placeholder="Search actions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+
+            {/* Category Filter */}
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={
+                    selectedCategory === category.id
+                      ? 'inline-flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 bg-' + category.color + '-100 text-' + category.color + '-700 border-2 border-' + category.color + '-300'
+                      : 'inline-flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 bg-gray-100 text-gray-600 hover:bg-gray-200 border-2 border-transparent'
+                  }
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  {category.name}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="space-y-4">
-          {filteredActions.length > 0 ? (
-            filteredActions.map((action) => (
-              <ActionCard key={action.id} action={action} />
-            ))
+        </motion.div>
+
+        {/* Actions Grid */}
+        <div className="grid gap-6">
+          {filteredActions.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center py-12"
+            >
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search className="w-12 h-12 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No actions found</h3>
+              <p className="text-gray-600">Try adjusting your search or filters</p>
+            </motion.div>
           ) : (
-            <p className="text-gray-500">No actions found.</p>
+            filteredActions.map((action, index) => {
+              const color = getCategoryColor(action.category);
+              return (
+                <motion.div
+                  key={action._id || action.id || index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start space-x-4">
+                      <div className={'w-12 h-12 bg-' + color + '-100 rounded-lg flex items-center justify-center flex-shrink-0'}>
+                        <CheckCircle className={'w-6 h-6 text-' + color + '-600'} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">{action.title}</h3>
+                        </div>
+                        <p className="text-gray-600 mb-3">{action.description}</p>
+                        <div className="flex items-center space-x-6 text-sm text-gray-500">
+                          <div className="flex items-center space-x-1">
+                            <Calendar className="w-4 h-4" />
+                            <span>{new Date(action.date).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <MapPin className="w-4 h-4" />
+                            <span>{action.location}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-eco-600">+{action.points}</div>
+                        <div className="text-sm text-gray-500">points</div>
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteAction(action.id)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })
           )}
         </div>
+
+        {/* Add Action Modal */}
+        {showAddAction && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Add New Action</h2>
+                <button
+                  onClick={() => setShowAddAction(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form onSubmit={handleAddAction} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Action Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newAction.title}
+                    onChange={(e) => setNewAction({ ...newAction, title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
+                    placeholder="e.g., Recycled plastic bottles"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Category
+                  </label>
+                  <select
+                    value={newAction.category}
+                    onChange={(e) => setNewAction({ ...newAction, category: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
+                  >
+                    {categories.slice(1).map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Notes
+                  </label>
+                  <textarea
+                    value={newAction.notes}
+                    onChange={(e) => setNewAction({ ...newAction, notes: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
+                    rows="3"
+                    placeholder="Additional details about your action..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Type
+                  </label>
+                  <select
+                    value={newAction.type}
+                    onChange={(e) => setNewAction({ ...newAction, type: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
+                  >
+                    {types.map((typeOption) => (
+                      <option key={typeOption} value={typeOption}>
+                        {typeOption}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-primary-600 to-primary-700 text-white py-2 px-4 rounded-lg font-medium hover:from-primary-700 hover:to-primary-800 transition-all duration-200"
+                  >
+                    Add Action
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddAction(false)}
+                    className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );
