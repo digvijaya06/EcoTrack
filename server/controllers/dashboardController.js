@@ -58,13 +58,17 @@ exports.getDashboardStats = async (req, res) => {
     const streak = calculateStreak(actionDates);
     const totalPoints = calculatePoints(actions);
 
+    // Aggregate total CO2 saved
+    const totalCo2Saved = actions.reduce((acc, curr) => acc + (curr.co2Saved || 0), 0);
+
     res.json({
       recentActions,
       actionsByCategory: categoryStats,
       streak,
       actionsCount: actions.length,
       totalPoints,
-      weeklyProgress
+      weeklyProgress,
+      co2Saved: totalCo2Saved
     });
   } catch (err) {
     console.error('Dashboard Error:', err);

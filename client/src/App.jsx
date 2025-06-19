@@ -20,11 +20,15 @@ import About from './pages/About';
 import VisitorProfiles from './pages/VisitorProfiles';
 import Actions from './pages/Actions';  // Updated import to Actions page
 import Analytics from './pages/Analytics';
+import BlogDetails from './pages/BlogDetails';
 
 // Lazy-loaded components
 const Contact = lazy(() => import('./pages/Contact'));
 const Careers = lazy(() => import('./pages/Careers'));
 const Blog = lazy(() => import('./pages/Blog'));
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
+const TermsOfService = lazy(() => import('./pages/TermsOfService'));
+const CookiePolicy = lazy(() => import('./pages/CookiePolicy'));
 
 // Roles
 const ROLES = {
@@ -49,6 +53,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogDetails />} />
             <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered, ROLES.Admin]} />}>
               <Route path="/log-action" element={<Actions />} />
             </Route>
@@ -65,13 +70,19 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered, ROLES.Admin]} />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/goals" element={<Goals />} />
-              <Route path="/community" element={<Community />} />
               <Route path="/actions" element={<ActionsList />} />
               <Route path="/leaderboard" element={<LeaderboardTable />} />
             </Route>
+            {/* Public Community Route */}
+            <Route path="/community" element={<Community />} />
 
             <Route path="/404" element={<NotFound />} />
             <Route path="*" element={<Navigate to="/404" replace />} />
+
+            {/* Legal Pages */}
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
           </Route>
         </Routes>
       </Suspense>

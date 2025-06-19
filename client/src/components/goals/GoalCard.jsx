@@ -1,19 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Target, Clock, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardFooter } from "../ui/Card";
 import { formatDate } from "../../utils/formatterrs";
+import { AuthContext } from "../../context/AuthContext";
 
 const GoalCard = ({ goal, onClick, updateProgress }) => {
+  const { user } = useContext(AuthContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [progressInput, setProgressInput] = useState(goal.currentValue || 0);
+  const [progressInput, setProgressInput] = useState(goal.progress || 0);
 
-  // Parse targetValue as number with fallback to 0
-  const targetValue = Number(goal.targetValue) || 0;
+  useEffect(() => {
+    setProgressInput(goal.progress || 0);
+  }, [goal.progress]);
 
-  const progressPercentage = Math.min(
-    Math.round((goal.currentValue / targetValue) * 100),
-    100
-  );
+  
+  const target = Number(goal.target) || 0;
+
+  const progressPercentage =
+    target > 0 && !isNaN(goal.progress)
+      ? Math.min(Math.round((goal.progress / target) * 100), 100)
+      : 0;
 
   const getCategoryColor = (category) => {
     switch (category) {
@@ -57,16 +63,15 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
     const numericProgress = Number(progressInput);
     if (
       !isNaN(numericProgress) &&
-      numericProgress >= 0 &&
-      (targetValue === 0 || numericProgress <= targetValue)
+      numericProgress >= 0
     ) {
       updateProgress(goal._id, numericProgress);
       closeModal();
     } else {
       alert(
-        targetValue === 0
+        target === 0
           ? 'Please enter a valid non-negative number'
-          : `Please enter a valid number between 0 and ${targetValue}`
+          : `Please enter a valid number greater than or equal to 0`
       );
     }
   };
@@ -129,33 +134,39 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
               <span className="text-sm font-medium text-gray-700">{progressPercentage}%</span>
             </div>
 
-            <div className="w-full bg-gray-200 rounded-full h-2.5">
-              <div
-                className={`h-2.5 rounded-full ${getProgressColor(progressPercentage)}`}
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
-            </div>
-
-            <div className="flex justify-between mt-2 text-sm text-gray-600">
-              <span>
-                {goal.currentValue} {goal.unit}
-              </span>
-              <span>
-                Target: {goal.targetValue} {goal.unit}
-              </span>
-            </div>
+          <div className="w-full bg-gray-200 rounded-full h-2.5" title={user && !user.isAdmin ? "Progress is verified by the platform admin after review of your actions." : ""}>
+            <div
+              className={`h-2.5 rounded-full ${getProgressColor(progressPercentage)}`}
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
           </div>
-        </CardContent>
 
+          <div className="flex justify-between mt-2 text-sm text-gray-600">
+            <span>
+              {goal.progress} {goal.unit}
+            </span>
+            <span>
+              Target: {goal.target} {goal.unit}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+
+      {user && user.isAdmin ? (
         <CardFooter className="px-6 py-3 bg-gray-50 text-xs text-gray-500 flex justify-between items-center">
           Created on {formatDate(goal.createdAt)}
           <button
             onClick={openModal}
-            className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs"
+            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs"
           >
             Update Progress
           </button>
         </CardFooter>
+      ) : (
+        <CardFooter className="px-6 py-3 bg-gray-50 text-xs text-gray-500 flex justify-between items-center">
+          Created on {formatDate(goal.createdAt)}
+        </CardFooter>
+      )}
       </Card>
 
       {isModalOpen && (
@@ -171,7 +182,7 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
             <input
               type="number"
               min="0"
-              max={targetValue === 0 ? undefined : targetValue}
+              max={target === 0 ? undefined : target}
               value={progressInput}
               onChange={handleProgressChange}
               className="border px-3 py-2 rounded w-full mb-4"
@@ -185,7 +196,7 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
               </button>
               <button
                 onClick={handleSubmit}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               >
                 Save
               </button>

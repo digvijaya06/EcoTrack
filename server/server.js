@@ -23,10 +23,21 @@ app.use(express.json());       // Parse JSON bodies
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
+const blogRoutes = require('./routes/blog');
+const communityRoutes = require('./routes/community');
+const contactRoutes = require('./routes/contact');
+const applicationRoutes = require('./routes/application');
+const leaderboardRoutes = require('./routes/leaderboard');
+
+app.use('/api/blogs', blogRoutes);
+app.use('/api/community', communityRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
+
 // Profile Routes (includes public and private)
 const profileRoutes = require('./routes/profile');
-app.use('/api/profile', profileRoutes); // 🔥 This includes `/api/profile/public`
-
+app.use('/api/profile', profileRoutes); 
 // Auth Routes
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
@@ -54,6 +65,10 @@ app.use('/api/actions', action);
 // Analytics Routes
 const analyticsRoutes = require('./routes/analytics');
 app.use('/api/analytics', analyticsRoutes);
+
+// Public Routes
+const publicRoutes = require('./routes/public');
+app.use('/api', publicRoutes);
 
 const cron = require('node-cron');
 const {updateUserStreaks} = require ('./utils/streakHelper');

@@ -6,6 +6,7 @@ const actionSchema = new mongoose.Schema({
   type: String,  // Action type like "Tree Plantation"
   category: { type: String, required: true }, // like "e-waste", "transport", etc.
   points: { type: Number, required: true },
+  co2Saved: { type: Number, default: 0 },  // CO2 saved in kg
   notes: { type: String },
   createdAt: { type: Date, default: Date.now }
 });

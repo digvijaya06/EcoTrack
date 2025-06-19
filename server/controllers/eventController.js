@@ -58,3 +58,14 @@ exports.deleteEvent = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+// Public method to get all events
+exports.getEventsPublic = async (req, res) => {
+  try {
+    const events = await Event.find();
+    res.json(events);
+  } catch (error) {
+    console.error('Get Public Events Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

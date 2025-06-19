@@ -17,11 +17,11 @@ const LeaderboardTable= () => {
     const fetchLeaderboard = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/leaderboard?timeframe=${timeframe}`);
-        setUsers(response.data.users);
+        setUsers(response.data);
       } catch (error) {
         console.error('Error fetching leaderboard:', error);
        
-        
+       
         // Demo data
         setUsers([
           { id: 1, rank: 1, name: 'Jane Cooper', points: 2430, avatar: null },

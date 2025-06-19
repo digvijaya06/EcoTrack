@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const response = await axios.get(`${API_URL}/api/users/me`);
+      console.log('refreshUser response:', response.data);
       setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {

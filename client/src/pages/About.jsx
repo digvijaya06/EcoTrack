@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import CountUp from 'react-countup';
 import { Leaf, ArrowRight, Users, Globe, Activity, CheckCircle2, Award, BookOpen } from 'lucide-react';
 
 const About = () => {
@@ -21,7 +22,7 @@ const About = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Hero Section */}
       <motion.section 
         variants={containerVariants}
@@ -29,16 +30,10 @@ const About = () => {
         animate="visible"
         className="mb-16"
       >
-        <motion.div variants={itemVariants} className="text-center mb-10">
-          <div className="inline-flex items-center justify-center mb-4">
-            <Leaf className="h-12 w-12 text-primary-500" />
-           <span className="ml-2 text-5xl font-display font-extrabold bg-gradient-to-r from-green-400 via-emerald-500 to-lime-400 bg-clip-text text-transparent drop-shadow-lg tracking-wide">
-  GreenPoint
-</span>
-
-          </div>
-          <h1 className="text-3xl md:text-4xl font-display font-bold text-neutral-900 mb-4">
-            Making Sustainable Living <span className="text-primary-600">Measurable & Rewarding</span>
+        <motion.div variants={itemVariants} className="text-center mb-15 mt-5">
+         
+          <h1 className="text-4xl md:text-4xl font-display font-bold text-green-600 mb-5">
+            Making Sustainable Living <span className="text-green-600">Measurable & Rewarding</span>
           </h1>
           <p className="text-lg text-neutral-600 max-w-3xl mx-auto">
             GreenPoint helps you track and measure your environmental impact through everyday sustainable actions, 
@@ -97,9 +92,11 @@ const About = () => {
           {/* Step 1 */}
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100"
+            whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
           >
-            <div className="w-12 h-12 flex items-center justify-center bg-primary-100 text-primary-600 rounded-full mb-4">
+            <div className="w-12 h-12 flex items-center justify-center bg-primary-100 text-green-600 rounded-full mb-4">
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900 mb-2">Track Actions</h3>
@@ -108,15 +105,15 @@ const About = () => {
             </p>
             <ul className="space-y-2 text-neutral-700">
               <li className="flex items-start">
-                <span className="mr-2 text-primary-500">•</span>
+                <span className="mr-2 text-green-500">•</span>
                 Daily, weekly, and one-time actions
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-primary-500">•</span>
+                <span className="mr-2 text-green-500">•</span>
                 Various difficulty levels
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-primary-500">•</span>
+                <span className="mr-2 text-green-500">•</span>
                 Earn points for each completed action
               </li>
             </ul>
@@ -125,7 +122,9 @@ const About = () => {
           {/* Step 2 */}
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100"
+            whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
           >
             <div className="w-12 h-12 flex items-center justify-center bg-secondary-100 text-secondary-600 rounded-full mb-4">
               <Activity className="h-6 w-6" />
@@ -157,7 +156,9 @@ const About = () => {
           {/* Step 3 */}
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100"
+            whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
           >
             <div className="w-12 h-12 flex items-center justify-center bg-accent-100 text-accent-600 rounded-full mb-4">
               <Award className="h-6 w-6" />
@@ -188,48 +189,6 @@ const About = () => {
         </div>
       </motion.section>
 
-      {/* Impact Section */}
-      <motion.section 
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="mb-16"
-      >
-        <motion.div variants={itemVariants} className="text-center mb-10">
-          <h2 className="text-3xl font-display font-bold text-neutral-900 mb-4">
-            Our Collective Impact
-          </h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mx-auto">
-            Together, GreenPoint users are making a significant difference
-          </p>
-        </motion.div>
-
-        <motion.div 
-          variants={itemVariants}
-          className="bg-primary-600 text-white rounded-xl shadow-md p-8"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <h3 className="text-3xl font-bold mb-2">5,000+</h3>
-              <p className="text-primary-100">Active Users</p>
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold mb-2">250,000+</h3>
-              <p className="text-primary-100">Actions Completed</p>
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold mb-2">125,000 kg</h3>
-              <p className="text-primary-100">CO2 Saved</p>
-            </div>
-            <div>
-              <h3 className="text-3xl font-bold mb-2">1.5M L</h3>
-              <p className="text-primary-100">Water Conserved</p>
-            </div>
-          </div>
-        </motion.div>
-      </motion.section>
-
       {/* Team Section */}
       <motion.section 
         variants={containerVariants}
@@ -251,7 +210,9 @@ const About = () => {
           {/* Team Member 1 */}
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center"
+            whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
           >
             <div className="w-24 h-24 rounded-full bg-neutral-200 mx-auto mb-4 overflow-hidden">
               <img 
@@ -260,8 +221,8 @@ const About = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <h3 className="text-xl font-semibold text-neutral-900">Sarah Johnson</h3>
-            <p className="text-primary-600 mb-3">Founder & CEO</p>
+            <h3 className="text-xl font-semibold text-neutral-900">Nakul Choubisa</h3>
+            <p className="text-green-600 mb-3">Founder & CEO</p>
             <p className="text-neutral-600 mb-4">
               Environmental scientist with 10+ years of experience in sustainability initiatives.
             </p>
@@ -270,7 +231,9 @@ const About = () => {
           {/* Team Member 2 */}
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center"
+            whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
           >
             <div className="w-24 h-24 rounded-full bg-neutral-200 mx-auto mb-4 overflow-hidden">
               <img 
@@ -280,7 +243,7 @@ const About = () => {
               />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900">Michael Chen</h3>
-            <p className="text-primary-600 mb-3">CTO</p>
+            <p className="text-green-600 mb-3">CTO</p>
             <p className="text-neutral-600 mb-4">
               Software engineer with expertise in building ethical tech solutions for environmental challenges.
             </p>
@@ -289,7 +252,9 @@ const About = () => {
           {/* Team Member 3 */}
           <motion.div 
             variants={itemVariants}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center"
+            whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
+            transition={{ type: "spring", stiffness: 300 }}
+            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
           >
             <div className="w-24 h-24 rounded-full bg-neutral-200 mx-auto mb-4 overflow-hidden">
               <img 
@@ -298,8 +263,8 @@ const About = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            <h3 className="text-xl font-semibold text-neutral-900">Emma Rodriguez</h3>
-            <p className="text-primary-600 mb-3">Head of Content</p>
+            <h3 className="text-xl font-semibold text-neutral-900">Misthi Shah</h3>
+            <p className="text-green-600 mb-3">Head of Content</p>
             <p className="text-neutral-600 mb-4">
               Environmental educator specializing in engaging sustainability content and community building.
             </p>
@@ -386,7 +351,7 @@ const About = () => {
       >
         <motion.div 
           variants={itemVariants}
-          className="bg-gradient-to-r from-primary-600 to-secondary-600 rounded-xl text-white p-10 text-center"
+          className="bg-gradient-to-r from-green-600 to-secondary-600 rounded-xl text-white p-10 text-center"
         >
           <h2 className="text-3xl font-display font-bold mb-4">
             Ready to Make a Difference?
@@ -398,7 +363,7 @@ const About = () => {
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link
               to="/register"
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-white hover:bg-primary-50 transition-colors shadow-md"
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-green-700 bg-white hover:bg-primary-50 transition-colors shadow-md"
             >
               Get Started
               <ArrowRight className="ml-2 h-5 w-5" />

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import ActionForm from '../components/actions/ActionForm';
+import { API_URL } from '../config/constants';
 
 const LogAction = () => {
   const { token } = useContext(AuthContext);
@@ -21,20 +22,23 @@ const LogAction = () => {
 
     try {
       setLoading(true);
-      // Use user-entered title instead of type for backend
+      // Prepare payload as per backend expectations
       const payload = {
-        ...formData,
         title: formData.title,
+        content: formData.notes,
+        tags: formData.category ? [formData.category.toLowerCase()] : []
       };
-      await axios.post('http://localhost:5000/api/actions', payload, {
+      const response = await axios.post(`${API_URL}/api/actions`, payload, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Action logged successfully!');
+      setLoading(false);
+      // Close form automatically after success
       navigate('/dashboard');
     } catch (err) {
-      console.error(err);
-      alert('Failed to log action.');
-    } finally {
+      console.error('Failed to add action:', err);
+      const message = err.response?.data?.message || 'Failed to log action.';
+      alert(message);
       setLoading(false);
     }
   };

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  User, 
-  Mail, 
-  Calendar, 
-  MapPin, 
-  Award, 
-  Target, 
+import Button from '../components/ui/Button';
+import {
+  User,
+  Mail,
+  Calendar,
+  MapPin,
+  Award,
+  Target,
   TrendingUp,
   Settings,
   Edit,
@@ -16,13 +17,20 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-
 import { fetchUserActions } from '../api/userActions';
+import ProfileForm from '../components/profile/ProfileForm';
 
 const Profile = () => {
   const { user, token, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
+
+  
+  React.useEffect(() => {
+    if (user && (!user.avatar || user.avatar === '' || !user.bio || user.bio === '')) {
+      setIsEditing(false);
+    }
+  }, [user]);
   const [editedUser, setEditedUser] = useState({
     name: '',
     email: '',
@@ -65,25 +73,17 @@ const Profile = () => {
       if (!token) return;
       try {
         const data = await fetchUserActions();
-        setRecentActivity(data);
+        const mappedData = data.map(item => ({
+          ...item,
+          date: item.createdAt
+        }));
+        setRecentActivity(mappedData);
       } catch (error) {
         console.error('Error fetching recent activity:', error);
       }
     };
     loadRecentActivity();
   }, [token]);
-
-  const handleSaveProfile = async () => {
-    try {
-        const response = await axios.put('http://localhost:5000/api/profile', editedUser, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      updateUser(response.data);
-      setIsEditing(false);
-    } catch (error) {
-      console.error('Error saving profile:', error);
-    }
-  };
 
   const tabs = [
     { id: 'overview', name: 'Overview', icon: User },
@@ -99,260 +99,229 @@ const Profile = () => {
   ];
 
   const badges = [
-    { 
-      id: 1, 
-      name: 'Eco Warrior', 
-      description: 'Completed 100+ environmental actions',
-      icon: '🌍',
-      earned: true,
-      rarity: 'Epic'
-    },
-    { 
-      id: 2, 
-      name: 'Carbon Neutral', 
-      description: 'Offset 1 ton of CO₂ emissions',
-      icon: '🌱',
-      earned: true,
-      rarity: 'Rare'
-    },
-    { 
-      id: 3, 
-      name: 'Energy Saver', 
-      description: 'Saved 500kWh of energy',
-      icon: '⚡',
-      earned: false,
-      rarity: 'Common'
-    },
-    { 
-      id: 4, 
-      name: 'Recycling Champion', 
-      description: 'Recycled 1000+ items',
-      icon: '♻️',
-      earned: true,
-      rarity: 'Epic'
-    },
-    { 
-      id: 5, 
-      name: 'Community Leader', 
-      description: 'Led 5+ community challenges',
-      icon: '👥',
-      earned: false,
-      rarity: 'Legendary'
-    },
-    { 
-      id: 6, 
-      name: 'Water Guardian', 
-      description: 'Saved 10,000L of water',
-      icon: '💧',
-      earned: true,
-      rarity: 'Rare'
-    }
+    { id: 1, name: 'Eco Warrior', description: 'Completed 100+ environmental actions', icon: '🌍', earned: true, rarity: 'Epic' },
+    { id: 2, name: 'Carbon Neutral', description: 'Offset 1 ton of CO₂ emissions', icon: '🌱', earned: true, rarity: 'Rare' },
+    { id: 3, name: 'Energy Saver', description: 'Saved 500kWh of energy', icon: '⚡', earned: false, rarity: 'Common' },
+    { id: 4, name: 'Recycling Champion', description: 'Recycled 1000+ items', icon: '♻️', earned: true, rarity: 'Epic' },
+    { id: 5, name: 'Community Leader', description: 'Led 5+ community challenges', icon: '👥', earned: false, rarity: 'Legendary' },
+    { id: 6, name: 'Water Guardian', description: 'Saved 10,000L of water', icon: '💧', earned: true, rarity: 'Rare' }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-eco-50 via-white to-earth-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Profile Header */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-lg overflow-hidden mb-8"
+          className="bg-white rounded-xl shadow-xl overflow-hidden mb-8"
         >
-          <div className="h-32 bg-gradient-to-r from-eco-500 to-eco-600"></div>
+          <div className="h-32 bg-gradient-to-r from-eco-600 to-eco-700"></div>
           <div className="relative px-6 pb-6">
             <div className="flex flex-col md:flex-row md:items-end md:space-x-6">
               <div className="relative -mt-16 mb-4 md:mb-0">
                 <img
                   src={user?.avatar}
                   alt={user?.name}
-                  className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
+                  className="w-32 h-32 rounded-full border-4 border-white shadow-xl"
                 />
-                <button className="absolute bottom-2 right-2 w-8 h-8 bg-eco-600 rounded-full flex items-center justify-center text-white hover:bg-eco-700 transition-colors">
+                <button className="absolute bottom-2 right-2 w-8 h-8 bg-eco-700 rounded-full flex items-center justify-center text-white hover:bg-eco-800 transition-colors duration-300">
                   <Camera className="w-4 h-4" />
                 </button>
               </div>
-              
-              <div className="flex-1">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h1 className="text-3xl font-bold text-gray-900">{user?.name}</h1>
-                    <p className="text-lg text-eco-600 font-medium">Level {user?.level || 1}</p>
-                    <div className="flex items-center space-x-4 mt-2 text-gray-600">
-                      <div className="flex items-center space-x-1">
-                        <Mail className="w-4 h-4" />
-                        <span className="text-sm">{user?.email}</span>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="w-4 h-4" />
-                        <span className="text-sm">Joined {new Date(user?.joinDate).toLocaleDateString()}</span>
-                      </div>
-                    </div>
+              <div className="flex-1 relative">
+                <h1 className="text-3xl font-extrabold text-gray-900">{user?.name}</h1>
+                <p className="text-lg text-eco-700 font-semibold">Level {user?.level || 1}</p>
+                <div className="flex items-center space-x-4 mt-2 text-gray-700">
+                  <div className="flex items-center space-x-1">
+                    <Mail className="w-4 h-4" />
+                    <span className="text-sm">{user?.email}</span>
                   </div>
-                  
-                  <button
-                    onClick={() => setIsEditing(!isEditing)}
-                    className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 bg-eco-600 text-white rounded-lg hover:bg-eco-700 transition-colors"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    {isEditing ? 'Cancel' : 'Edit Profile'}
-                  </button>
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="w-4 h-4" />
+                    <span className="text-sm">Joined {new Date(user?.joinDate || user?.joinedAt).toLocaleDateString()}</span>
+                  </div>
                 </div>
-                {isEditing && (
-                  <div className="mt-6 space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                      <input
-                        type="text"
-                        value={editedUser.name}
-                        onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                      <input
-                        type="email"
-                        value={editedUser.email}
-                        onChange={(e) => setEditedUser({ ...editedUser, email: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                      <input
-                        type="text"
-                        value={editedUser.location}
-                        onChange={(e) => setEditedUser({ ...editedUser, location: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
-                      <textarea
-                        value={editedUser.bio}
-                        onChange={(e) => setEditedUser({ ...editedUser, bio: e.target.value })}
-                        rows="3"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-                      <input
-                        type="text"
-                        value={editedUser.phone}
-                        onChange={(e) => setEditedUser({ ...editedUser, phone: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-eco-500"
-                      />
-                    </div>
-                    <div className="flex space-x-3">
-                      <button
-                        onClick={handleSaveProfile}
-                        className="flex-1 bg-eco-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-eco-700 transition-colors"
-                      >
-                        <Save className="w-4 h-4 inline mr-2" />
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setIsEditing(false)}
-                        className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
-                      >
-                        <X className="w-4 h-4 inline mr-2" />
-                        Cancel
-                      </button>
-                    </div>
+              <div className="flex justify-between items-center mt-4 md:mt-0">
+                <p className="text-lg text-eco-700 font-semibold">Level {user?.level || 1}</p>
+              </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-xl p-2 shadow-xl mb-8"
+        >
+          <div className="flex space-x-1">
+{tabs.map((tab) => {
+  const Icon = tab.icon;
+  return (
+    <button
+      key={tab.id}
+      onClick={() => {
+        setActiveTab(tab.id);
+        if (tab.id === 'settings') {
+          setIsEditing(true);
+        } else {
+          setIsEditing(false);
+        }
+      }}
+      className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+        activeTab === tab.id
+          ? 'bg-eco-200 text-eco-800 shadow-md'
+          : 'text-gray-700 hover:text-eco-700 hover:bg-eco-100'
+      }`}
+    >
+      <Icon className="w-4 h-4" />
+      <span>{tab.name}</span>
+    </button>
+  );
+})}
+          </div>
+        </motion.div>
+
+        {/* Tab Content */}
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {activeTab === 'overview' && (
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Stats */}
+              <div className="lg:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                {stats.map((stat, index) => {
+                  const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-white rounded-xl p-6 shadow-xl text-center hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className={`w-12 h-12 bg-${stat.color}-100 rounded-lg flex items-center justify-center mx-auto mb-3`}>
+                    <Icon className={`w-6 h-6 text-${stat.color}-600`} />
                   </div>
+                  <div className="text-2xl font-extrabold text-gray-900 mb-1">{stat.value}</div>
+                  <div className="text-sm text-gray-700">{stat.label}</div>
+                </motion.div>
+              );
+                })}
+              </div>
+
+              {/* Recent Activity */}
+              <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
+                <ul className="space-y-3">
+                  {recentActivity.length === 0 ? (
+                    <li className="text-center text-gray-500">No recent activity found.</li>
+                  ) : (
+                    recentActivity.map((activity, idx) => (
+                      <li
+                        key={idx}
+                        className="border border-gray-300 rounded-lg p-4 flex justify-between items-center hover:bg-eco-50 transition-colors duration-300 cursor-pointer"
+                      >
+                        <div>
+                          <div className="font-semibold text-gray-800">{activity.title}</div>
+                          <div className="text-xs text-gray-600">
+                            {activity.date ? new Date(activity.date).toLocaleDateString() : 'Date not available'}
+                          </div>
+                        </div>
+                        <div className="text-green-700 font-semibold">+{activity.points}</div>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
+
+              {/* Profile Info */}              
+              <div className="bg-white rounded-xl shadow-xl p-6">
+                <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
+{isEditing ? (
+  <ProfileForm
+    initialData={editedUser}
+    onSave={async (data) => {
+      try {
+        const response = await axios.put('http://localhost:5000/api/profile', data, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        updateUser(response.data);
+        setIsEditing(false);
+      } catch (error) {
+        console.error('Error saving profile:', error);
+      }
+    }}
+  />
+) : (
+                  <>
+                    <div className="space-y-3 text-gray-800">
+                      <div className="flex items-center space-x-2"><MapPin className="w-5 h-5 text-gray-500" /><span>{user?.location || 'No location set'}</span></div>
+                      <div className="flex items-center space-x-2"><User className="w-5 h-5 text-gray-500" /><span>{user?.bio || 'No bio available'}</span></div>
+                      <div className="flex items-center space-x-2"><Mail className="w-5 h-5 text-gray-500" /><span>{user?.phone || 'No phone number set'}</span></div>
+                    </div>
+                  
+                  </>
                 )}
               </div>
             </div>
-          </div>
+          )}
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl p-6 shadow-lg text-center"
-              >
-                <div className={`w-12 h-12 bg-${stat.color}-100 rounded-lg flex items-center justify-center mx-auto mb-3`}>
-                  <Icon className={`w-6 h-6 text-${stat.color}-600`} />
-                </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Badges Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Achievements & Badges</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {badges.map((badge) => (
-              <div
-                key={badge.id}
-                className={`p-4 rounded-lg text-center cursor-default ${
-                  badge.earned ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-400'
-                }`}
-                title={`${badge.name} - ${badge.description}`}
-              >
-                <div className="text-3xl mb-2">{badge.icon}</div>
-                <div className="font-semibold">{badge.name}</div>
-                <div className="text-xs">{badge.rarity}</div>
+          {activeTab === 'achievements' && (
+            <div className="bg-white rounded-xl p-6 shadow-xl">
+              <h2 className="text-xl font-semibold mb-6">Your Badges</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                {badges.map((badge) => (
+                  <div key={badge.id} className={`p-4 rounded-lg text-center cursor-default select-none ${
+                    badge.earned ? 'bg-green-100 text-green-900 shadow-md' : 'bg-gray-100 text-gray-400'
+                  }`}>
+                    <div className="text-3xl mb-2">{badge.icon}</div>
+                    <div className="font-semibold">{badge.name}</div>
+                    <div className="text-xs">{badge.rarity}</div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Main Content Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Activity */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-            <ul className="space-y-3">
-              {recentActivity.length === 0 ? (
-                <li className="text-center text-gray-500">No recent activity found.</li>
-              ) : (
-                recentActivity.map((activity, idx) => (
-                  <li
-                    key={idx}
-                    className="border border-gray-200 rounded-lg p-4 flex justify-between items-center"
-                  >
-                    <div>
-                      <div className="font-semibold">{activity.title || activity.action}</div>
-                      <div className="text-xs text-gray-500">{new Date(activity.date).toLocaleDateString()}</div>
-                    </div>
-                    <div className="text-green-600 font-semibold">+{activity.points}</div>
-                  </li>
-                ))
-              )}
-            </ul>
-          </div>
-
-          {/* Profile Information */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
-            <div className="space-y-3 text-gray-700">
-              <div className="flex items-center space-x-2">
-                <MapPin className="w-5 h-5 text-gray-400" />
-                    <span>{user?.location || 'No location set'}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <User className="w-5 h-5 text-gray-400" />
-                    <span>{user?.bio || 'No bio available'}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Mail className="w-5 h-5 text-gray-400" />
-                    <span>{user?.phone || 'No phone number set'}</span>
-                  </div>
             </div>
-          </div>
-        </div>
-      </motion.div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="bg-white rounded-xl p-6 shadow-xl">
+              <h2 className="text-xl font-semibold mb-4 flex justify-between items-center">
+                Settings
+                <button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="inline-flex items-center px-4 py-2 bg-eco-700 text-white rounded-md hover:bg-eco-800 transition-colors duration-300"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  {isEditing ? 'Cancel' : 'Edit Profile'}
+                </button>
+              </h2>
+{isEditing ? (
+  <ProfileForm
+    initialData={editedUser}
+    onSave={async (data) => {
+      try {
+        const response = await axios.put('http://localhost:5000/api/profile', data, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        updateUser(response.data);
+        setIsEditing(false);
+      } catch (error) {
+        console.error('Error saving profile:', error);
+      }
+    }}
+  />
+) : (
+  <p className="text-gray-600">Coming soon: account and privacy settings.</p>
+)}
+            </div>
+          )}
+        </motion.div>
       </div>
     </div>
   );

@@ -9,11 +9,13 @@ import {
   Edit,
   CheckCircle,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { fetchUserActions, addAction, deleteAction } from '../api/userActions';
 
 const Actions = () => {
-  const { user, updatePoints } = useUser();
+  const { user } = useAuth();
+  const { updatePoints } = useUser();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showAddAction, setShowAddAction] = useState(false);
@@ -66,35 +68,41 @@ const Actions = () => {
 
   const filteredActions = actions.filter(action => {
     const matchesSearch = action.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         action.description.toLowerCase().includes(searchTerm.toLowerCase());
+    action.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || action.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
   const handleAddAction = async (e) => {
     e.preventDefault();
-    // Create a copy of newAction without points field
+    // Prepare payload as per backend expectations
     const actionToAdd = {
       title: newAction.title,
-      category: newAction.category,
-      type: newAction.type,
-      notes: newAction.notes
+      content: newAction.notes,
+      tags: newAction.category ? [newAction.category.toLowerCase()] : []
     };
     console.log('handleAddAction called with newAction:', actionToAdd);
     try {
       const addedAction = await addAction(actionToAdd);
       console.log('Action added:', addedAction);
       setActions([addedAction, ...actions]);
-      updatePoints(addedAction.points || 0);
+      try {
+        updatePoints(addedAction.points || 0);
+      } catch (err) {
+        console.error('Error updating points:', err);
+      }
       setNewAction({
         title: '',
         category: 'recycling',
         type: types[0],
         notes: ''
       });
+      alert('Action added successfully!');
       setTimeout(() => setShowAddAction(false), 100);
     } catch (error) {
       console.error('Failed to add action:', error);
+      const message = error.response?.data?.message || 'Failed to add action.';
+      alert(message);
     }
   };
 
@@ -143,7 +151,8 @@ const Actions = () => {
           </div>
           <button
             onClick={() => setShowAddAction(true)}
-            className="mt-4 md:mt-0 inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium rounded-lg hover:from-primary-700 hover:to-primary-800 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+            className="mt-4 md:mt-0 inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-medium rounded-lg hover:from-green-700 hover:to-green
+            -800 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
           >
             <Plus className="w-5 h-5 mr-2" />
             Add Action
@@ -228,7 +237,7 @@ const Actions = () => {
                         <div className="flex items-center space-x-6 text-sm text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Calendar className="w-4 h-4" />
-                            <span>{new Date(action.date).toLocaleDateString()}</span>
+<span>{new Date(action.createdAt).toLocaleDateString()}</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <MapPin className="w-4 h-4" />

@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
 
   // Admin and Timestamps
   isAdmin: { type: Boolean, default: false },
+  role: { type: String, default: 'registered' },
   joinedAt: { type: Date, default: Date.now }
 
 }, { timestamps: true });

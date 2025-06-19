@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import { motion } from 'framer-motion';
 import {
   Target,
@@ -23,7 +24,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { useUser } from '../context/UserContext';
+import { useAuth } from '../context/AuthContext';
 import { getDashboardData } from '../api/dashboard';
 
 const colorMap = {
@@ -54,7 +55,7 @@ const colorMap = {
 };
 
 const Dashboard = () => {
-  const { user, updatePoints } = useUser();
+  const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState('week');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -82,16 +83,24 @@ const Dashboard = () => {
       setError(null);
       try {
         const data = await getDashboardData();
-        // Map API data to state
-        setRecentActivities(
-          data.recentActions.map((action) => ({
-            id: action._id,
-            action: action.description || action.category || 'Action',
-            points: action.points || 0,
-            time: new Date(action.createdAt).toLocaleString(),
-            icon: getIconForCategory(action.category)
-          }))
-        );
+        
+        const aggregatedRecent = data.recentActions.reduce((acc, action) => {
+          const category = action.category || 'Action';
+          const existing = acc.find(item => item.action === category);
+          if (existing) {
+            existing.points += action.points || 0;
+          } else {
+            acc.push({
+              id: category,
+              action: category,
+              points: action.points || 0,
+              time: new Date(action.createdAt).toLocaleString(),
+              icon: getIconForCategory(category)
+            });
+          }
+          return acc;
+        }, []);
+        setRecentActivities(aggregatedRecent);
         setActionDistribution(
           data.actionsByCategory.map((cat) => ({
             name: cat.category,
@@ -102,10 +111,10 @@ const Dashboard = () => {
         setStats({
           totalPoints: data.totalPoints || 0,
           actionsCount: data.actionsCount || 0,
-          co2Saved: 0, // Placeholder, as backend does not provide CO2 saved yet
+          co2Saved: data.co2Saved || 0,
           streak: data.streak || 0
         });
-        // Achievements can be static or fetched from API if available
+     
         setAchievements([
           { id: 1, title: 'Week Streak', description: '7 days of consistent actions', icon: Calendar, earned: data.streak >= 7 },
           { id: 2, title: 'Recycling Hero', description: 'Recycled 100+ items', icon: Recycle, earned: data.actionsCount >= 100 },
@@ -162,7 +171,7 @@ const Dashboard = () => {
   };
 
   const handleQuickAction = (action) => {
-    updatePoints(action.points);
+    // updatePoints(action.points); // Commented out as updatePoints is not in AuthContext
   };
 
   if (loading) {

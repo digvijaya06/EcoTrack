@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Users, Award, MapPin, ThumbsUp, MessageSquare, Share2 } from 'lucide-react';
 
@@ -6,7 +6,8 @@ import { formatDate } from '../utils/formatterrs';
 import { Card, CardContent } from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import LeaderboardTable from '../components/leaderboard/LeaderboardTable';
-
+import { fetchCommunityPosts, addCommunityPost } from '../api/community';
+import { AuthContext } from '../context/AuthContext';
 
 // PropTypes definitions for your data shapes
 const CommunityPostPropType = PropTypes.shape({
@@ -14,8 +15,8 @@ const CommunityPostPropType = PropTypes.shape({
   user: PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
-    avatar: PropTypes.string.isRequired,
-    location: PropTypes.string.isRequired,
+    avatar: PropTypes.string,
+    location: PropTypes.string,
   }).isRequired,
   content: PropTypes.string.isRequired,
   images: PropTypes.arrayOf(PropTypes.string),
@@ -36,41 +37,78 @@ const LeaderboardUserPropType = PropTypes.shape({
 });
 
 const Community = () => {
-  const posts = [
-    {
-      id: '1',
-      user: {
-        id: 'user1',
-        name: 'Jordan Rivera',
-        avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        location: 'Portland, OR',
-      },
-      content: 'Just installed solar panels on my roof!...',
-      images: ['https://images.pexels.com/photos/159397/solar-panel-array-power-sun-electricity-159397.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'],
-      likes: 42,
-      comments: 8,
-      shares: 5,
-      date: '2025-04-05T14:23:00Z',
-      tags: ['solar', 'renewable energy', 'home improvement'],
-    },
-    {
-      id: '2',
-      user: {
-        id: 'user2',
-        name: 'Morgan Zhang',
-        avatar: 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-        location: 'Austin, TX',
-      },
-      content: 'Started a community garden in my neighborhood...',
-      images: ['https://images.pexels.com/photos/7728027/pexels-photo-7728027.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'],
-      likes: 87,
-      comments: 14,
-      shares: 9,
-      date: '2025-04-03T09:15:00Z',
-      tags: ['gardening', 'community', 'food'],
-    },
-  ];
+  const { user, isAuthenticated } = useContext(AuthContext);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [newPostContent, setNewPostContent] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchCommunityPosts();
+        // Filter out posts with empty or blank content
+        const filteredData = data.filter(post => post.content && post.content.trim() !== '');
+        setPosts(filteredData);
+      } catch (err) {
+        setError('Failed to load posts.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadPosts();
+  }, []);
+
+  const [newPostTitle, setNewPostTitle] = useState('');
+
+  const handlePostSubmit = async () => {
+    if (!newPostContent.trim() || !newPostTitle.trim()) return;
+    setSubmitting(true);
+    try {
+      const postData = {
+        title: newPostTitle,
+        content: newPostContent,
+        tags: [],
+      };
+      const createdPost = await addCommunityPost(postData);
+      setPosts([createdPost, ...posts]);
+      setNewPostContent('');
+      setNewPostTitle('');
+    } catch (err) {
+      setError('Failed to submit post.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLike = async (postId) => {
+    try {
+      // Call backend API to like the post
+      const response = await fetch(`/api/community/${postId}/like`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to like post");
+      }
+      const data = await response.json();
+      // Update the posts state with new like count
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId ? { ...post, likes: data.likes } : post
+        )
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Static leaderboard data for now
   const leaderboard = [
     {
       id: '1',
@@ -113,52 +151,79 @@ const Community = () => {
               <CardContent className="p-6">
                 <div className="flex space-x-3">
                   <img
-                    src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg"
+                    src={user?.avatar || 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg'}
                     alt="Your profile"
                     className="h-10 w-10 rounded-full"
                   />
                   <div className="flex-1">
-                    <textarea className="input min-h-[80px]" placeholder="Share your eco-friendly actions and ideas..." />
+                    <input
+                      type="text"
+                      className="input mb-2"
+                      placeholder="Title of your action"
+                      value={newPostTitle}
+                      onChange={(e) => setNewPostTitle(e.target.value)}
+                      disabled={submitting || !isAuthenticated}
+                    />
+                    <textarea
+                      className="input min-h-[80px]"
+                      placeholder="Share your eco-friendly actions and ideas..."
+                      value={newPostContent}
+                      onChange={(e) => setNewPostContent(e.target.value)}
+                      disabled={submitting || !isAuthenticated}
+                    />
                     <div className="mt-3 flex justify-between items-center">
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => alert('Add Photo feature coming soon!')} disabled={!isAuthenticated}>
                           Add Photo
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => alert('Tag Action feature coming soon!')} disabled={!isAuthenticated}>
                           Tag Action
                         </Button>
                       </div>
-                      <Button variant="primary">Share Post</Button>
+                      <Button variant="primary" onClick={handlePostSubmit} disabled={submitting || !newPostContent.trim() || !newPostTitle.trim() || !isAuthenticated}>
+                        {submitting ? 'Sharing...' : 'Share Post'}
+                      </Button>
                     </div>
+                    {error && <p className="text-red-600 mt-2">{error}</p>}
+                    {!isAuthenticated && (
+                      <p className="text-gray-600 mt-2">Please log in to share your eco-friendly actions.</p>
+                    )}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             <div className="space-y-6">
-              {posts.map((post) => (
-                <Card key={post.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-3">
-                      <img src={post.user.avatar} alt={post.user.name} className="h-10 w-10 rounded-full" />
-                      <div className="flex-1">
-                        <div className="flex items-center">
-                          <h3 className="font-semibold text-gray-900">{post.user.name}</h3>
+              {loading ? (
+                <p>Loading posts...</p>
+              ) : error ? (
+                <p className="text-red-600">{error}</p>
+              ) : posts && posts.length === 0 ? (
+                <p>No posts yet. Be the first to share!</p>
+              ) : (
+                posts && Array.isArray(posts) ? posts.map((post) => (
+                  <Card key={post._id || post.id}>
+                    <CardContent className="p-6">
+                      <div className="flex items-start space-x-3">
+                        <img src={post.user?.avatar || null} alt={post.user?.name || 'User'} className="h-10 w-10 rounded-full" />
+                        <div className="flex-1">
+                          <div className="flex items-center">
+                            <h3 className="font-semibold text-gray-900">{isAuthenticated ? post.user?.name : 'Member'}</h3>
                           <span className="mx-2 text-gray-300">•</span>
-                          <span className="text-sm text-gray-500">{formatDate(post.date)}</span>
+                          <span className="text-sm text-gray-500">{new Date(post.createdAt).toLocaleString()}</span>
                         </div>
                         <p className="text-sm text-gray-500 flex items-center mt-1">
                           <MapPin size={14} className="mr-1" />
-                          {post.user.location}
+                          {post.user?.location || ''}
                         </p>
                         <p className="mt-3 text-gray-700">{post.content}</p>
-                        {post.images && (
+                        {post.images && post.images.length > 0 && post.images[0] !== "" && (
                           <div className="mt-4">
                             <img src={post.images[0]} alt="Post content" className="rounded-lg max-h-96 w-full object-cover" />
                           </div>
                         )}
                         <div className="mt-4 flex flex-wrap gap-2">
-                          {post.tags.map((tag, index) => (
+                          {post.tags && post.tags.map((tag, index) => (
                             <span
                               key={index}
                               className="inline-block bg-gray-100 rounded-full px-3 py-1 text-xs font-medium text-gray-600"
@@ -168,21 +233,22 @@ const Community = () => {
                           ))}
                         </div>
                         <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between">
-                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<ThumbsUp size={16} />}>
+                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<ThumbsUp size={16} />} onClick={() => handleLike(post._id)}>
                             {post.likes}
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<MessageSquare size={16} />}>
+                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<MessageSquare size={16} />} disabled={!isAuthenticated}>
                             {post.comments}
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<Share2 size={16} />}>
+                          <Button variant="ghost" size="sm" className="text-gray-600" leftIcon={<Share2 size={16} />} disabled={!isAuthenticated}>
                             {post.shares}
                           </Button>
                         </div>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                )) : <p>No posts available.</p>
+              )}
             </div>
           </div>
           <div>

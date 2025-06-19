@@ -25,19 +25,17 @@ const Goals = () => {
     showCompleted: true,
   });
 
-  const { updateUser } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
 
   // Fetch all goals from backend
   const fetchGoals = async () => {
     try {
-      // Get userId from stored user object in localStorage
-      const user = JSON.parse(localStorage.getItem('user'));
       if (!user || !user._id) {
-        console.error('User ID not found in localStorage user object');
+        console.error('User ID not found in AuthContext user object');
         return;
       }
       const userId = user._id;
-      const res = await axios.get(`${API_URL}/api/goals/${userId}`);
+      const res = await axios.get(`${API_URL}/api/goals/user/${userId}`);
       setGoals(res.data);
     } catch (err) {
       console.error('Error fetching goals:', err);
@@ -55,7 +53,6 @@ const Goals = () => {
     }
 
     try {
-      const user = JSON.parse(localStorage.getItem('user'));
       if (!user || !user._id) {
         alert('User not logged in. Please login to add goals.');
         return;
@@ -65,7 +62,7 @@ const Goals = () => {
       const res = await axios.post(`${API_URL}/api/goals`, {
         ...newGoal,
         userId,
-        currentValue: 0,
+        progress: 0,
         completed: false,
         createdAt: new Date(),
         deadline: newGoal.deadline ? new Date(newGoal.deadline) : null,
@@ -98,7 +95,6 @@ const Goals = () => {
 
       const goal = goals.find((g) => g._id === goalId);
       await axios.put(`${API_URL}/api/goals/${goalId}`, {
-        ...goal,
         completed: !goal.completed,
       });
     } catch (err) {
@@ -109,14 +105,18 @@ const Goals = () => {
   const updateGoalProgress = async (goalId, newProgress) => {
     try {
       const updated = goals.map((g) =>
-        g._id === goalId ? { ...g, currentValue: newProgress } : g
+        g._id === goalId ? { ...g, progress: newProgress, completed: newProgress >= Number(g.target) } : g
       );
       setGoals(updated);
 
+      // Determine if goal is completed
       const goal = goals.find((g) => g._id === goalId);
+      const isCompleted = newProgress >= Number(goal.target);
+
+      // Send progress and completed status in update
       await updateGoal(goalId, {
-        ...goal,
         progress: newProgress,
+        completed: isCompleted,
       });
 
       // Refresh user data to update badges in profile
@@ -130,11 +130,8 @@ const Goals = () => {
   };
 
   const filteredGoals = goals.filter((goal) => {
-   
     const matchCategory = filters.category === 'all' || goal.category === filters.category;
     const matchCompletion = filters.showCompleted || !goal.completed;
-    
-    // return matchSearch && matchCategory && matchCompletion;
     return matchCategory && matchCompletion;
   });
 
@@ -191,7 +188,7 @@ const Goals = () => {
           />
           <button
             onClick={handleAddGoal}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
             Add
           </button>
@@ -200,7 +197,6 @@ const Goals = () => {
 
       {/* Filters */}
       <div className="bg-white shadow-md p-4 rounded-md mb-6 flex flex-wrap gap-4 items-center">
-       
         <select
           value={filters.category}
           onChange={(e) => setFilters({ ...filters, category: e.target.value })}
@@ -228,7 +224,7 @@ const Goals = () => {
             <GoalCard key={goal._id} goal={goal} onClick={toggleGoalCompletion} updateProgress={updateGoalProgress} />
           ))
         ) : (
-          <p className="text-gray-500">No goals match the filter.</p>
+          <p className="text-green-500">No goals match the filter.</p>
         )}
       </div>
 

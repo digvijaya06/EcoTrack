@@ -7,7 +7,7 @@ export const getAuthHeader = () => {
 };
 
 export const fetchGoals = (userId) =>
-  axios.get(`${API_URL}/api/goals/${userId}`, { headers: getAuthHeader() });
+  axios.get(`${API_URL}/api/goals/user/${userId}`, { headers: getAuthHeader() });
 
 export const createGoal = (goalData) =>
   axios.post(`${API_URL}/api/goals`, goalData, { headers: getAuthHeader() });

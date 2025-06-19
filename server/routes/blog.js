@@ -1,49 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const Blog = require('../models/Blog'); // You’ll create this model
-const nodemailer = require('nodemailer');
-const authenticate = require('../middleware/auth'); // JWT middleware
+const authenticate = require('../middleware/authMiddleware'); // JWT middleware
+const isAdmin = require('../middleware/isAdmin'); // Admin check middleware
+const blogController = require('../controllers/blogController');
 
-router.post('/submit', authenticate, async (req, res) => {
-  const { title, summary, tag, image } = req.body;
+// GET / - fetch all approved blogs with pagination, filtering, search
+router.get('/', blogController.getBlogs);
 
-  try {
-    const newBlog = new Blog({
-      title,
-      summary,
-      tag,
-      image,
-      author: req.user.name, // from JWT payload
-      date: new Date(),
-    });
+// GET /:slug - fetch single blog by slug
+router.get('/:slug', blogController.getBlogBySlug);
 
-    await newBlog.save();
+// POST / - create new blog (admin only)
+router.post('/', authenticate, isAdmin, blogController.createBlog);
 
-    // send email to admin
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+// PUT /:id - update blog (admin only)
+router.put('/:id', authenticate, isAdmin, blogController.updateBlog);
 
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: 'New Blog Submission on EcoLog',
-      html: `
-        <h3>${title}</h3>
-        <p><strong>Author:</strong> ${req.user.name}</p>
-        <p><strong>Summary:</strong> ${summary}</p>
-        <p><strong>Tag:</strong> ${tag}</p>
-      `,
-    });
-
-    res.status(200).json({ message: 'Blog submitted successfully for review.' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to submit blog.' });
-  }
-});
+// DELETE /:id - delete blog (admin only)
+router.delete('/:id', authenticate, isAdmin, blogController.deleteBlog);
 
 module.exports = router;

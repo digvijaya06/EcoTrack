@@ -30,20 +30,26 @@ const Register = () => {
     try {
       await register(formData.name, formData.username, formData.email, formData.password);
       alert('Registration successful! Please complete your profile.');
-      navigate('/create-profile'); // 🔁 Redirect to profile creation form
+      navigate('/profile'); // Redirect to profile creation form
     } catch (err) {
       // Error already handled via authError in context
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center relative"
+      style={{ backgroundImage: "url('https://images.pexels.com/photos/2990647/pexels-photo-2990647.jpeg')" }}
+    >
+      <div className="absolute inset-0 bg-green-900 bg-opacity-70 backdrop-blur-sm"></div>
+      <div className="relative z-10 bg-white bg-opacity-90 backdrop-blur-md rounded-2xl shadow-lg w-full max-w-md p-6 mx-8 my-6">
+        <h2 className="text-4xl font-extrabold mb-6 text-center text-gradient bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-600">
+          Register
+        </h2>
         {authError && <p className="text-red-500 text-center mb-4">{authError}</p>}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
+            <label htmlFor="name" className="block text-sm font-semibold text-teal-700 mb-1">Name</label>
             <input
               type="text"
               name="name"
@@ -51,11 +57,11 @@ const Register = () => {
               value={formData.name}
               onChange={handleChange}
               required
-              className="mt-1 p-2 w-full border rounded-xl"
+              className="mt-1 p-3 w-full border border-teal-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
             />
           </div>
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
+            <label htmlFor="username" className="block text-sm font-semibold text-teal-700 mb-1">Username</label>
             <input
               type="text"
               name="username"
@@ -63,11 +69,11 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               required
-              className="mt-1 p-2 w-full border rounded-xl"
+              className="mt-1 p-3 w-full border border-teal-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+            <label htmlFor="email" className="block text-sm font-semibold text-teal-700 mb-1">Email</label>
             <input
               type="email"
               name="email"
@@ -75,11 +81,11 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               required
-              className="mt-1 p-2 w-full border rounded-xl"
+              className="mt-1 p-3 w-full border border-teal-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <label htmlFor="password" className="block text-sm font-semibold text-teal-700 mb-1">Password</label>
             <input
               type="password"
               name="password"
@@ -87,12 +93,12 @@ const Register = () => {
               value={formData.password}
               onChange={handleChange}
               required
-              className="mt-1 p-2 w-full border rounded-xl"
+              className="mt-1 p-3 w-full border border-teal-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-xl hover:bg-blue-600"
+            className="w-full bg-gradient-to-r from-green-600 to-teal-600 text-white py-3 px-6 rounded-lg shadow-lg hover:from-green-700 hover:to-teal-700 transition font-semibold"
           >
             Register
           </button>

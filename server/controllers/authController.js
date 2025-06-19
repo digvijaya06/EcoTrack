@@ -24,7 +24,8 @@ const registerUser = async (req, res) => {
       location: '',
       bio: '',
       website: '',
-      avatar: ''
+      avatar: '',
+      role: 'registered'
     });
 
     await user.save();
@@ -39,6 +40,7 @@ const registerUser = async (req, res) => {
         username: user.username,
         email: user.email,
         isAdmin: user.isAdmin,
+        role: user.isAdmin ? 'admin' : 'registered',
         createdAt: user.createdAt,
         location: user.location,
         bio: user.bio,
@@ -84,6 +86,7 @@ const loginUser = async (req, res) => {
         username: user.username,
         email: user.email,
         isAdmin: user.isAdmin,
+        role: user.isAdmin ? 'admin' : 'registered',
         createdAt: user.createdAt
       }
     });

@@ -7,9 +7,19 @@ const { getBadges, getAchievements } = require('../controllers/userController');
 // @route   GET /api/users/me
 // @desc    Get current user profile
 // @access  Private
+const Action = require('../models/Action');
+const { calculatePoints } = require('../utils/pointsCalculator');
+
 router.get('/me', protect, async (req, res) => {
   try {
-    res.json(req.user);  // req.user set by protect middleware
+    // Fetch user actions
+    const actions = await Action.find({ user: req.user._id });
+    // Calculate total points
+    const totalPoints = calculatePoints(actions);
+    // Add totalPoints to user object
+    const userWithPoints = req.user.toObject();
+    userWithPoints.totalPoints = totalPoints;
+    res.json(userWithPoints);
   } catch (error) {
     console.error('Get profile error:', error);
     res.status(500).json({ message: 'Server error' });

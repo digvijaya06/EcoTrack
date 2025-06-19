@@ -113,12 +113,21 @@ const ProfileForm = ({ initialData, onSave, onCancel }) => {
       </div>
 
       <div className="flex justify-end space-x-3">
-        <Button variant="outline" type="button" onClick={onCancel} leftIcon={<X size={16} />}>
-          Cancel
-        </Button>
-        <Button variant="primary" type="submit" leftIcon={<Check size={16} />}>
-          Save Changes
-        </Button>
+        {onCancel && (
+          <Button variant="outline" type="button" onClick={onCancel} leftIcon={<X size={16} />}>
+            Cancel
+          </Button>
+        )}
+        {onSave && (
+          <Button
+            variant="primary"
+            className="bg-green-600 hover:bg-green-700 border-green-600"
+            type="submit"
+            leftIcon={<Check size={16} />}
+          >
+            Save Changes
+          </Button>
+        )}
       </div>
     </form>
   );

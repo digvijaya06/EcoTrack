@@ -21,7 +21,8 @@ const GoalAnalytics = ({ goals }) => {
           <XAxis dataKey="category" />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="count" fill="#4F46E5" />
+          <Bar dataKey="count" fill="#22c55e" />
+
         </BarChart>
       </ResponsiveContainer>
     </div>

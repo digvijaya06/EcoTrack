@@ -1,33 +1,38 @@
-import React from 'react';
-
-const blogPosts = [
-  {
-    title: '5 Simple Eco-Friendly Habits to Start Today',
-    summary: 'From carrying a reusable water bottle to switching off unused lights — discover tiny actions that create big impact.',
-    author: 'Team EcoLog',
-    date: 'May 18, 2025',
-    tag: 'Beginner Tips',
-    image: 'https://images.pexels.com/photos/8989430/pexels-photo-8989430.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-  },
-  {
-    title: 'How Tracking My Green Goals Changed My Life',
-    summary: 'A community member shares how using EcoLog for 30 days helped build discipline and environmental awareness.',
-    author: 'Riya Shah',
-    date: 'May 11, 2025',
-    tag: 'Stories',
-    image: 'https://images.pexels.com/photos/9034665/pexels-photo-9034665.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-  },
-  {
-    title: 'Top 10 Rewards You Can Unlock on EcoLog',
-    summary: 'Earn badges, certificates, and real-world gifts while saving the planet. See what’s waiting for you!',
-    author: 'EcoLog Team',
-    date: 'April 29, 2025',
-    tag: 'Rewards',
-    image: 'http://images.pexels.com/photos/6120397/pexels-photo-6120397.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-  },
-];
+import React, { useState, useEffect } from 'react';
+import BlogList from '../components/blog/BlogList';
+// import staticBlogs from '../data/staticBlogs.json';
 
 const Blog = () => {
+  const [blogs, setBlogs] = useState([]);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [tag, setTag] = useState('');
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const queryParams = new URLSearchParams();
+        if (category) queryParams.append('category', category);
+        if (tag) queryParams.append('tag', tag);
+        if (search) queryParams.append('search', search);
+
+        const response = await fetch(`/api/blogs?${queryParams.toString()}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch blogs');
+        }
+        const data = await response.json();
+        setBlogs(data.blogs);
+      } catch (error) {
+        console.error('Error fetching blogs:', error);
+        setBlogs([]);
+      }
+    };
+
+    fetchBlogs();
+  }, [category, tag, search]);
+
+  const filteredBlogs = blogs;
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
       <h1 className="text-4xl font-bold text-center mb-4">🌱 EcoLog Blog</h1>
@@ -35,23 +40,41 @@ const Blog = () => {
         Read real stories, tips, and ideas from people building a greener world — one action at a time.
       </p>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {blogPosts.map((post, index) => (
-          <div key={index} className="bg-white rounded-xl shadow-md hover:shadow-lg transition overflow-hidden">
-            <img src={post.image} alt={post.title} className="w-full h-48 object-cover" />
-            <div className="p-5">
-              <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded mb-2">
-                {post.tag}
-              </span>
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">{post.title}</h2>
-              <p className="text-gray-600 text-sm mb-3">{post.summary}</p>
-              <div className="text-sm text-gray-500">
-                By <span className="font-medium">{post.author}</span> • {post.date}
-              </div>
-            </div>
-          </div>
-        ))}
+      <div className="flex flex-col md:flex-row md:justify-center md:space-x-4 mb-8 space-y-4 md:space-y-0">
+        <input
+          type="text"
+          placeholder="Search blogs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 w-full md:w-64"
+        />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 w-full md:w-48"
+        >
+          <option value="">All Categories</option>
+          <option value="Environment">Environment</option>
+          <option value="Events">Events</option>
+          <option value="Recycling">Recycling</option>
+        </select>
+        <select
+          value={tag}
+          onChange={(e) => setTag(e.target.value)}
+          className="border border-gray-300 rounded px-3 py-2 w-full md:w-48"
+        >
+          <option value="">All Tags</option>
+          <option value="EcoTips">EcoTips</option>
+          <option value="Sustainability">Sustainability</option>
+          <option value="ZeroWaste">ZeroWaste</option>
+        </select>
       </div>
+
+      {filteredBlogs.length === 0 ? (
+        <div className="text-center py-12 text-gray-600">No blogs available at the moment.</div>
+      ) : (
+        <BlogList blogs={filteredBlogs} />
+      )}
 
       <div className="text-center mt-12 text-gray-600">
         Want to contribute your own blog? ✍️ <br />

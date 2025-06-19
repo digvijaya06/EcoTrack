@@ -27,23 +27,52 @@ const Navbar = () => {
   // const allowedRoles = ['registered', 'admin'];
 
   // Show all links unconditionally
-  const navLinks = [
+const visitorHomeLinks = [
+    { name: 'About', path: '/about', icon: <Leaf size={20} /> },
+    { name: 'Contact', path: '/contact', icon: <Leaf size={20} /> },
+    { name: 'Blog', path: '/blog', icon: <BookOpen size={20} /> },
+    { name: 'Careers', path: '/careers', icon: <Users size={20} /> },
+    { name: 'Analytics', path: '/analytics', icon: <TrendingUp size={20} /> },
+    { name: 'Community', path: '/community', icon: <Users size={20} /> },
+  ];
+
+  const loggedInLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
     { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
     { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
-    {name: 'Analytics', path: '/analytics', icon: <TrendingUp size={20} />},
+    { name: 'Analytics', path: '/analytics', icon: <TrendingUp size={20} /> },
     { name: 'Community', path: '/community', icon: <Users size={20} /> },
     { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
-    { name: 'Contact', path: '/contact', icon: <Leaf size={20} /> },
-    
-    ...(!isAuthenticated ? [{ name: 'Profile', path: '/profile', icon: <User size={20} /> }] : []),
-    { name: 'About', path: '/about', icon: <Leaf size={20} /> },
   ];
 
-  // Links that require authentication
-  const protectedPaths = ['/dashboard', '/actions', '/goals', '/community', '/resources'];
+  const allLinks = [
+    { name: 'About', path: '/about', icon: <Leaf size={20} /> },
+    { name: 'Contact', path: '/contact', icon: <Leaf size={20} /> },
+    { name: 'Blog', path: '/blog', icon: <BookOpen size={20} /> },
+    { name: 'Careers', path: '/careers', icon: <Users size={20} /> },
+    { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
+    { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
+    { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
+    { name: 'Analytics', path: '/analytics', icon: <TrendingUp size={20} /> },
+    { name: 'Community', path: '/community', icon: <Users size={20} /> },
+    { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
+    { name: 'Profile', path: '/profile', icon: <User size={20} /> },
+  ];
 
-  // Handler for unauthenticated clicks on protected links
+  let navLinks = [];
+
+  if (!isAuthenticated) {
+    navLinks = visitorHomeLinks;
+  } else if (isAuthenticated) {
+    navLinks = loggedInLinks;
+  } else {
+    navLinks = allLinks;
+  }
+
+  // Links that require authentication except community (community accessible to all)
+  const protectedPaths = ['/dashboard', '/actions', '/goals', '/resources'];
+
+  // Handler for unauthenticated clicks on protected links except community
   const handleProtectedClick = (e, path) => {
     if (!isAuthenticated && protectedPaths.includes(path)) {
       e.preventDefault();
@@ -51,14 +80,14 @@ const Navbar = () => {
     }
   };
 
-  return (
-    <nav className="bg-white shadow-sm">
+return (
+    <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <Leaf className="h-8 w-8 text-primary-600" />
-              <span className="ml-2 text-xl font-semibold text-gray-900">EcoTrack</span>
+              <Leaf className="h-8 w-8 text-green-600" />
+              <span className="ml-2 text-xl font-semibold text-gray-900">EcoLog</span>
             </Link>
             <div className="hidden md:ml-10 md:flex md:space-x-8">
               {navLinks.map((link) => (
@@ -66,9 +95,9 @@ const Navbar = () => {
                   key={link.path}
                   to={link.path}
                   onClick={(e) => handleProtectedClick(e, link.path)}
-                  className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-200 
+className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-colors duration-200 
                     ${isActive(link.path) 
-                      ? 'text-primary-600 border-b-2 border-primary-600' 
+                      ? 'text-gray-900 border-b-2 border-primary-600' 
                       : 'text-gray-600 hover:text-primary-600 hover:border-b-2 hover:border-primary-300'}`}
                 >
                   <span className="mr-1.5">{link.icon}</span>
@@ -78,7 +107,7 @@ const Navbar = () => {
             </div>
           </div>
           <div className="hidden md:flex md:items-center">
-            {isAuthenticated ? (
+{isAuthenticated ? (
               <>
                 <Link to="/profile">
                   <Button
@@ -89,13 +118,13 @@ const Navbar = () => {
                     Profile
                   </Button>
                 </Link>
-                <Button variant="primary" className="ml-4" onClick={() => { logout(); navigate('/login'); }}>
+                <Button variant="green" className="ml-4 bg-green-600 hover:bg-green-700 border-green-600" onClick={() => { logout(); navigate('/login'); }}>
                   Sign Out
                 </Button>
               </>
             ) : (
               <Link to="/login" className="ml-4">
-                <Button variant="primary">
+                <Button variant="green" className="bg-green-600 hover:bg-green-700 border-green-600">
                   Sign In
                 </Button>
               </Link>
@@ -150,13 +179,13 @@ const Navbar = () => {
                   <User size={20} className="mr-3" />
                   Profile
                 </Link>
-                <Button variant="primary" className="w-full" onClick={() => { logout(); navigate('/login'); }}>
+                <Button variant="green" className="w-full" onClick={() => { logout(); navigate('/login'); }}>
                   Sign Out
                 </Button>
               </>
             ) : (
               <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                <Button variant="primary" className="w-full">
+                <Button variant="green" className="w-full">
                   Sign In
                 </Button>
               </Link>

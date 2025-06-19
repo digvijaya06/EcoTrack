@@ -37,6 +37,10 @@ export const fetchUserDashboardData = async () => {
 // Add new action
 export const addAction = async (actionData) => {
   try {
+    // Ensure tags is an array if not provided
+    if (!actionData.tags) {
+      actionData.tags = [];
+    }
     const response = await axios.post(`${API_URL}/api/actions`, actionData, {
       headers: getAuthHeader()
     });

@@ -28,11 +28,34 @@ exports.getActionById = async (req, res) => {
 exports.createAction = async (req, res) => {
   try {
     console.log('Create Action Request Body:', req.body);
-    const { title, category, type, notes } = req.body;
+    const { content, tags } = req.body;
     const userId = req.user.id;
 
-    if (!title || !category || !type) {
-      return res.status(400).json({ message: 'Missing required fields' });
+    if (!content) {
+      return res.status(400).json({ message: 'Content is required' });
+    }
+
+    // Infer category and type from tags (simple example)
+    let category = 'plantation';
+    let type = 'Tree Plantation';
+
+    if (tags && Array.isArray(tags)) {
+      if (tags.includes('bicycle')) {
+        category = 'transport';
+        type = 'Bicycle Commute';
+      } else if (tags.includes('carpool')) {
+        category = 'transport';
+        type = 'Carpool';
+      } else if (tags.includes('energy')) {
+        category = 'energy';
+        type = 'Energy Saving';
+      } else if (tags.includes('water')) {
+        category = 'water';
+        type = 'Water Conservation';
+      } else if (tags.includes('recycling')) {
+        category = 'recycling';
+        type = 'Recycling';
+      }
     }
 
     // Points mapping based on action type
@@ -45,15 +68,35 @@ exports.createAction = async (req, res) => {
       'Recycling': 10
     };
 
+    // CO2 saved mapping based on category (in kg)
+    const co2SavedMapping = {
+      'plantation': 50,
+      'energy': 15,
+      'plastic-free lifestyle': 10,
+      'tree & nature care': 20,
+      'recycling': 10,
+      'nature': 20  // Mapped to same as 'tree & nature care'
+    };
+
+    // Normalize category for aggregation
+    let normalizedCategory = category.toLowerCase();
+    if (normalizedCategory === 'nature') {
+      normalizedCategory = 'tree & nature care';
+    }
+
     const points = pointsMapping[type] || 0;
+    const co2Saved = co2SavedMapping[normalizedCategory] || 0;
+
+    console.log(`Calculated co2Saved: ${co2Saved} for category: ${category}`);
 
     const newAction = new Action({
       user: userId,
-      title,
+      title: type,
       category,
       type,
       points,
-      notes,
+      co2Saved,
+      notes: content,
     });
 
     await newAction.save();
