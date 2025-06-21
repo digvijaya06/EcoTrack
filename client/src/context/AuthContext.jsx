@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000';
+const API_URL = 'https://ecotrack-dz9g.onrender.com';
 
 export const AuthContext = createContext({
   user: null,
