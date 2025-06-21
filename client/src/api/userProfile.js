@@ -1,17 +1,10 @@
-import axios from 'axios';
-import { API_URL } from '../config/constants';
-
-// Get the auth token
-const getAuthHeader = () => {
-  const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import API, { getAuthHeader } from './api';
 
 // Fetch a user's profile by ID
 export const fetchUserProfile = async (userId) => {
   try {
-    const response = await axios.get(`${API_URL}/api/users/${userId}`, {
-      headers: getAuthHeader()
+    const response = await API.get(`/users/${userId}`, {
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (error) {
@@ -23,8 +16,8 @@ export const fetchUserProfile = async (userId) => {
 // Update the current user's profile
 export const updateUserProfile = async (profileData) => {
   try {
-    const response = await axios.put(`${API_URL}/api/users/profile`, profileData, {
-      headers: getAuthHeader()
+    const response = await API.put('/users/profile', profileData, {
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (error) {
@@ -36,9 +29,9 @@ export const updateUserProfile = async (profileData) => {
 // Fetch leaderboard with optional time frame
 export const fetchLeaderboard = async (timeFrame = 'all') => {
   try {
-    const response = await axios.get(`${API_URL}/api/users/leaderboard`, {
+    const response = await API.get('/users/leaderboard', {
       headers: getAuthHeader(),
-      params: { timeFrame }
+      params: { timeFrame },
     });
     return response.data;
   } catch (error) {

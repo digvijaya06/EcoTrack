@@ -1,25 +1,20 @@
-import axios from 'axios';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import API, { getAuthHeader } from './api';
 
+// Get dashboard data by time period (week/month/etc)
 export const getDashboardData = async (period = 'week') => {
-  const token = localStorage.getItem('token');
-  const headers = token ? { Authorization: 'Bearer ' + token } : {};
-
-  const res = await axios.get(API_URL + '/api/dashboard', {
-    headers,
+  const res = await API.get('/dashboard', {
+    headers: getAuthHeader(),
     params: { period }
   });
   return res.data;
 };
 
+// Update user points manually with reason
 export const updateUserPoints = async (userId, points, reason) => {
-  const token = localStorage.getItem('token');
-  const headers = token ? { Authorization: 'Bearer ' + token } : {};
-
-  const res = await axios.post(
-    API_URL + '/api/points/update',
+  const res = await API.post(
+    '/points/update',
     { userId, points, reason },
-    { headers }
+    { headers: getAuthHeader() }
   );
   return res.data;
 };

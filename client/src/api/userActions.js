@@ -1,18 +1,11 @@
-import axios from 'axios';
-import { API_URL } from '../config/constants';
-
-// Get the auth token from localStorage
-const getAuthHeader = () => {
-  const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import API, { getAuthHeader } from './api';
 
 // Fetch user actions with optional filters
 export const fetchUserActions = async (filters) => {
   try {
-    const response = await axios.get(`${API_URL}/api/actions`, {
+    const response = await API.get('/actions', {
       headers: getAuthHeader(),
-      params: filters
+      params: filters,
     });
     return response.data;
   } catch (error) {
@@ -24,8 +17,8 @@ export const fetchUserActions = async (filters) => {
 // Fetch user dashboard data
 export const fetchUserDashboardData = async () => {
   try {
-    const response = await axios.get(`${API_URL}/api/users/dashboard`, {
-      headers: getAuthHeader()
+    const response = await API.get('/users/dashboard', {
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (error) {
@@ -37,12 +30,12 @@ export const fetchUserDashboardData = async () => {
 // Add new action
 export const addAction = async (actionData) => {
   try {
-    // Ensure tags is an array if not provided
     if (!actionData.tags) {
       actionData.tags = [];
     }
-    const response = await axios.post(`${API_URL}/api/actions`, actionData, {
-      headers: getAuthHeader()
+
+    const response = await API.post('/actions', actionData, {
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (error) {
@@ -54,8 +47,8 @@ export const addAction = async (actionData) => {
 // Update existing action
 export const updateAction = async (id, actionData) => {
   try {
-    const response = await axios.put(`${API_URL}/api/actions/${id}`, actionData, {
-      headers: getAuthHeader()
+    const response = await API.put(`/actions/${id}`, actionData, {
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (error) {
@@ -67,8 +60,8 @@ export const updateAction = async (id, actionData) => {
 // Delete an action
 export const deleteAction = async (id) => {
   try {
-    await axios.delete(`${API_URL}/api/actions/${id}`, {
-      headers: getAuthHeader()
+    await API.delete(`/actions/${id}`, {
+      headers: getAuthHeader(),
     });
     return true;
   } catch (error) {
@@ -77,11 +70,11 @@ export const deleteAction = async (id) => {
   }
 };
 
-// Fetch user achievements (badges, points, stats)
+// Fetch user achievements
 export const fetchUserAchievements = async () => {
   try {
-    const response = await axios.get(`${API_URL}/api/users/me/achievements`, {
-      headers: getAuthHeader()
+    const response = await API.get('/users/me/achievements', {
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (error) {

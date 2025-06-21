@@ -1,19 +1,13 @@
-import axios from 'axios';
-import { API_URL } from '../config/constants';
-
-export const getAuthHeader = () => {
-  const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import API, { getAuthHeader } from './api';
 
 export const fetchGoals = (userId) =>
-  axios.get(`${API_URL}/api/goals/user/${userId}`, { headers: getAuthHeader() });
+  API.get(`/goals/user/${userId}`, { headers: getAuthHeader() });
 
 export const createGoal = (goalData) =>
-  axios.post(`${API_URL}/api/goals`, goalData, { headers: getAuthHeader() });
+  API.post('/goals', goalData, { headers: getAuthHeader() });
 
 export const updateGoal = (goalId, updatedData) =>
-  axios.put(`${API_URL}/api/goals/${goalId}`, updatedData, { headers: getAuthHeader() });
+  API.put(`/goals/${goalId}`, updatedData, { headers: getAuthHeader() });
 
 export const deleteGoal = (goalId) =>
-  axios.delete(`${API_URL}/api/goals/${goalId}`, { headers: getAuthHeader() });
+  API.delete(`/goals/${goalId}`, { headers: getAuthHeader() });

@@ -1,6 +1,13 @@
-import axios from 'axios';
-import { API_URL } from '../config/constants';
-import { getAuthHeader } from './goalService'; // reuse auth header function
+import API, { getAuthHeader } from './api';
 
-export const getUserBadges = () =>
-  axios.get(`${API_URL}/api/users/me/badges`, { headers: getAuthHeader() });
+export const getUserBadges = async () => {
+  try {
+    const response = await API.get('/users/me/badges', {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user badges:', error);
+    throw error;
+  }
+};
