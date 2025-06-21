@@ -13,4 +13,7 @@ router.put('/:id', actionController.updateAction);
 router.delete('/:id', actionController.deleteAction);
 router.get('/meta/dropdowns', actionController.getActionMeta);
 
+// New route to get user achievements (badges)
+router.get('/achievements', actionController.getUserAchievements);
+
 module.exports = router;

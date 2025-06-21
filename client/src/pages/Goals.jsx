@@ -221,7 +221,12 @@ const Goals = () => {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredGoals.length ? (
           filteredGoals.map((goal) => (
-            <GoalCard key={goal._id} goal={goal} onClick={toggleGoalCompletion} updateProgress={updateGoalProgress} />
+            <GoalCard
+              key={goal._id}
+              goal={goal}
+              onClick={toggleGoalCompletion}
+              updateProgress={updateGoalProgress}
+            />
           ))
         ) : (
           <p className="text-green-500">No goals match the filter.</p>

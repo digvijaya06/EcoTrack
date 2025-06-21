@@ -6,205 +6,144 @@ import { AuthContext } from "../../context/AuthContext";
 
 const GoalCard = ({ goal, onClick, updateProgress }) => {
   const { user } = useContext(AuthContext);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [progressInput, setProgressInput] = useState(goal.progress || 0);
+  const [progressHistory, setProgressHistory] = useState(goal.progressHistory || []);
+  const [dateRange, setDateRange] = useState([]);
 
   useEffect(() => {
-    setProgressInput(goal.progress || 0);
-  }, [goal.progress]);
+    setProgressHistory(goal.progressHistory || []);
+  }, [goal.progressHistory]);
 
-  
-  const target = Number(goal.target) || 0;
+  useEffect(() => {
+    if (goal.startDate && goal.deadline) {
+      const start = new Date(goal.startDate);
+      const end = new Date(goal.deadline);
+      const dates = [];
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        dates.push(new Date(d));
+      }
+      setDateRange(dates);
+    }
+  }, [goal.startDate, goal.deadline]);
 
-  const progressPercentage =
-    target > 0 && !isNaN(goal.progress)
-      ? Math.min(Math.round((goal.progress / target) * 100), 100)
-      : 0;
+  const toggleCheckbox = (date) => {
+    // Only allow logged-in non-admin members to toggle
+    if (!user || user.isAdmin) return;
+
+    const dateStr = date.toISOString().split("T")[0];
+    const updatedHistory = [...progressHistory];
+    const index = updatedHistory.findIndex((ph) => ph.date === dateStr);
+
+    if (index >= 0) {
+      updatedHistory[index].checked = !updatedHistory[index].checked;
+    } else {
+      updatedHistory.push({ date: dateStr, checked: true });
+    }
+
+    setProgressHistory(updatedHistory);
+
+    const checkedCount = updatedHistory.filter((ph) => ph.checked).length;
+    updateProgress(goal._id, checkedCount, updatedHistory);
+  };
 
   const getCategoryColor = (category) => {
     switch (category) {
-      case "ENERGY":
-        return "bg-accent-50 text-accent-700 border-accent-200";
-      case "WATER":
-        return "bg-secondary-50 text-secondary-700 border-secondary-200";
-      case "TRANSPORTATION":
-        return "bg-primary-50 text-primary-700 border-primary-200";
-      case "WASTE":
-        return "bg-warning-50 text-warning-700 border-warning-200";
-      case "FOOD":
-        return "bg-success-50 text-success-700 border-success-200";
-      default:
-        return "bg-gray-50 text-gray-700 border-gray-200";
+      case "ENERGY": return "bg-accent-50 text-accent-700 border-accent-200";
+      case "WATER": return "bg-secondary-50 text-secondary-700 border-secondary-200";
+      case "TRANSPORTATION": return "bg-primary-50 text-primary-700 border-primary-200";
+      case "WASTE": return "bg-warning-50 text-warning-700 border-warning-200";
+      case "FOOD": return "bg-success-50 text-success-700 border-success-200";
+      default: return "bg-gray-50 text-gray-700 border-gray-200";
     }
   };
 
-  const getProgressColor = (percentage) => {
-    if (percentage >= 100) return "bg-success-500";
-    if (percentage >= 70) return "bg-primary-500";
-    if (percentage >= 30) return "bg-accent-500";
-    return "bg-warning-500";
-  };
-
-  const openModal = (e) => {
-    e.stopPropagation();
-    setProgressInput(goal.currentValue || 0);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleProgressChange = (e) => {
-    setProgressInput(e.target.value);
-  };
-
-  const handleSubmit = () => {
-    const numericProgress = Number(progressInput);
-    if (
-      !isNaN(numericProgress) &&
-      numericProgress >= 0
-    ) {
-      updateProgress(goal._id, numericProgress);
-      closeModal();
-    } else {
-      alert(
-        target === 0
-          ? 'Please enter a valid non-negative number'
-          : `Please enter a valid number greater than or equal to 0`
-      );
-    }
-  };
-
-  // Calculate days remaining if deadline exists and goal not completed
   const calculateDaysRemaining = (deadline) => {
-    if (!deadline) return null;
     const now = new Date();
-    const deadlineDate = new Date(deadline);
-    const diffTime = deadlineDate - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays >= 0 ? diffDays : 0;
+    const end = new Date(deadline);
+    const diff = end - now;
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return days >= 0 ? days : 0;
   };
 
   const daysRemaining = !goal.completed ? calculateDaysRemaining(goal.deadline) : null;
 
+  const handleCompletionToggle = (e) => {
+    e.stopPropagation();
+    if (onClick) {
+      onClick(goal._id);
+    }
+  };
+
   return (
-    <>
-      <Card
-        className="h-full hover:shadow-md transition-shadow duration-300"
-        interactive={!!onClick}
-        onClick={() => onClick && onClick(goal._id)}
-      >
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <span
-              className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${getCategoryColor(
-                goal.category
-              )}`}
-            >
-              <Target size={14} className="mr-1" />
-              <span className="capitalize">{goal.category.toLowerCase()}</span>
+    <Card
+      className="h-full hover:shadow-md transition-shadow duration-300"
+      interactive={!!onClick}
+      onClick={() => onClick && onClick(goal._id)}
+    >
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${getCategoryColor(goal.category)}`}>
+            <Target size={14} className="mr-1" />
+            <span className="capitalize">{goal.category.toLowerCase()}</span>
+          </span>
+
+          <label className="inline-flex items-center space-x-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={goal.completed}
+              onChange={handleCompletionToggle}
+              className="form-checkbox h-5 w-5 text-green-600"
+              aria-label="Mark goal as completed"
+            />
+            <span className={goal.completed ? "text-success-600 text-sm" : "text-gray-500 text-sm"}>
+              {goal.completed ? (
+                <>
+                  <CheckCircle size={16} className="inline mr-1" />
+                  Completed
+                </>
+              ) : (
+                "Mark as Completed"
+              )}
             </span>
+          </label>
+        </div>
 
-            {goal.completed ? (
-              <span className="inline-flex items-center text-success-600 text-sm">
-                <CheckCircle size={16} className="mr-1" />
-                Completed
-              </span>
-            ) : goal.deadline ? (
-              <span className="inline-flex items-center text-gray-500 text-sm space-x-2">
-                <Clock size={16} className="mr-1" />
-                <span>Due {formatDate(goal.deadline)}</span>
-                {daysRemaining !== null && (
-                  <span>({daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left)</span>
-                )}
-              </span>
-            ) : null}
-          </div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">{goal.title}</h3>
 
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">{goal.title}</h3>
+        {goal.description && (
+          <p className="text-gray-600 text-sm mb-4 line-clamp-2">{goal.description}</p>
+        )}
 
-          {goal.description && (
-            <p className="text-gray-600 text-sm mb-4 line-clamp-2">{goal.description}</p>
-          )}
-
-          <div className="mt-4">
-            <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium text-gray-700">Progress</span>
-              <span className="text-sm font-medium text-gray-700">{progressPercentage}%</span>
-            </div>
-
-          <div className="w-full bg-gray-200 rounded-full h-2.5" title={user && !user.isAdmin ? "Progress is verified by the platform admin after review of your actions." : ""}>
-            <div
-              className={`h-2.5 rounded-full ${getProgressColor(progressPercentage)}`}
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-
-          <div className="flex justify-between mt-2 text-sm text-gray-600">
-            <span>
-              {goal.progress} {goal.unit}
-            </span>
-            <span>
-              Target: {goal.target} {goal.unit}
-            </span>
-          </div>
+        {/* Calendar Checkboxes */}
+        <div className="mt-4 grid grid-cols-7 gap-1 max-w-full overflow-x-auto">
+          {dateRange.map((date) => {
+            const dateStr = date.toISOString().split("T")[0];
+            const isChecked = progressHistory.find((ph) => ph.date === dateStr && ph.checked);
+            return (
+              <label
+                key={dateStr}
+                className="flex flex-col items-center text-xs cursor-pointer select-none"
+                title={`Progress for ${dateStr}`}
+              >
+                <input
+                  type="checkbox"
+                  checked={!!isChecked}
+                  disabled={!user || user.isAdmin}
+                  onChange={() => toggleCheckbox(date)}
+                  className="mb-1"
+                  aria-label={`Progress for ${dateStr}`}
+                  title={`Progress for ${dateStr}`}
+                />
+                <span>{date.getDate()}</span>
+              </label>
+            );
+          })}
         </div>
       </CardContent>
 
-      {user && user.isAdmin ? (
-        <CardFooter className="px-6 py-3 bg-gray-50 text-xs text-gray-500 flex justify-between items-center">
-          Created on {formatDate(goal.createdAt)}
-          <button
-            onClick={openModal}
-            className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs"
-          >
-            Update Progress
-          </button>
-        </CardFooter>
-      ) : (
-        <CardFooter className="px-6 py-3 bg-gray-50 text-xs text-gray-500 flex justify-between items-center">
-          Created on {formatDate(goal.createdAt)}
-        </CardFooter>
-      )}
-      </Card>
-
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
-          <div
-            className="bg-white rounded p-6 w-80"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-semibold mb-4">Update Progress</h2>
-            <input
-              type="number"
-              min="0"
-              max={target === 0 ? undefined : target}
-              value={progressInput}
-              onChange={handleProgressChange}
-              className="border px-3 py-2 rounded w-full mb-4"
-            />
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 rounded border border-gray-300 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+      <CardFooter className="px-6 py-3 bg-gray-50 text-xs text-gray-500 flex justify-between items-center">
+        Created on {formatDate(goal.createdAt)}
+      </CardFooter>
+    </Card>
   );
 };
 

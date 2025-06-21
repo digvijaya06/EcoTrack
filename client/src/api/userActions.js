@@ -76,3 +76,16 @@ export const deleteAction = async (id) => {
     throw error;
   }
 };
+
+// Fetch user achievements (badges, points, stats)
+export const fetchUserAchievements = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/api/users/me/achievements`, {
+      headers: getAuthHeader()
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user achievements:', error);
+    throw error;
+  }
+};

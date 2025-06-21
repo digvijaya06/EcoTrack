@@ -1,11 +1,14 @@
 import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-export const getDashboardData = async () => {
+export const getDashboardData = async (period = 'week') => {
   const token = localStorage.getItem('token');
   const headers = token ? { Authorization: 'Bearer ' + token } : {};
 
-  const res = await axios.get(API_URL + '/api/dashboard', { headers });
+  const res = await axios.get(API_URL + '/api/dashboard', {
+    headers,
+    params: { period }
+  });
   return res.data;
 };
 

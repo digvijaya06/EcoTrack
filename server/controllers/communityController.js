@@ -11,16 +11,19 @@ const getCommunityPosts = async (req, res) => {
 
 const createCommunityPost = async (req, res) => {
   try {
+    const mediaFiles = req.files ? req.files.map(file => '/uploads/community/' + file.filename) : [];
     const newPost = new CommunityPost({
       user: req.user._id,
       title: req.body.title,
       content: req.body.content,
-      tags: req.body.tags || [],
+      tags: req.body.tags ? JSON.parse(req.body.tags) : [],
+      media: mediaFiles,
     });
     const savedPost = await newPost.save();
     const populatedPost = await savedPost.populate('user', 'name avatar location');
     res.status(201).json(populatedPost);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server error creating community post' });
   }
 };

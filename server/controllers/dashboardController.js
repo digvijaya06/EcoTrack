@@ -5,6 +5,7 @@ const { calculatePoints } = require('../utils/pointsCalculator');
 exports.getDashboardStats = async (req, res) => {
   try {
     const userId = req.user._id;
+    const period = req.query.period || 'week'; // default to week
 
     const actions = await Action.find({ user: userId }).sort({ createdAt: -1 });
 
@@ -20,39 +21,95 @@ exports.getDashboardStats = async (req, res) => {
       count
     }));
 
-    // Calculate weekly progress: points per day for last 7 days
     const today = new Date();
-    const last7Days = [];
-    for (let i = 6; i >= 0; i--) {
-      const day = new Date(today);
-      day.setDate(today.getDate() - i);
-      last7Days.push(day);
-    }
 
-    // Initialize points per day map
-    const pointsPerDayMap = {};
-    last7Days.forEach(day => {
-      const key = day.toISOString().slice(0, 10); // YYYY-MM-DD
-      pointsPerDayMap[key] = 0;
-    });
+    let progressData = [];
 
-    // Aggregate points per day
-    actions.forEach(action => {
-      const actionDate = new Date(action.createdAt);
-      const key = actionDate.toISOString().slice(0, 10);
-      if (key in pointsPerDayMap) {
-        pointsPerDayMap[key] += action.points;
+    if (period === 'week') {
+      // Calculate points per day for last 7 days
+      const last7Days = [];
+      for (let i = 6; i >= 0; i--) {
+        const day = new Date(today);
+        day.setDate(today.getDate() - i);
+        last7Days.push(day);
       }
-    });
 
-    // Format weekly progress data for frontend
-    const weeklyProgress = last7Days.map(day => {
-      const key = day.toISOString().slice(0, 10);
-      return {
-        day: day.toLocaleDateString('en-US', { weekday: 'short' }),
-        points: pointsPerDayMap[key] || 0
-      };
-    });
+      const pointsPerDayMap = {};
+      last7Days.forEach(day => {
+        const key = day.toISOString().slice(0, 10); // YYYY-MM-DD
+        pointsPerDayMap[key] = 0;
+      });
+
+      actions.forEach(action => {
+        const actionDate = new Date(action.createdAt);
+        const key = actionDate.toISOString().slice(0, 10);
+        if (key in pointsPerDayMap) {
+          pointsPerDayMap[key] += action.points;
+        }
+      });
+
+      progressData = last7Days.map(day => {
+        const key = day.toISOString().slice(0, 10);
+        return {
+          day: day.toLocaleDateString('en-US', { weekday: 'short' }),
+          points: pointsPerDayMap[key] || 0
+        };
+      });
+    } else if (period === 'month') {
+      // Calculate points per day for current month
+      const year = today.getFullYear();
+      const month = today.getMonth();
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      const pointsPerDayMap = {};
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const key = date.toISOString().slice(0, 10);
+        pointsPerDayMap[key] = 0;
+      }
+
+      actions.forEach(action => {
+        const actionDate = new Date(action.createdAt);
+        if (actionDate.getFullYear() === year && actionDate.getMonth() === month) {
+          const key = actionDate.toISOString().slice(0, 10);
+          if (key in pointsPerDayMap) {
+            pointsPerDayMap[key] += action.points;
+          }
+        }
+      });
+
+      progressData = Object.keys(pointsPerDayMap).map(key => {
+        const date = new Date(key);
+        return {
+          day: date.toLocaleDateString('en-US', { day: 'numeric' }),
+          points: pointsPerDayMap[key]
+        };
+      });
+    } else if (period === 'year') {
+      // Calculate points per month for current year
+      const year = today.getFullYear();
+
+      const pointsPerMonthMap = {};
+      for (let month = 0; month < 12; month++) {
+        pointsPerMonthMap[month] = 0;
+      }
+
+      actions.forEach(action => {
+        const actionDate = new Date(action.createdAt);
+        if (actionDate.getFullYear() === year) {
+          const month = actionDate.getMonth();
+          pointsPerMonthMap[month] += action.points;
+        }
+      });
+
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+      progressData = Object.keys(pointsPerMonthMap).map(month => ({
+        day: monthNames[month],
+        points: pointsPerMonthMap[month]
+      }));
+    }
 
     const actionDates = actions.map(a => a.createdAt).sort((a, b) => new Date(b) - new Date(a));
     const streak = calculateStreak(actionDates);
@@ -67,7 +124,7 @@ exports.getDashboardStats = async (req, res) => {
       streak,
       actionsCount: actions.length,
       totalPoints,
-      weeklyProgress,
+      weeklyProgress: progressData,
       co2Saved: totalCo2Saved
     });
   } catch (err) {

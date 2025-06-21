@@ -17,8 +17,11 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { fetchUserActions } from '../api/userActions';
+import { fetchUserActions, fetchUserAchievements } from '../api/userActions';
 import ProfileForm from '../components/profile/ProfileForm';
+import NotificationSettings from '../components/profile/NotificationSettings';
+import PrivacySettings from '../components/profile/PrivacySettings';
+import AccountActions from '../components/profile/AccountActions';
 
 const Profile = () => {
   const { user, token, updateUser } = useAuth();
@@ -40,6 +43,7 @@ const Profile = () => {
   });
   const [actionsCount, setActionsCount] = useState(0);
   const [recentActivity, setRecentActivity] = useState([]);
+  const [communityRank, setCommunityRank] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -85,6 +89,23 @@ const Profile = () => {
     loadRecentActivity();
   }, [token]);
 
+  useEffect(() => {
+    const fetchCommunityRank = async () => {
+      if (!token || !user) return;
+      try {
+        const response = await axios.get('http://localhost:5000/api/leaderboard?timeframe=all-time', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const leaderboard = response.data;
+        const userRank = leaderboard.findIndex(item => item.id === user._id) + 1;
+        setCommunityRank(userRank > 0 ? userRank : 'Not ranked');
+      } catch (error) {
+        console.error('Error fetching community rank:', error);
+      }
+    };
+    fetchCommunityRank();
+  }, [token, user]);
+
   const tabs = [
     { id: 'overview', name: 'Overview', icon: User },
     { id: 'achievements', name: 'Achievements', icon: Award },
@@ -94,8 +115,8 @@ const Profile = () => {
   const stats = [
     { label: 'Total Points', value: user?.totalPoints || 0, icon: Award, color: 'eco' },
     { label: 'Actions Completed', value: actionsCount, icon: Target, color: 'blue' },
-    { label: 'Days Active', value: '89', icon: Calendar, color: 'purple' },
-    { label: 'Community Rank', value: '#42', icon: TrendingUp, color: 'orange' }
+    { label: 'Days Active', value: user?.joinDate ? Math.floor((new Date() - new Date(user.joinDate)) / (1000 * 60 * 60 * 24)) : 'N/A', icon: Calendar, color: 'purple' },
+    { label: 'Community Rank', value: communityRank ? `#${communityRank}` : 'Loading...', icon: TrendingUp, color: 'orange' }
   ];
 
   const badges = [
@@ -106,6 +127,22 @@ const Profile = () => {
     { id: 5, name: 'Community Leader', description: 'Led 5+ community challenges', icon: '👥', earned: false, rarity: 'Legendary' },
     { id: 6, name: 'Water Guardian', description: 'Saved 10,000L of water', icon: '💧', earned: true, rarity: 'Rare' }
   ];
+
+  const [fetchedBadges, setFetchedBadges] = React.useState([]);
+
+  React.useEffect(() => {
+    const fetchBadges = async () => {
+      try {
+        const data = await fetchUserAchievements();
+        if (data && data.badges) {
+          setFetchedBadges(data.badges);
+        }
+      } catch (error) {
+        console.error('Error fetching badges:', error);
+      }
+    };
+    fetchBadges();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-eco-50 via-white to-earth-50 py-8">
@@ -165,7 +202,7 @@ const Profile = () => {
       onClick={() => {
         setActiveTab(tab.id);
         if (tab.id === 'settings') {
-          setIsEditing(true);
+          setIsEditing(false);
         } else {
           setIsEditing(false);
         }
@@ -274,18 +311,18 @@ const Profile = () => {
 
           {activeTab === 'achievements' && (
             <div className="bg-white rounded-xl p-6 shadow-xl">
-              <h2 className="text-xl font-semibold mb-6">Your Badges</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                {badges.map((badge) => (
-                  <div key={badge.id} className={`p-4 rounded-lg text-center cursor-default select-none ${
-                    badge.earned ? 'bg-green-100 text-green-900 shadow-md' : 'bg-gray-100 text-gray-400'
-                  }`}>
-                    <div className="text-3xl mb-2">{badge.icon}</div>
-                    <div className="font-semibold">{badge.name}</div>
-                    <div className="text-xs">{badge.rarity}</div>
-                  </div>
-                ))}
+          <h2 className="text-xl font-semibold mb-6">Your Badges</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+            {(fetchedBadges.length > 0 ? fetchedBadges : badges).map((badge, index) => (
+              <div key={index} className={`p-4 rounded-lg text-center cursor-default select-none ${
+                badge.earned ? 'bg-green-100 text-green-900 shadow-md' : 'bg-gray-100 text-gray-400'
+              }`}>
+                <div className="text-3xl mb-2">{badge.icon || '🏅'}</div>
+                <div className="font-semibold">{badge.name || badge}</div>
+                <div className="text-xs">{badge.rarity || ''}</div>
               </div>
+            ))}
+          </div>
             </div>
           )}
 
@@ -301,24 +338,29 @@ const Profile = () => {
                   {isEditing ? 'Cancel' : 'Edit Profile'}
                 </button>
               </h2>
-{isEditing ? (
-  <ProfileForm
-    initialData={editedUser}
-    onSave={async (data) => {
-      try {
-        const response = await axios.put('http://localhost:5000/api/profile', data, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        updateUser(response.data);
-        setIsEditing(false);
-      } catch (error) {
-        console.error('Error saving profile:', error);
-      }
-    }}
-  />
-) : (
-  <p className="text-gray-600">Coming soon: account and privacy settings.</p>
-)}
+
+              {isEditing ? (
+                <ProfileForm
+                  initialData={editedUser}
+                  onSave={async (data) => {
+                    try {
+                      const response = await axios.put('http://localhost:5000/api/profile', data, {
+                        headers: { Authorization: `Bearer ${token}` }
+                      });
+                      updateUser(response.data);
+                      setIsEditing(false);
+                    } catch (error) {
+                      console.error('Error saving profile:', error);
+                    }
+                  }}
+                />
+              ) : (
+                <>
+                  <NotificationSettings />
+                  <PrivacySettings />
+                  <AccountActions />
+                </>
+              )}
             </div>
           )}
         </motion.div>

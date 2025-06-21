@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
-import { fetchUserActions, addAction, deleteAction } from '../api/userActions';
+import { fetchUserActions, addAction, deleteAction, updateAction } from '../api/userActions';
 
 const Actions = () => {
   const { user } = useAuth();

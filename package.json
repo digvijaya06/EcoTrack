@@ -23,6 +23,7 @@
     "leaflet": "^1.9.4",
     "lucide-react": "^0.513.0",
     "motion": "^12.16.0",
+    "multer": "^2.0.1",
     "node-cron": "^4.1.0",
     "nodemailer": "^7.0.3",
     "react-countup": "^6.5.3",

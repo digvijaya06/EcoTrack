@@ -26,6 +26,7 @@ import {
 } from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import { getDashboardData } from '../api/dashboard';
+import { fetchUserAchievements } from '../api/userActions';
 
 const colorMap = {
   eco: {
@@ -82,8 +83,9 @@ const Dashboard = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getDashboardData();
-        
+        const data = await getDashboardData(selectedPeriod);
+        const achievementsData = await fetchUserAchievements();
+
         const aggregatedRecent = data.recentActions.reduce((acc, action) => {
           const category = action.category || 'Action';
           const existing = acc.find(item => item.action === category);
@@ -114,15 +116,18 @@ const Dashboard = () => {
           co2Saved: data.co2Saved || 0,
           streak: data.streak || 0
         });
-     
-        setAchievements([
-          { id: 1, title: 'Week Streak', description: '7 days of consistent actions', icon: Calendar, earned: data.streak >= 7 },
-          { id: 2, title: 'Recycling Hero', description: 'Recycled 100+ items', icon: Recycle, earned: data.actionsCount >= 100 },
-          { id: 3, title: 'Energy Saver', description: 'Saved 500kWh this month', icon: Zap, earned: false },
-          { id: 4, title: 'Carbon Neutral', description: 'Offset 1 ton of CO₂', icon: Leaf, earned: false }
-        ]);
-        // dailyData can be derived or fetched; for now, keep static or empty
--        setDailyData([]); // Could be enhanced later
+
+        // Map backend badges to achievements for display on dashboard
+        const mappedAchievements = achievementsData.badges.map((badge, index) => ({
+          id: index + 1,
+          title: badge,
+          description: '',
+          icon: Award,
+          earned: true
+        }));
+
+        setAchievements(mappedAchievements);
+
         setDailyData(data.weeklyProgress || []);
         console.log('Weekly Progress Data:', data.weeklyProgress);
       } catch (err) {
@@ -132,7 +137,7 @@ const Dashboard = () => {
       }
     };
     fetchDashboardData();
-  }, []);
+  }, [selectedPeriod]);
 
   const getIconForCategory = (category) => {
     switch (category) {

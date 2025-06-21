@@ -1,5 +1,5 @@
-import React from 'react';
-import ResourceCard from './ResourceCard';
+import React from "react";
+import ResourceCard from "./ResourceCard";
 
 const ResourceList = ({ resources }) => {
   if (!resources || resources.length === 0) {

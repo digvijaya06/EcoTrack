@@ -32,7 +32,8 @@ exports.getLeaderboard = async (req, res) => {
         id: user ? user._id : null,
         name: user ? user.name : 'Unknown',
         avatar: user ? user.avatar : '',
-        impactScore: item.totalPoints,
+        points: item.totalPoints,
+        streak: user ? user.streak : 0,
         rank: null, // will set below
         badges: [] // placeholder, implement badge logic if needed
       };
