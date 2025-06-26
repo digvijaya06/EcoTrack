@@ -63,6 +63,7 @@ const action = require('./routes/action');
 app.use('/api/actions', action); 
 
 // Analytics Routes
+// Uncomment analytics routes to fix 404 errors
 const analyticsRoutes = require('./routes/analytics');
 app.use('/api/analytics', analyticsRoutes);
 

@@ -8,6 +8,9 @@ import {
   Trash2,
   Edit,
   CheckCircle,
+  Zap,
+  Droplet,
+  Car,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
@@ -45,7 +48,9 @@ const Actions = () => {
     title: '',
     category: 'recycling',
     type: types[0],
-    notes: ''
+    notes: '',
+    energySaved: 0,
+    wasteReduced: 0
   });
 
   useEffect(() => {
@@ -79,7 +84,9 @@ const Actions = () => {
     const actionToAdd = {
       title: newAction.title,
       content: newAction.notes,
-      tags: newAction.category ? [newAction.category.toLowerCase()] : []
+      tags: newAction.category ? [newAction.category.toLowerCase()] : [],
+      energySaved: newAction.energySaved,
+      wasteReduced: newAction.wasteReduced
     };
     console.log('handleAddAction called with newAction:', actionToAdd);
     try {
@@ -95,7 +102,9 @@ const Actions = () => {
         title: '',
         category: 'recycling',
         type: types[0],
-        notes: ''
+        notes: '',
+        energySaved: 0,
+        wasteReduced: 0
       });
       alert('Action added successfully!');
       setTimeout(() => setShowAddAction(false), 100);
@@ -226,26 +235,42 @@ const Actions = () => {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start space-x-4">
-                      <div className={'w-12 h-12 bg-' + color + '-100 rounded-lg flex items-center justify-center flex-shrink-0'}>
-                        <CheckCircle className={'w-6 h-6 text-' + color + '-600'} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">{action.title}</h3>
-                        </div>
-                        <p className="text-gray-600 mb-3">{action.description}</p>
-                        <div className="flex items-center space-x-6 text-sm text-gray-500">
-                          <div className="flex items-center space-x-1">
-                            <Calendar className="w-4 h-4" />
+                  <div className={'w-12 h-12 bg-' + color + '-100 rounded-lg flex items-center justify-center flex-shrink-0'}>
+                    {(() => {
+                      switch (action.category) {
+                        case 'energy':
+                          return <Zap className={'w-6 h-6 text-' + color + '-600'} />;
+                        case 'water':
+                          return <Droplet className={'w-6 h-6 text-' + color + '-600'} />;
+                        case 'transportation':
+                          return <Car className={'w-6 h-6 text-' + color + '-600'} />;
+                        case 'recycling':
+                          return <Trash2 className={'w-6 h-6 text-' + color + '-600'} />;
+                        default:
+                          return <CheckCircle className={'w-6 h-6 text-' + color + '-600'} />;
+                      }
+                    })()}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-1">
+                        <span>{action.title}</span>
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      </h3>
+                    </div>
+                    <p className="text-gray-600 mb-3">{action.description}</p>
+                    <div className="flex items-center space-x-6 text-sm text-gray-500">
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="w-4 h-4" />
 <span>{new Date(action.createdAt).toLocaleDateString()}</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            <MapPin className="w-4 h-4" />
-                            <span>{action.location}</span>
-                          </div>
-                        </div>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>{action.location}</span>
                       </div>
                     </div>
+                  </div>
+                </div>
                     <div className="flex items-center space-x-2">
                       <div className="text-right">
                         <div className="text-2xl font-bold text-eco-600">+{action.points}</div>
@@ -302,7 +327,6 @@ const Actions = () => {
                     placeholder="e.g., Recycled plastic bottles"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Category
@@ -319,7 +343,6 @@ const Actions = () => {
                     ))}
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Notes
@@ -332,7 +355,6 @@ const Actions = () => {
                     placeholder="Additional details about your action..."
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Type
@@ -349,6 +371,7 @@ const Actions = () => {
                     ))}
                   </select>
                 </div>
+                {/* Removed Energy Saved and Waste Reduced input fields as these are calculated automatically in backend */}
 
                 <div className="flex space-x-3 pt-4">
                   <button

@@ -6,7 +6,7 @@ const goalController = require('../controllers/goalController');
 // Consolidated routes from both goal.js and goals.js
 
 // Routes with protection middleware
-router.get('/user/:userId', protect, goalController.getGoalsByUser);
+router.get('/', protect, goalController.getGoalsByUser);
 router.post('/', protect, goalController.createGoal);
 router.put('/:id', protect, goalController.updateGoal);
 router.delete('/:id', protect, goalController.deleteGoal);

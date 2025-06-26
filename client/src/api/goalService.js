@@ -1,7 +1,7 @@
 import API, { getAuthHeader } from './api';
 
-export const fetchGoals = (userId) =>
-  API.get(`/goals/user/${userId}`, { headers: getAuthHeader() });
+export const fetchGoals = () =>
+  API.get('/goals', { headers: getAuthHeader() });
 
 export const createGoal = (goalData) =>
   API.post('/goals', goalData, { headers: getAuthHeader() });

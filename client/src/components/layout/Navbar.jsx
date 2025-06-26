@@ -36,11 +36,10 @@ const visitorHomeLinks = [
     { name: 'Community', path: '/community', icon: <Users size={20} /> },
   ];
 
-  const loggedInLinks = [
+const loggedInLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
     { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
     { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
-    { name: 'Analytics', path: '/analytics', icon: <TrendingUp size={20} /> },
     { name: 'Community', path: '/community', icon: <Users size={20} /> },
     { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
   ];
@@ -53,7 +52,6 @@ const visitorHomeLinks = [
     { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
     { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
     { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
-    { name: 'Analytics', path: '/analytics', icon: <TrendingUp size={20} /> },
     { name: 'Community', path: '/community', icon: <Users size={20} /> },
     { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
     { name: 'Profile', path: '/profile', icon: <User size={20} /> },

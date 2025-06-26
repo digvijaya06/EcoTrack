@@ -140,7 +140,7 @@ const Resources = () => {
 
         {/* Newsletter Signup */}
         <div className="mt-12">
-          <div className="max-w-3xl mx-auto text-center bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg p-8">
+          <div className="max-w-3xl mx-auto text-center bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg p-8">
             <h2 className="text-2xl font-bold mb-4">Stay Updated with the Latest Resources</h2>
             <p className="mb-6">
               Join our newsletter to receive curated sustainability resources, tips, and updates directly to your inbox.
@@ -152,7 +152,7 @@ const Resources = () => {
                 placeholder="Enter your email address"
                 className="input flex-1 text-gray-800"
               />
-              <Button className="bg-white text-primary-600 hover:bg-gray-100">
+              <Button className="bg-white text-green-600 hover:bg-gray-100">
                 Subscribe
               </Button>
             </div>

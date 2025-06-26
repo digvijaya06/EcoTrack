@@ -45,12 +45,24 @@ exports.getBadges = async (req, res) => {
 
 // GET /api/users/me/achievements
 // Returns user achievements (badges)
+const Reward = require('../models/Reward');
+const { assignBadges } = require('../utils/badgeCalculator');
+
 exports.getAchievements = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('badges points stats');
     if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Dynamically assign badges based on points or rank
+    const earnedBadgeTitles = await assignBadges(user);
+
+    // Fetch badge metadata for earned badges
+    const badgesMetadata = await Reward.find({
+      title: { $in: earnedBadgeTitles }
+    });
+
     res.json({
-      badges: user.badges,
+      badges: badgesMetadata,
       points: user.points,
       stats: user.stats
     });

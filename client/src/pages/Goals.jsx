@@ -1,239 +1,347 @@
-import React, { useState, useEffect, useContext } from 'react';
-import GoalCard from '../components/goals/GoalCard';
-import GoalAnalytics from '../components/goals/GoalAnalytics';
-import { API_URL } from '../config/constants';
+import React, { useState, useEffect } from 'react';
+import { Plus } from 'lucide-react';
+import { useUser } from '../context/UserContext';
+import {
+  fetchGoals,
+  createGoal,
+  updateGoal,
+  deleteGoal
+} from '../api/goalService';
 import axios from 'axios';
-import { updateGoal } from '../api/goalService';
-import { AuthContext } from '../context/AuthContext';
 
-const categories = ['ENERGY', 'WATER', 'WASTE', 'TRANSPORTATION', 'FOOD', 'COMMUNITY', 'OTHER'];
+import GoalCardDetailed from '../components/goals/GoalCardDetailed';
+import GoalAnalytics from '../components/goals/GoalAnalytics';
+import Modal from '../components/ui/Modal';
 
 const Goals = () => {
+  const { user, updatePoints } = useUser();
   const [goals, setGoals] = useState([]);
+  const [activeTab, setActiveTab] = useState('active');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showAddGoal, setShowAddGoal] = useState(false);
   const [newGoal, setNewGoal] = useState({
     title: '',
     description: '',
-    category: 'ENERGY',
+    category: 'carbon',
     targetValue: '',
     unit: '',
     deadline: '',
+    priority: 'medium'
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const [filters, setFilters] = useState({
-    search: '',
-    category: 'all',
-    showCompleted: true,
-  });
+  const [questions, setQuestions] = useState([
+    { id: 1, text: 'How much total carbon saved?', value: '', unit: 'kg CO₂' },
+    { id: 2, text: 'How much energy conserved?', value: '', unit: 'kWh' },
+    { id: 3, text: 'How much waste reduced?', value: '', unit: 'kg' },
+    { id: 4, text: 'How much water saved?', value: '', unit: 'liters' }
+  ]);
+  const [questionFeedback, setQuestionFeedback] = useState(null);
+  const [questionLoading, setQuestionLoading] = useState(false);
 
-  const { user, updateUser } = useContext(AuthContext);
-
-  // Fetch all goals from backend
-  const fetchGoals = async () => {
+  const handleAddGoal = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
     try {
-      if (!user || !user._id) {
-        console.error('User ID not found in AuthContext user object');
-        return;
-      }
-      const userId = user._id;
-      const res = await axios.get(`${API_URL}/api/goals/user/${userId}`);
-      setGoals(res.data);
+      const response = await createGoal(newGoal);
+      setGoals([...goals, response.data]);
+      setNewGoal({
+        title: '',
+        description: '',
+        category: 'carbon',
+        targetValue: '',
+        unit: '',
+        deadline: '',
+        priority: 'medium'
+      });
+      setShowAddGoal(false);
     } catch (err) {
-      console.error('Error fetching goals:', err);
+      console.error('Failed to add goal', err);
+      setError('Failed to add goal');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadGoals = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetchGoals();
+      setGoals(response.data);
+    } catch (err) {
+      console.error('Failed to load goals', err);
+      setError('Failed to load goals');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchGoals();
-  }, []);
+    if (user) loadGoals();
+  }, [user]);
 
-  const handleAddGoal = async () => {
-    if (!newGoal.title.trim() || !newGoal.targetValue.trim() || !newGoal.unit.trim()) {
-      alert('Please fill in all required fields: Title, Target Value, and Unit.');
-      return;
-    }
+const updateGoalProgress = async (goalId, newValue) => {
+  const goal = goals.find(g => g._id === goalId);
+  if (!goal) return;
 
-    try {
-      if (!user || !user._id) {
-        alert('User not logged in. Please login to add goals.');
-        return;
-      }
-      const userId = user._id;
-
-      const res = await axios.post(`${API_URL}/api/goals`, {
-        ...newGoal,
-        userId,
-        progress: 0,
-        completed: false,
-        createdAt: new Date(),
-        deadline: newGoal.deadline ? new Date(newGoal.deadline) : null,
-      });
-
-      setGoals([res.data, ...goals]);
-      setNewGoal({
-        title: '',
-        description: '',
-        category: 'ENERGY',
-        targetValue: '',
-        unit: '',
-        deadline: '',
-      });
-
-      // Show success popup
-      alert('Goal added successfully!');
-    } catch (err) {
-      console.error('Error creating goal:', err);
-      alert('Failed to add goal. Please try again.');
-    }
+  const updated = {
+    progress: newValue,
   };
 
-  const toggleGoalCompletion = async (goalId) => {
-    try {
-      const updated = goals.map((g) =>
-        g._id === goalId ? { ...g, completed: !g.completed } : g
-      );
-      setGoals(updated);
+  if (newValue >= goal.targetValue && goal.status !== 'completed') {
+    updated.status = 'completed';
 
-      const goal = goals.find((g) => g._id === goalId);
-      await axios.put(`${API_URL}/api/goals/${goalId}`, {
-        completed: !goal.completed,
-      });
+    updatePoints(100); // reward points
+  }
+
+  try {
+    const response = await updateGoal(goalId, updated);
+    setGoals(goals.map(g => g._id === goalId ? response.data : g));
+  } catch (err) {
+    console.error('Failed to update goal', err);
+    setError('Failed to update goal');
+  }
+};
+
+  const deleteGoalHandler = async (goalId) => {
+    try {
+      await deleteGoal(goalId);
+      setGoals(goals.filter(goal => goal._id !== goalId));
     } catch (err) {
-      console.error('Error updating goal status:', err);
+      console.error('Failed to delete goal', err);
+      setError('Failed to delete goal');
     }
   };
-
-  const updateGoalProgress = async (goalId, newProgress) => {
-    try {
-      const updated = goals.map((g) =>
-        g._id === goalId ? { ...g, progress: newProgress, completed: newProgress >= Number(g.target) } : g
-      );
-      setGoals(updated);
-
-      // Determine if goal is completed
-      const goal = goals.find((g) => g._id === goalId);
-      const isCompleted = newProgress >= Number(goal.target);
-
-      // Send progress and completed status in update
-      await updateGoal(goalId, {
-        progress: newProgress,
-        completed: isCompleted,
-      });
-
-      // Refresh user data to update badges in profile
-      const res = await axios.get(`${API_URL}/api/users/me`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
-      if (res.data) {
-        updateUser(res.data);
-      }
-    } catch (err) {
-      console.error('Error updating goal progress:', err);
-    }
-  };
-
-  const filteredGoals = goals.filter((goal) => {
-    const matchCategory = filters.category === 'all' || goal.category === filters.category;
-    const matchCompletion = filters.showCompleted || !goal.completed;
-    return matchCategory && matchCompletion;
+  const filteredGoals = goals.filter(goal => {
+    const matchTab = activeTab === 'analytics' || goal.status === activeTab;
+    const matchCategory = selectedCategory === 'all' || goal.category === selectedCategory;
+    return matchTab && matchCategory;
   });
 
-  return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">🌱 My Sustainability Goals</h1>
+  const handleQuestionSubmit = async (e) => {
+    e.preventDefault();
+    setQuestionLoading(true);
+    setQuestionFeedback(null);
+    try {
+      const payload = questions.map(q => ({
+        question: q.text,
+        response: q.value + ' ' + q.unit
+      }));
+      await axios.post('/api/analytics/user-question-response/batch', { responses: payload });
+      setQuestionFeedback({ type: 'success', message: 'Responses saved successfully!' });
+      setQuestions(questions.map(q => ({ ...q, value: '' })));
+    } catch (error) {
+      setQuestionFeedback({ type: 'error', message: 'Failed to save responses.' });
+    } finally {
+      setQuestionLoading(false);
+    }
+  };
 
-      {/* New Goal Form */}
-      <div className="bg-white shadow-md p-4 rounded-md mb-6 space-y-4">
-        <h2 className="text-xl font-semibold">Create a Goal</h2>
-        <input
-          type="text"
-          placeholder="Goal title"
-          className="border px-3 py-2 rounded w-full"
-          value={newGoal.title}
-          onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
-        />
-        <textarea
-          placeholder="Optional description"
-          className="border px-3 py-2 rounded w-full"
-          value={newGoal.description}
-          onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
-        />
-        <div className="flex gap-3">
-          <select
-            className="border px-3 py-2 rounded"
-            value={newGoal.category}
-            onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value })}
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Goals</h1>
+
+      {/* Tabs */}
+      <div className="flex space-x-4 mb-4">
+        {['active', 'impact', 'analytics'].map(tab => (
+          <button
+            key={tab}
+            className={`px-4 py-2 rounded ${activeTab === tab ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
+            onClick={() => setActiveTab(tab)}
           >
-            {categories.map((cat) => (
-              <option key={cat}>{cat}</option>
-            ))}
+            {tab === 'impact' ? 'Impact Questions' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* Category Filter - Show only for Active tab */}
+      {activeTab === 'active' && (
+        <div className="mb-6">
+          <select
+            value={selectedCategory}
+            onChange={e => setSelectedCategory(e.target.value)}
+            className="border p-2 rounded"
+          >
+            <option value="all">All Categories</option>
+            <option value="carbon">Carbon</option>
+            <option value="water">Water</option>
+            <option value="energy">Energy</option>
+            <option value="waste">Waste</option>
+            <option value="transportation">Transportation</option>
+            <option value="food">Food</option>
           </select>
+        </div>
+      )}
+
+      {/* Environmental Impact Questions */}
+      {activeTab === 'impact' && (
+        <div className="mb-8 p-4 border rounded bg-gray-50">
+          <h2 className="text-lg font-semibold mb-2">Environmental Impact Questions</h2>
+          <form onSubmit={handleQuestionSubmit}>
+            {questions.map((q) => (
+              <div key={q.id} className="mb-4">
+                <label className="block mb-1 font-medium">{q.text}</label>
+                <div className="flex space-x-2">
+                  <input
+                    type="number"
+                    value={q.value}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setQuestions(questions.map(item => item.id === q.id ? { ...item, value: val } : item));
+                    }}
+                    className="w-full border rounded p-2"
+                    required
+                    min="0"
+                  />
+                  <span className="inline-flex items-center px-3 rounded border bg-gray-100 text-gray-700 select-none">
+                    {q.unit}
+                  </span>
+                </div>
+              </div>
+            ))}
+            <button
+              type="submit"
+              disabled={questionLoading}
+              className="bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            >
+              {questionLoading ? 'Saving...' : 'Submit Responses'}
+            </button>
+          </form>
+          {questionFeedback && (
+            <p className={`mt-2 ${questionFeedback.type === 'success' ? 'text-green-600' : 'text-red-600'}`}>
+              {questionFeedback.message}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Goal Analytics or List */}
+      {activeTab === 'analytics' ? (
+        <GoalAnalytics goals={goals} />
+      ) : activeTab === 'active' && (
+        <div className="space-y-6">
+          {filteredGoals.map(goal => (
+            <GoalCardDetailed
+              key={goal._id}
+              goal={goal}
+              updateProgress={updateGoalProgress}
+              onEdit={(goal) => {
+                console.log('Edit goal', goal);
+              }}
+              onDelete={(goal) => deleteGoalHandler(goal._id)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Add Goal Button */}
+      {activeTab === 'active' && (
+        <div className="mt-6">
+          <button
+            className="bg-green-600 text-white px-4 py-2 rounded"
+            onClick={() => setShowAddGoal(true)}
+          >
+            <Plus className="inline-block mr-2" /> Add Goal
+          </button>
+        </div>
+      )}
+
+      {/* Add Goal Modal */}
+      <Modal
+        isOpen={showAddGoal}
+        onClose={() => setShowAddGoal(false)}
+        title="Create New Goal"
+      >
+        {/* Original shorter form content placeholder */}
+        <form onSubmit={handleAddGoal}>
           <input
             type="text"
-            placeholder="Target value"
-            className="border px-3 py-2 rounded w-1/4"
+            placeholder="Title"
+            value={newGoal.title}
+            onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
+            required
+            className="border p-2 rounded w-full mb-2"
+          />
+          <textarea
+            placeholder="Description"
+            value={newGoal.description}
+            onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
+            required
+            className="border p-2 rounded w-full mb-2"
+            rows={3}
+          />
+          <select
+            value={newGoal.category}
+            onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value })}
+            className="border p-2 rounded w-full mb-2"
+            required
+          >
+            <option value="carbon">Carbon</option>
+            <option value="water">Water</option>
+            <option value="energy">Energy</option>
+            <option value="waste">Waste</option>
+            <option value="transportation">Transportation</option>
+            <option value="food">Food</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Target Value"
             value={newGoal.targetValue}
             onChange={(e) => setNewGoal({ ...newGoal, targetValue: e.target.value })}
+            required
+            className="border p-2 rounded w-full mb-2"
+            min="1"
           />
           <input
             type="text"
-            placeholder="Unit (e.g., kWh, liters)"
-            className="border px-3 py-2 rounded w-1/4"
+            placeholder="Unit"
             value={newGoal.unit}
             onChange={(e) => setNewGoal({ ...newGoal, unit: e.target.value })}
+            required
+            className="border p-2 rounded w-full mb-2"
           />
           <input
             type="date"
             placeholder="Deadline"
-            className="border px-3 py-2 rounded w-1/4"
             value={newGoal.deadline}
             onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
+            required
+            className="border p-2 rounded w-full mb-2"
           />
-          <button
-            onClick={handleAddGoal}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          <select
+            value={newGoal.priority}
+            onChange={(e) => setNewGoal({ ...newGoal, priority: e.target.value })}
+            className="border p-2 rounded w-full mb-2"
+            required
           >
-            Add
-          </button>
-        </div>
-      </div>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <div className="flex justify-end space-x-2">
+            <button
+              type="button"
+              onClick={() => setShowAddGoal(false)}
+              className="px-4 py-2 border rounded"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-600 text-white px-4 py-2 rounded"
+            >
+              Add Goal
+            </button>
+          </div>
+        </form>
+      </Modal>
 
-      {/* Filters */}
-      <div className="bg-white shadow-md p-4 rounded-md mb-6 flex flex-wrap gap-4 items-center">
-        <select
-          value={filters.category}
-          onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-          className="border px-3 py-2 rounded"
-        >
-          <option value="all">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat}>{cat}</option>
-          ))}
-        </select>
-        <label className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            checked={filters.showCompleted}
-            onChange={() => setFilters({ ...filters, showCompleted: !filters.showCompleted })}
-          />
-          <span>Show Completed</span>
-        </label>
-      </div>
-
-      {/* Goal Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredGoals.length ? (
-          filteredGoals.map((goal) => (
-            <GoalCard
-              key={goal._id}
-              goal={goal}
-              onClick={toggleGoalCompletion}
-              updateProgress={updateGoalProgress}
-            />
-          ))
-        ) : (
-          <p className="text-green-500">No goals match the filter.</p>
-        )}
-      </div>
-
-      <GoalAnalytics goals={goals} />
+      {/* Feedback */}
+      {error && <p className="text-red-600 mt-4">{error}</p>}
+      {loading && <p className="mt-4 text-gray-500">Loading...</p>}
     </div>
   );
 };

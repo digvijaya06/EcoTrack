@@ -1,6 +1,12 @@
 const Action = require("../models/Action");
 const User = require("../models/User");
-const { calculateBadges } = require("../utils/badgeCalculator");
+let calculateBadges;
+try {
+  calculateBadges = require("../utils/badgeCalculator").assignBadges;
+} catch (error) {
+  console.warn("Warning: assignBadges function not found in badgeCalculator module.");
+  calculateBadges = async () => [];
+}
 
 // Get all actions (user accessible)
 exports.getActions = async (req, res) => {
@@ -82,6 +88,26 @@ exports.createAction = async (req, res) => {
       nature: 20, // Mapped to same as 'tree & nature care'
     };
 
+    // Energy saved mapping based on category (in kWh)
+    const energySavedMapping = {
+      plantation: 0,
+      energy: 50,
+      "plastic-free lifestyle": 0,
+      "tree & nature care": 0,
+      recycling: 0,
+      nature: 0,
+    };
+
+    // Waste reduced mapping based on category (in kg)
+    const wasteReducedMapping = {
+      plantation: 0,
+      energy: 0,
+      "plastic-free lifestyle": 20,
+      "tree & nature care": 0,
+      recycling: 30,
+      nature: 0,
+    };
+
     // Normalize category for aggregation
     let normalizedCategory = category.toLowerCase();
     if (normalizedCategory === "nature") {
@@ -90,8 +116,10 @@ exports.createAction = async (req, res) => {
 
     const points = pointsMapping[type] || 0;
     const co2Saved = co2SavedMapping[normalizedCategory] || 0;
+    const energySaved = energySavedMapping[normalizedCategory] || 0;
+    const wasteReduced = wasteReducedMapping[normalizedCategory] || 0;
 
-    console.log(`Calculated co2Saved: ${co2Saved} for category: ${category}`);
+    console.log(`Calculated co2Saved: ${co2Saved}, energySaved: ${energySaved}, wasteReduced: ${wasteReduced} for category: ${category}`);
 
     const newAction = new Action({
       user: userId,
@@ -100,6 +128,8 @@ exports.createAction = async (req, res) => {
       type,
       points,
       co2Saved,
+      energySaved,
+      wasteReduced,
       notes: content,
     });
 
@@ -111,10 +141,10 @@ exports.createAction = async (req, res) => {
       user.points += points;
 
       // Calculate badges based on updated user data
-      const badges = calculateBadges(user);
+      const badges = await calculateBadges(user);
 
       // Update user's badges array with new badges (avoid duplicates)
-      const badgeNames = badges.map((b) => b.name);
+      const badgeNames = badges;
       user.badges = Array.from(new Set([...user.badges, ...badgeNames]));
 
       await user.save();
@@ -123,7 +153,7 @@ exports.createAction = async (req, res) => {
     res.status(201).json(newAction);
   } catch (error) {
     console.error("Create Action Error:", error);
-    res.status(500).json({ message: "Server error while creating action" });
+    res.status(500).json({ message: "Server error while creating action", error: error.message, stack: error.stack });
   }
 };
 

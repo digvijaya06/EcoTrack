@@ -31,7 +31,7 @@ const ProfileForm = ({ initialData, onSave, onCancel }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const updatedData = { ...formData };
@@ -41,7 +41,9 @@ const ProfileForm = ({ initialData, onSave, onCancel }) => {
       updatedData.avatar = previewAvatar;
     }
 
-    onSave(updatedData);
+    if (onSave) {
+      await onSave(updatedData);
+    }
   };
 
   return (

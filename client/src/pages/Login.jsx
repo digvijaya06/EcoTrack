@@ -87,7 +87,7 @@ const Login = () => {
             />
           </svg>
           <span className="ml-2 text-2xl font-bold text-green-800">
-            GreenPoints
+            EcoLog
           </span>
         </Link>
         <h2 className="text-center text-3xl font-extrabold mb-2 text-gradient bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-600">
@@ -158,9 +158,9 @@ const Login = () => {
               />
               Remember me
             </label>
-            <a href="#" className="text-sm text-green-600 hover:text-green-500">
+            <Link to="/forgot-password" className="text-sm text-green-600 hover:text-green-500">
               Forgot password?
-            </a>
+            </Link>
           </div>
 
           <button

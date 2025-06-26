@@ -1,63 +1,26 @@
-const badgeRules = [
-  {
-    name: 'Eco Warrior',
-    description: 'Earn 100 or more points',
-    condition: (user) => user.points >= 100,
-    rarity: 'Epic',
-    icon: '🌍'
-  },
-  {
-    name: 'Carbon Neutral',
-    description: 'Save 1000 kg of CO₂',
-    condition: (user) => user.co2Saved >= 1000,
-    rarity: 'Rare',
-    icon: '🌱'
-  },
-  {
-    name: 'Energy Saver',
-    description: 'Earn 50 or more points in Energy category',
-    condition: (user) => user.energyPoints >= 50,
-    rarity: 'Common',
-    icon: '⚡'
-  },
-  {
-    name: 'Recycling Champion',
-    description: 'Recycle 100 or more items',
-    condition: (user) => user.recyclingCount >= 100,
-    rarity: 'Epic',
-    icon: '♻️'
-  },
-  {
-    name: 'Water Guardian',
-    description: 'Save 5000 liters of water',
-    condition: (user) => user.waterSaved >= 5000,
-    rarity: 'Rare',
-    icon: '💧'
-  }
-];
+const Reward = require('../models/Reward');
 
-// Function to calculate badges based on user data
-function calculateBadges(user) {
-  const earnedBadges = [];
+/**
+ * Assign badges to user based on points or community rank.
+ * @param {Object} user - User object with points and rank.
+ * @returns {Array} - Array of badge titles earned by the user.
+ */
+const assignBadges = async (user) => {
+  const badgesEarned = [];
 
-  badgeRules.forEach((badge) => {
-    try {
-      if (badge.condition(user)) {
-        earnedBadges.push({
-          name: badge.name,
-          description: badge.description,
-          rarity: badge.rarity,
-          icon: badge.icon,
-          earned: true
-        });
-      }
-    } catch (error) {
-      // Ignore errors in condition evaluation
-      console.error('Error evaluating badge condition:', error);
+  // Fetch all rewards (badges)
+  const allRewards = await Reward.find();
+
+  // Example logic: assign badges based on points thresholds
+  allRewards.forEach((reward) => {
+    if (user.points >= reward.pointsRequired) {
+      badgesEarned.push(reward.title);
     }
   });
 
-  return earnedBadges;
-}
+  // Additional logic can be added for community rank or other criteria
 
-module.exports = { calculateBadges };
+  return badgesEarned;
+};
+
+module.exports = { assignBadges };

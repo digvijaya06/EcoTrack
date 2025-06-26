@@ -1,54 +1,52 @@
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 const Action = require('../models/Action');
-const User = require('../models/User');
-
-dotenv.config(); 
-
-//  Connect to DB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('Connected to MongoDB:', mongoose.connection.name);
-  seedActions(); 
-}).catch((err) => {
-  console.error(' MongoDB connection error:', err);
-  process.exit(1);
-});
 
 const seedActions = async () => {
   try {
-    const user = await User.findOne(); 
-    if (!user) {
-      console.log('No user found. Please register a user first.');
-      process.exit();
-    }
-
-    const sampleActions = [
+    const actions = [
       {
-        user: user._id,
-        title: 'Planted a Neem Tree',
-        type: 'Tree Plantation',
-        category: 'plantation',
-        points: 20,
-        notes: 'Planted a neem sapling in my backyard.',
+        user: mongoose.Types.ObjectId(), // Replace with valid user ObjectId
+        title: 'Energy Saving',
+        type: 'Energy Saving',
+        category: 'energy',
+        points: 5,
+        co2Saved: 15,
+        energySaved: 50,
+        wasteReduced: 0,
+        notes: 'Saved 50 kWh electricity by turning off unused appliances',
+        createdAt: new Date(),
       },
       {
-        user: user._id,
-        title: 'Used bicycle for commute',
-        type: 'Transport',
-        category: 'transport',
+        user: mongoose.Types.ObjectId(), // Replace with valid user ObjectId
+        title: 'Waste Reduction',
+        type: 'Recycling',
+        category: 'recycling',
         points: 10,
-        notes: 'No carbon emission today.',
+        co2Saved: 10,
+        energySaved: 0,
+        wasteReduced: 20,
+        notes: 'Recycled 20 kg of plastic waste',
+        createdAt: new Date(),
       },
+      {
+        user: mongoose.Types.ObjectId(), // Replace with valid user ObjectId
+        title: 'Water Conservation',
+        type: 'Water Conservation',
+        category: 'water',
+        points: 5,
+        co2Saved: 0,
+        energySaved: 0,
+        wasteReduced: 0,
+        notes: 'Fixed leaking taps to save water',
+        createdAt: new Date(),
+      }
     ];
 
-    await Action.insertMany(sampleActions);
-    console.log('Sample actions inserted!');
-    process.exit();
+    await Action.insertMany(actions);
+    console.log('Seeded actions successfully');
   } catch (error) {
-    console.error('Error inserting actions:', error);
-    process.exit(1);
+    console.error('Error seeding actions:', error);
   }
 };
+
+module.exports = seedActions;

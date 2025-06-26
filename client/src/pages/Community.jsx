@@ -219,6 +219,7 @@ const Community = () => {
                                   !newPostContent.trim() ||
                                   !newPostTitle.trim()
                                 }
+                                className="bg-green-600 hover:bg-green-700 text-white"
                               >
                                 {submitting ? "Sharing..." : "Share Post"}
                               </Button>

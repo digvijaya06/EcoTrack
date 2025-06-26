@@ -1,11 +1,11 @@
 // controllers/goalController.js
 const Goal = require('../models/Goal');
 const User = require('../models/User');
-const { calculateBadges } = require('../utils/badgeCalculator');
+const { assignBadges } = require('../utils/badgeCalculator');
 
 const getGoalsByUser = async (req, res) => {
   try {
-    const goals = await Goal.find({ userId: req.params.userId }).sort({ createdAt: -1 });
+    const goals = await Goal.find({ userId: req.user._id }).sort({ createdAt: -1 });
     res.json(goals);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch goals' });
@@ -57,11 +57,11 @@ const updateGoal = async (req, res) => {
 
     const userId = updatedGoal.userId;
     const userGoals = await Goal.find({ userId });
-    const badges = calculateBadges(userGoals);
+    const user = await User.findById(userId);
+    const badges = await assignBadges(user);
     const completedGoalsCount = userGoals.filter(g => g.completed).length;
     const currentGoalsCount = userGoals.filter(g => !g.completed).length;
 
-    const user = await User.findById(userId);
     if (user) {
       user.badges = badges;
       user.stats = user.stats || {};
@@ -72,7 +72,11 @@ const updateGoal = async (req, res) => {
 
     res.json(updatedGoal);
   } catch (err) {
-    res.status(400).json({ error: 'Failed to update goal' });
+    console.error('Update Goal Error:', err);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ error: 'Validation Error', details: err.message });
+    }
+    res.status(400).json({ error: 'Failed to update goal', details: err.message });
   }
 };
 

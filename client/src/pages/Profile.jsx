@@ -38,8 +38,7 @@ const Profile = () => {
     name: '',
     email: '',
     location: '',
-    bio: '',
-    phone: ''
+    bio: ''
   });
   const [actionsCount, setActionsCount] = useState(0);
   const [recentActivity, setRecentActivity] = useState([]);
@@ -51,8 +50,7 @@ const Profile = () => {
         name: user.name || '',
         email: user.email || '',
         location: user.location || '',
-        bio: user.bio || '',
-        phone: user.phone || ''
+        bio: user.bio || ''
       });
     }
   }, [user]);
@@ -280,27 +278,25 @@ const Profile = () => {
               {/* Profile Info */}              
               <div className="bg-white rounded-xl shadow-xl p-6">
                 <h2 className="text-xl font-semibold mb-4">Profile Information</h2>
-{isEditing ? (
-  <ProfileForm
-    initialData={editedUser}
-    onSave={async (data) => {
-      try {
-        const response = await axios.put('http://localhost:5000/api/profile', data, {
+  {isEditing ? (
+    <ProfileForm
+      initialData={editedUser}
+      onSave={(data) => {
+        return axios.put('http://localhost:5000/api/profile', data, {
           headers: { Authorization: `Bearer ${token}` }
+        }).then(response => {
+          updateUser(response.data);
+          setIsEditing(false);
+        }).catch(error => {
+          console.error('Error saving profile:', error);
         });
-        updateUser(response.data);
-        setIsEditing(false);
-      } catch (error) {
-        console.error('Error saving profile:', error);
-      }
-    }}
-  />
-) : (
+      }}
+    />
+  ) : (
                   <>
                     <div className="space-y-3 text-gray-800">
                       <div className="flex items-center space-x-2"><MapPin className="w-5 h-5 text-gray-500" /><span>{user?.location || 'No location set'}</span></div>
                       <div className="flex items-center space-x-2"><User className="w-5 h-5 text-gray-500" /><span>{user?.bio || 'No bio available'}</span></div>
-                      <div className="flex items-center space-x-2"><Mail className="w-5 h-5 text-gray-500" /><span>{user?.phone || 'No phone number set'}</span></div>
                     </div>
                   
                   </>
@@ -313,15 +309,19 @@ const Profile = () => {
             <div className="bg-white rounded-xl p-6 shadow-xl">
           <h2 className="text-xl font-semibold mb-6">Your Badges</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            {(fetchedBadges.length > 0 ? fetchedBadges : badges).map((badge, index) => (
-              <div key={index} className={`p-4 rounded-lg text-center cursor-default select-none ${
-                badge.earned ? 'bg-green-100 text-green-900 shadow-md' : 'bg-gray-100 text-gray-400'
-              }`}>
-                <div className="text-3xl mb-2">{badge.icon || '🏅'}</div>
-                <div className="font-semibold">{badge.name || badge}</div>
-                <div className="text-xs">{badge.rarity || ''}</div>
-              </div>
-            ))}
+{(fetchedBadges.length > 0 ? fetchedBadges : badges).map((badge, index) => (
+  <div key={index} className={`p-4 rounded-lg text-center cursor-default select-none ${
+    badge.pointsRequired ? 'bg-green-100 text-green-900 shadow-md' : 'bg-gray-100 text-gray-400'
+  }`}>
+    {badge.imageUrl ? (
+      <img src={badge.imageUrl} alt={badge.title} className="mx-auto mb-2 w-12 h-12" />
+    ) : (
+      <div className="text-3xl mb-2">{badge.icon || '🏅'}</div>
+    )}
+    <div className="font-semibold">{badge.title || badge.name || badge}</div>
+    <div className="text-xs">{badge.description || badge.rarity || ''}</div>
+  </div>
+))}
           </div>
             </div>
           )}
@@ -339,22 +339,21 @@ const Profile = () => {
                 </button>
               </h2>
 
-              {isEditing ? (
-                <ProfileForm
-                  initialData={editedUser}
-                  onSave={async (data) => {
-                    try {
-                      const response = await axios.put('http://localhost:5000/api/profile', data, {
-                        headers: { Authorization: `Bearer ${token}` }
-                      });
-                      updateUser(response.data);
-                      setIsEditing(false);
-                    } catch (error) {
-                      console.error('Error saving profile:', error);
-                    }
-                  }}
-                />
-              ) : (
+  {isEditing ? (
+    <ProfileForm
+      initialData={editedUser}
+      onSave={(data) => {
+        return axios.put('http://localhost:5000/api/profile', data, {
+          headers: { Authorization: `Bearer ${token}` }
+        }).then(response => {
+          updateUser(response.data);
+          setIsEditing(false);
+        }).catch(error => {
+          console.error('Error saving profile:', error);
+        });
+      }}
+    />
+  ) : (
                 <>
                   <NotificationSettings />
                   <PrivacySettings />

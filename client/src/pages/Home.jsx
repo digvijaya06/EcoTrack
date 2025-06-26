@@ -137,15 +137,17 @@ const Home = () => {
                       <Icon className="w-8 h-8 text-eco-600" />
                     </div>
                     <div className="text-3xl font-bold text-gray-900">
-                      <CountUp 
-                        start={0}
-                        end={stat.number} 
-                        suffix={stat.suffix} 
-                        duration={2} 
-                        separator="," 
-                        redraw={true}
-                        enableScrollSpy={true}
-                      />
+                    {stat.number != null && !isNaN(stat.number) ? (
+                      <div key={stat.label}>
+                        <CountUp 
+                          start={0}
+                          end={stat.number} 
+                          suffix={stat.suffix} 
+                          duration={2} 
+                          separator="," 
+                        />
+                      </div>
+                    ) : null}
                     </div>
                     <div className="text-sm text-gray-600">{stat.label}</div>
                   </div>
