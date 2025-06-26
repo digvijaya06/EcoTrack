@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useInView } from 'framer-motion';
+import{motion} from 'framer-motion';
 import CountUp from 'react-countup';
 import { 
   ArrowRight, 
@@ -18,6 +19,11 @@ import {
 import Testimonial from '../components/ui/Testimonial';
 
 const Home = () => {
+  const statsRef = useRef(null);
+  const isInView = useInView(statsRef, { threshold: 0.3});
+
+  // Removed startCount state and useEffect
+
   const features = [
     {
       icon: Target,
@@ -44,6 +50,8 @@ const Home = () => {
       color: 'from-earth-500 to-earth-600'
     }
   ];
+
+
 
   const stats = [
     { number: 50, suffix: 'K+', label: 'Active Users', icon: Users },
@@ -123,9 +131,10 @@ const Home = () => {
 
             {/* Quick Stats */}
             <motion.div
+            ref ={statsRef}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={isInView ? {opacity:1, y:0}:{}}
               transition={{ duration: 0.8, delay: 0.4 }}
               className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
             >
@@ -137,8 +146,8 @@ const Home = () => {
                       <Icon className="w-8 h-8 text-eco-600" />
                     </div>
                     <div className="text-3xl font-bold text-gray-900">
-                    {stat.number != null && !isNaN(stat.number) ? (
-                      <div key={stat.label}>
+                    {isInView ? (
+                      
                         <CountUp 
                           start={0}
                           end={stat.number} 
@@ -146,8 +155,10 @@ const Home = () => {
                           duration={2} 
                           separator="," 
                         />
-                      </div>
-                    ) : null}
+                      
+                    ) : (
+                      <>0{stat.suffix}</>
+                    )}
                     </div>
                     <div className="text-sm text-gray-600">{stat.label}</div>
                   </div>

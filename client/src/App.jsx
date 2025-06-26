@@ -10,6 +10,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import AdminDashboard from './pages/admin/Dashboard';
 import Goals from './pages/Goals';
 import Community from './pages/Community';
 import ActionsList from './pages/ActionsList';
@@ -74,6 +75,9 @@ function App() {
               <Route path="/goals" element={<Goals />} />
               <Route path="/actions" element={<ActionsList />} />
               <Route path="/leaderboard" element={<LeaderboardTable />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={[ROLES.Admin]} />}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
             </Route>
             {/* Public Community Route */}
             <Route path="/community" element={<Community />} />

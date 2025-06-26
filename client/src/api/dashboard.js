@@ -9,6 +9,14 @@ export const getDashboardData = async (period = 'week') => {
   return res.data;
 };
 
+// Get admin dashboard data
+export const getAdminDashboardData = async () => {
+  const res = await API.get('/dashboard', {
+    headers: getAuthHeader()
+  });
+  return res.data;
+};
+
 // Update user points manually with reason
 export const updateUserPoints = async (userId, points, reason) => {
   const res = await API.post(

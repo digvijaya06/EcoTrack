@@ -27,6 +27,8 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { getDashboardData } from '../api/dashboard';
 import { fetchUserAchievements } from '../api/userActions';
+import {   useNavigate } from "react-router-dom";
+
 
 const colorMap = {
   eco: {
@@ -70,6 +72,7 @@ const Dashboard = () => {
     co2Saved: 0,
     streak: 0
   });
+   const navigate = useNavigate();
 
   const quickActions = [
     { id: 1, icon: Recycle, label: 'Recycled Items', points: 15, color: 'eco' },
@@ -79,12 +82,27 @@ const Dashboard = () => {
   ];
 
   useEffect(() => {
+    const user = localStorage.getItem('user');
+    console.log("userrr", user)
+    if (user) {
+      const userData = JSON.parse(user);
+      if (userData.role === "admin") {
+        navigate("/admin/dashboard", { replace: true });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
       setError(null);
       try {
         const data = await getDashboardData(selectedPeriod);
         const achievementsData = await fetchUserAchievements();
+
+        data.recentActions = Array.isArray(data.recentActions) ? data.recentActions : [];
+        data.actionsByCategory = Array.isArray(data.actionsByCategory) ? data.actionsByCategory : [];
+        achievementsData.badges = Array.isArray(achievementsData.badges) ? achievementsData.badges : [];
 
         const aggregatedRecent = data.recentActions.reduce((acc, action) => {
           const category = action.category || 'Action';
@@ -131,6 +149,7 @@ const Dashboard = () => {
         setDailyData(data.weeklyProgress || []);
         console.log('Weekly Progress Data:', data.weeklyProgress);
       } catch (err) {
+        console.error('Dashboard fetch error:', err);
         setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
@@ -187,6 +206,31 @@ const Dashboard = () => {
   if (error) {
     console.error('Dashboard error:', error);
     return <div className="text-center py-20 text-red-600">{error}</div>;
+  }
+
+  if (!dailyData || !Array.isArray(dailyData)) {
+    console.error('Invalid dailyData:', dailyData);
+    return <div className="text-center py-20 text-red-600">Invalid dashboard data.</div>;
+  }
+
+  if (!actionDistribution || !Array.isArray(actionDistribution)) {
+    console.error('Invalid actionDistribution:', actionDistribution);
+    return <div className="text-center py-20 text-red-600">Invalid dashboard data.</div>;
+  }
+
+  if (!recentActivities || !Array.isArray(recentActivities)) {
+    console.error('Invalid recentActivities:', recentActivities);
+    return <div className="text-center py-20 text-red-600">Invalid dashboard data.</div>;
+  }
+
+  if (!achievements || !Array.isArray(achievements)) {
+    console.error('Invalid achievements:', achievements);
+    return <div className="text-center py-20 text-red-600">Invalid dashboard data.</div>;
+  }
+
+  if (!stats) {
+    console.error('Invalid stats:', stats);
+    return <div className="text-center py-20 text-red-600">Invalid dashboard data.</div>;
   }
 
   return (

@@ -1,112 +1,85 @@
-const Event = require('../models/Event'); 
-const Reward = require('../models/Reward'); 
+const User = require('../models/User');
+const Action = require('../models/Action');
+const Goal = require('../models/Goal');
 
-// --- Events ---
-exports.getEvents = async (req, res) => {
+// Get all users
+exports.getUsers = async (req, res) => {
   try {
-    const events = await Event.find();
-    res.json(events);
+    const users = await User.find().select('-password'); // exclude password
+    res.json(users);
   } catch (error) {
-    console.error('Get Events Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Server error fetching users' });
   }
 };
 
-exports.getEventById = async (req, res) => {
+// Update user by ID
+exports.updateUser = async (req, res) => {
   try {
-    const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.json(event);
+    const userId = req.params.id;
+    const updates = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update allowed fields only
+    if (updates.name !== undefined) user.name = updates.name;
+    if (updates.email !== undefined) user.email = updates.email;
+    if (updates.isAdmin !== undefined) user.isAdmin = updates.isAdmin;
+    if (updates.points !== undefined) user.points = updates.points;
+
+    await user.save();
+    res.json(user);
   } catch (error) {
-    console.error('Get Event Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Server error updating user' });
   }
 };
 
-exports.createEvent = async (req, res) => {
+// Delete user by ID
+exports.deleteUser = async (req, res) => {
   try {
-    const newEvent = new Event(req.body);
-    await newEvent.save();
-    res.status(201).json(newEvent);
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    await user.remove();
+    res.json({ message: 'User deleted successfully' });
   } catch (error) {
-    console.error('Create Event Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Server error deleting user' });
   }
 };
 
-exports.updateEvent = async (req, res) => {
+// Get admin dashboard stats
+exports.getStats = async (req, res) => {
   try {
-    const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.json(event);
-  } catch (error) {
-    console.error('Update Event Error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+    const totalUsers = await User.countDocuments();
+    const totalActions = await Action.countDocuments();
+    const goals = await Goal.find({});
+    const goalsCreated = goals.length;
+    const goalsCompleted = goals.filter(g => g.status === 'completed').length;
 
-exports.deleteEvent = async (req, res) => {
-  try {
-    const event = await Event.findByIdAndDelete(req.params.id);
-    if (!event) return res.status(404).json({ message: 'Event not found' });
-    res.json({ message: 'Event deleted' });
-  } catch (error) {
-    console.error('Delete Event Error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
+    const carbonSaved = goals.reduce((sum, g) => g.category === 'carbon' ? sum + g.currentValue : sum, 0);
+    const waterSaved = goals.reduce((sum, g) => g.category === 'water' ? sum + g.currentValue : sum, 0);
+    const wasteReduced = goals.reduce((sum, g) => g.category === 'waste' ? sum + g.currentValue : sum, 0);
 
-// --- Rewards ---
-exports.getRewards = async (req, res) => {
-  try {
-    const rewards = await Reward.find();
-    res.json(rewards);
-  } catch (error) {
-    console.error('Get Rewards Error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.getRewardById = async (req, res) => {
-  try {
-    const reward = await Reward.findById(req.params.id);
-    if (!reward) return res.status(404).json({ message: 'Reward not found' });
-    res.json(reward);
-  } catch (error) {
-    console.error('Get Reward Error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.createReward = async (req, res) => {
-  try {
-    const newReward = new Reward(req.body);
-    await newReward.save();
-    res.status(201).json(newReward);
-  } catch (error) {
-    console.error('Create Reward Error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.updateReward = async (req, res) => {
-  try {
-    const reward = await Reward.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!reward) return res.status(404).json({ message: 'Reward not found' });
-    res.json(reward);
-  } catch (error) {
-    console.error('Update Reward Error:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-exports.deleteReward = async (req, res) => {
-  try {
-    const reward = await Reward.findByIdAndDelete(req.params.id);
-    if (!reward) return res.status(404).json({ message: 'Reward not found' });
-    res.json({ message: 'Reward deleted' });
-  } catch (error) {
-    console.error('Delete Reward Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.json({
+      totalUsers: totalUsers,
+      totalActions: totalActions,
+      goalsCreated: goalsCreated,
+      goalsCompleted: goalsCompleted,
+      carbonSaved: carbonSaved,
+      waterSaved: waterSaved,
+      wasteReduced: wasteReduced
+    });
+  } catch (err) {
+    console.error('Failed to fetch admin stats', err);
+    res.status(500).json({ error: 'Failed to fetch admin stats' });
   }
 };
