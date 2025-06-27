@@ -1,8 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import CountUp from 'react-countup';
-import { Leaf, ArrowRight, Users, Globe, Activity, CheckCircle2, Award, BookOpen } from 'lucide-react';
+import {  ArrowRight,  Activity, CheckCircle2, Award, BookOpen } from 'lucide-react';
 
 const About = () => {
   // Animation variants
@@ -45,10 +44,13 @@ const About = () => {
           variants={itemVariants}
           className="bg-white rounded-xl shadow-sm p-8 border border-neutral-100"
         >
-          <img 
-            src="https://images.pexels.com/photos/3059654/pexels-photo-3059654.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
-            alt="Sustainable living" 
+          <motion.img
+            src="https://images.pexels.com/photos/3059654/pexels-photo-3059654.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+            alt="Sustainable living"
             className="w-full h-100 object-cover rounded-lg mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           />
           <div className="max-w-3xl mx-auto">
             <h2 className="text-2xl font-display font-semibold text-neutral-900 mb-4">

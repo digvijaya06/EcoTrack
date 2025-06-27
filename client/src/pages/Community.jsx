@@ -152,7 +152,8 @@ const Community = () => {
               {activeTab === "posts" && (
                 <>
                   {/* Share Post */}
-                  {isAuthenticated && (
+                  {/* Removed Share Your Post section from admin panel as per user request */}
+                  {!user?.isAdmin && isAuthenticated && (
                     <Card>
                       <CardContent className="p-6">
                         <h2 className="text-xl font-semibold mb-4 text-gray-800">

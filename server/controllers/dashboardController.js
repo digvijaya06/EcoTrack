@@ -17,9 +17,11 @@ exports.getDashboardStats = async (req, res) => {
       const totalGoals = await Goal.countDocuments();
       const completedGoals = await Goal.countDocuments({ completed: true });
       const totalCo2SavedAgg = await Action.aggregate([
-        { $group: { _id: null, totalCo2Saved: { $sum: '$co2Saved' } } }
+        { $group: { _id: null, totalCo2Saved: { $sum: '$co2Saved' }, totalEnergySaved: { $sum: '$energySaved' }, totalWasteReduced: { $sum: '$wasteReduced' } } }
       ]);
       const totalCo2Saved = totalCo2SavedAgg.length > 0 ? totalCo2SavedAgg[0].totalCo2Saved : 0;
+      const totalEnergySaved = totalCo2SavedAgg.length > 0 ? totalCo2SavedAgg[0].totalEnergySaved : 0;
+      const totalWasteReduced = totalCo2SavedAgg.length > 0 ? totalCo2SavedAgg[0].totalWasteReduced : 0;
 
       // For charts, you might want to aggregate data by period, here simplified as empty array
       const weeklyProgress = [];
@@ -30,6 +32,8 @@ exports.getDashboardStats = async (req, res) => {
         totalGoals,
         completedGoals,
         totalCo2Saved,
+        totalEnergySaved,
+        totalWasteReduced,
         weeklyProgress,
       });
     } else {

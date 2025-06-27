@@ -6,6 +6,8 @@ const Goals = () => {
   const [goals, setGoals] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [editingGoal, setEditingGoal] = useState(null);
+  const [editedTitle, setEditedTitle] = useState('');
 
   useEffect(() => {
     async function fetchGoals() {
@@ -34,6 +36,22 @@ const Goals = () => {
     }
   };
 
+  const startEditing = (goal) => {
+    setEditingGoal(goal);
+    setEditedTitle(goal.title);
+  };
+
+  const cancelEditing = () => {
+    setEditingGoal(null);
+    setEditedTitle('');
+  };
+
+  const saveEdit = async () => {
+    await updateGoal(editingGoal._id, { title: editedTitle });
+    setGoals(goals.map(goal => goal._id === editingGoal._id ? { ...goal, title: editedTitle } : goal));
+    cancelEditing();
+  };
+
   if (loading) return <AdminLayout><div>Loading goals...</div></AdminLayout>;
 
   return (
@@ -60,24 +78,60 @@ const Goals = () => {
           <tbody>
             {filteredGoals.map(goal => (
               <tr key={goal._id} className="text-center">
-                <td className="py-2 px-4 border-b">{goal.title}</td>
+                <td className="py-2 px-4 border-b">
+                  {editingGoal && editingGoal._id === goal._id ? (
+                    <input
+                      type="text"
+                      value={editedTitle}
+                      onChange={e => setEditedTitle(e.target.value)}
+                      className="border px-2 py-1 rounded w-full"
+                    />
+                  ) : (
+                    goal.title
+                  )}
+                </td>
                 <td className="py-2 px-4 border-b">{goal.user?.name || 'N/A'}</td>
                 <td className="py-2 px-4 border-b">{goal.completed ? 'Completed' : 'Active'}</td>
                 <td className="py-2 px-4 border-b">
-                  {!goal.completed && (
-                    <button
-                      className="bg-green-500 text-white px-3 py-1 rounded mr-2"
-                      onClick={() => markComplete(goal._id)}
-                    >
-                      Mark Complete
-                    </button>
+                  {editingGoal && editingGoal._id === goal._id ? (
+                    <>
+                      <button
+                        className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                        onClick={saveEdit}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="bg-gray-500 text-white px-3 py-1 rounded"
+                        onClick={cancelEditing}
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {!goal.completed && (
+                        <button
+                          className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                          onClick={() => markComplete(goal._id)}
+                        >
+                          Mark Complete
+                        </button>
+                      )}
+                      <button
+                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                        onClick={() => startEditing(goal)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="bg-red-500 text-white px-3 py-1 rounded"
+                        onClick={() => handleDelete(goal._id)}
+                      >
+                        Delete
+                      </button>
+                    </>
                   )}
-                  <button
-                    className="bg-red-500 text-white px-3 py-1 rounded"
-                    onClick={() => handleDelete(goal._id)}
-                  >
-                    Delete
-                  </button>
                 </td>
               </tr>
             ))}

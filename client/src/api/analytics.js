@@ -42,7 +42,6 @@ export const getAchievements = async () => {
   return res.data;
 };
 
-// New API functions for required endpoints
 
 export const getSummary = async () => {
   const res = await API.get('/analytics/summary', {

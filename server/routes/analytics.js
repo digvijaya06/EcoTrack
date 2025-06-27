@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const protect = require('../middleware/authMiddleware');
-const analyticsController = require('../controllers/analyticsController_extended');
+const analyticsController = require('../controllers/analyticsController');
 
 router.get('/kpis', protect, analyticsController.getKPIs);
 router.get('/monthly-impact', protect, analyticsController.getMonthlyImpact);

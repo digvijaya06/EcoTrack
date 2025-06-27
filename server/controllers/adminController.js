@@ -29,6 +29,7 @@ exports.updateUser = async (req, res) => {
     if (updates.email !== undefined) user.email = updates.email;
     if (updates.isAdmin !== undefined) user.isAdmin = updates.isAdmin;
     if (updates.points !== undefined) user.points = updates.points;
+    if (updates.isBlocked !== undefined) user.isBlocked = updates.isBlocked;
 
     await user.save();
     res.json(user);

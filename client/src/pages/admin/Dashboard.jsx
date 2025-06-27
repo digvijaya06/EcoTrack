@@ -43,11 +43,11 @@ const AdminDashboard = () => {
   const kpiData = [
     { name: 'Total Users', value: stats.totalUsers || 0 },
     { name: 'Total Actions Logged', value: stats.totalActions || 0 },
-    { name: 'Goals Created', value: stats.goalsCreated || 0 },
-    { name: 'Goals Completed', value: stats.goalsCompleted || 0 },
-    { name: 'Carbon Saved (kg)', value: stats.carbonSaved || 0 },
-    { name: 'Water Saved (liters)', value: stats.waterSaved || 0 },
-    { name: 'Waste Reduced (kg)', value: stats.wasteReduced || 0 },
+    { name: 'Goals Created', value: stats.totalGoals || 0 },
+    { name: 'Goals Completed', value: stats.completedGoals || 0 },
+    { name: 'Carbon Saved (kg)', value: stats.totalCo2Saved || 0 },
+    { name: 'Energy Saved (KWh)', value: stats.totalEnergySaved || 0 },
+    { name: 'Waste Reduced (kg)', value: stats.totalWasteReduced || 0 },
   ];
 
   return (

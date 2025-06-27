@@ -24,6 +24,7 @@ import VisitorProfiles from './pages/VisitorProfiles';
 import Actions from './pages/Actions';  // Updated import to Actions page
 import Analytics from './pages/Analytics';
 import BlogDetails from './pages/BlogDetails';
+import AdminActions from './pages/admin/Actions';  // Import Admin Actions page
 
 // Lazy-loaded components
 const Contact = lazy(() => import('./pages/Contact'));
@@ -69,6 +70,7 @@ function App() {
               <Route path="/rewards" element={<RewardList />} />
             </Route>
 
+
             {/* Admin and Registered Routes */}
             <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered, ROLES.Admin]} />}>
               <Route path="/dashboard" element={<Dashboard />} />
@@ -78,6 +80,7 @@ function App() {
             </Route>
             <Route element={<ProtectedRoute allowedRoles={[ROLES.Admin]} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/actions" element={<AdminActions />} />
             </Route>
             {/* Public Community Route */}
             <Route path="/community" element={<Community />} />

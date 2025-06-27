@@ -23,6 +23,9 @@ app.use(express.json());       // Parse JSON bodies
 const adminRoutes = require('./routes/admin');
 app.use('/api/admin', adminRoutes);
 
+const adminActionsRoutes =require('./routes/adminActions')
+app.use('/api/admin/actions', adminActionsRoutes);
+
 const blogRoutes = require('./routes/blog');
 const communityRoutes = require('./routes/community');
 const contactRoutes = require('./routes/contact');

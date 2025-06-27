@@ -33,18 +33,7 @@ const Sidebar = () => {
               Users
             </NavLink>
           </li>
-          <li className="mb-2">
-            <NavLink
-              to="/admin/goals"
-              className={({ isActive }) =>
-                isActive
-                  ? 'block px-4 py-2 text-green-700 bg-green-100 rounded'
-                  : 'block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded'
-              }
-            >
-              Goals
-            </NavLink>
-          </li>
+         
           <li className="mb-2">
             <NavLink
               to="/admin/actions"
@@ -79,18 +68,6 @@ const Sidebar = () => {
               }
             >
               Rewards
-            </NavLink>
-          </li>
-          <li className="mb-2">
-            <NavLink
-              to="/admin/users"
-              className={({ isActive }) =>
-                isActive
-                  ? 'block px-4 py-2 text-green-700 bg-green-100 rounded'
-                  : 'block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded'
-              }
-            >
-              Users
             </NavLink>
           </li>
         </ul>

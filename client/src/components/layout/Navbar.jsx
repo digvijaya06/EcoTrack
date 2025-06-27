@@ -36,13 +36,26 @@ const visitorHomeLinks = [
     { name: 'Community', path: '/community', icon: <Users size={20} /> },
   ];
 
-const loggedInLinks = [
-    { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
-    { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
-    { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
-    { name: 'Community', path: '/community', icon: <Users size={20} /> },
-    { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
-  ];
+const getLoggedInLinks = (user) => {
+  if (user?.isAdmin) {
+    // Admin user: exclude Log Actions and Goals, add Actions page
+    return [
+      { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
+      { name: 'Actions', path: '/admin/actions', icon: <Calendar size={20} /> },
+      { name: 'Community', path: '/community', icon: <Users size={20} /> },
+      { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
+    ];
+  } else {
+    // Non-admin user: show all links
+    return [
+      { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
+      { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
+      { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
+      { name: 'Community', path: '/community', icon: <Users size={20} /> },
+      { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
+    ];
+  }
+};
 
   const allLinks = [
     { name: 'About', path: '/about', icon: <Leaf size={20} /> },
@@ -62,7 +75,7 @@ const loggedInLinks = [
   if (!isAuthenticated) {
     navLinks = visitorHomeLinks;
   } else if (isAuthenticated) {
-    navLinks = loggedInLinks;
+    navLinks = getLoggedInLinks(user);
   } else {
     navLinks = allLinks;
   }

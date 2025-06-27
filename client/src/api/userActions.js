@@ -82,3 +82,42 @@ export const fetchUserAchievements = async () => {
     throw error;
   }
 };
+
+// Fetch all admin actions
+export const fetchAdminActions = async () => {
+  try {
+    const response = await API.get('/admin/actions', {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching admin actions:', error);
+    throw error;
+  }
+};
+
+// Approve an admin action
+export const approveAdminAction = async (id) => {
+  try {
+    const response = await API.put(`/admin/actions/${id}/approve`, {}, {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error approving admin action:', error);
+    throw error;
+  }
+};
+
+// Reject an admin action
+export const rejectAdminAction = async (id) => {
+  try {
+    const response = await API.put(`/admin/actions/${id}/reject`, {}, {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error rejecting admin action:', error);
+    throw error;
+  }
+};
