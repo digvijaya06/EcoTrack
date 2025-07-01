@@ -11,39 +11,26 @@ const Sidebar = () => {
         <ul>
           <li className="mb-2">
             <NavLink
-              to="/admin/dashboard"
-              className={({ isActive }) =>
-                isActive
-                  ? 'block px-4 py-2 text-green-700 bg-green-100 rounded'
-                  : 'block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded'
-              }
-            >
-              Dashboard
-            </NavLink>
-          </li>
-          <li className="mb-2">
-            <NavLink
               to="/admin/users"
               className={({ isActive }) =>
                 isActive
-                  ? 'block px-4 py-2 text-green-700 bg-green-100 rounded'
-                  : 'block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded'
+                  ? 'block px-4 py-2 text-white bg-green-400 rounded'
+                  : 'block px-4 py-2 text-white bg-green-400 hover:bg-green-500 rounded'
               }
             >
               Users
             </NavLink>
           </li>
-         
           <li className="mb-2">
             <NavLink
-              to="/admin/actions"
+              to="/admin/feedback"
               className={({ isActive }) =>
                 isActive
-                  ? 'block px-4 py-2 text-green-700 bg-green-100 rounded'
-                  : 'block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded'
+                  ? 'block px-4 py-2 text-white bg-green-400 rounded'
+                  : 'block px-4 py-2 text-white bg-green-400 hover:bg-green-500 rounded'
               }
             >
-              Actions
+              Feedback / Contact Submissions
             </NavLink>
           </li>
           <li className="mb-2">
@@ -51,8 +38,8 @@ const Sidebar = () => {
               to="/admin/analytics"
               className={({ isActive }) =>
                 isActive
-                  ? 'block px-4 py-2 text-green-700 bg-green-100 rounded'
-                  : 'block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded'
+                  ? 'block px-4 py-2 text-white bg-green-400 rounded'
+                  : 'block px-4 py-2 text-white bg-green-400 hover:bg-green-500 rounded'
               }
             >
               Analytics
@@ -63,8 +50,8 @@ const Sidebar = () => {
               to="/admin/rewards"
               className={({ isActive }) =>
                 isActive
-                  ? 'block px-4 py-2 text-green-700 bg-green-100 rounded'
-                  : 'block px-4 py-2 text-gray-700 hover:bg-gray-200 rounded'
+                  ? 'block px-4 py-2 text-white bg-green-400 rounded'
+                  : 'block px-4 py-2 text-white bg-green-400 hover:bg-green-500 rounded'
               }
             >
               Rewards

@@ -80,7 +80,7 @@ const Testimonial = () => {
             />
             <p className={`italic mb-4 font-semibold ${textColor}`}>“{text}”</p>
             <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
-            <p className="text-sm text-gray-700">{role}</p>
+            <p className="text-sm text-gray-900">{role}</p>
           </motion.div>
         ))}
       </motion.div>

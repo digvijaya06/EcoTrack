@@ -10,4 +10,8 @@ router.get('/users', auth, isAdmin, adminController.getUsers);
 router.put('/users/:id', auth, isAdmin, adminController.updateUser);
 router.delete('/users/:id', auth, isAdmin, adminController.deleteUser);
 
+// Contact submissions routes
+router.get('/contact-submissions', auth, isAdmin, adminController.getContactSubmissions);
+router.put('/contact-submissions/:id/status', auth, isAdmin, adminController.updateContactSubmissionStatus);
+
 module.exports = router;

@@ -64,27 +64,37 @@ exports.getOverallGoalImpact = async (req, res) => {
 
 exports.getOverallMonthlyImpact = async (req, res) => {
   try {
-    const monthlyImpact = await Action.aggregate([
+    // Aggregate monthly impact from Actions only (Goal model does not have impact fields)
+    const actionImpact = await Action.aggregate([
       {
         $group: {
           _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
-          totalPoints: { $sum: '$points' },
           carbonSaved: { $sum: '$co2Saved' },
           energySaved: { $sum: '$energySaved' },
+          waterSaved: { $sum: '$waterSaved' },
           wasteReduced: { $sum: '$wasteReduced' }
         }
-      },
-      { $sort: { '_id.year': 1, '_id.month': 1 } }
+      }
     ]);
-    console.log('Monthly Impact Aggregation Result:', monthlyImpact);
-    const formatted = monthlyImpact.map(item => ({
+
+    // Convert aggregation result to sorted array by year and month
+    const sortedArray = actionImpact.sort((a, b) => {
+      if (a._id.year === b._id.year) {
+        return a._id.month - b._id.month;
+      }
+      return a._id.year - b._id.year;
+    });
+
+    // Map to frontend expected format
+    const formatted = sortedArray.map(item => ({
       year: item._id.year,
       month: item._id.month,
-      totalPoints: item.totalPoints,
       carbonSaved: item.carbonSaved || 0,
       energySaved: item.energySaved || 0,
+      waterSaved: item.waterSaved || 0,
       wasteReduced: item.wasteReduced || 0
     }));
+
     res.json(formatted);
   } catch (error) {
     console.error('Get Overall Monthly Impact Error:', error);

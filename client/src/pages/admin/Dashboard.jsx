@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { AuthContext } from '../../context/AuthContext';
 import { getAdminDashboardData } from '../../api/dashboard';
+import AdminLayout from '../../components/admin/AdminLayout';
 
 const AdminDashboard = () => {
   const { user, token } = useContext(AuthContext);
@@ -51,18 +52,20 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="p-6 bg-white rounded shadow">
-      <h2 className="text-xl font-bold mb-4">Admin Dashboard KPIs</h2>
-      <ResponsiveContainer width="100%" height={400}>
-        <BarChart data={kpiData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" angle={-45} textAnchor="end" interval={0} height={80} />
-          <YAxis label={{ value: 'Count / Units', angle: -90, position: 'insideLeft', dy: 60 }} />
-          <Tooltip />
-          <Bar dataKey="value" fill="#2e7d32" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <AdminLayout>
+      <div className="p-6 bg-white rounded shadow">
+        <h2 className="text-xl font-bold mb-4">Admin Dashboard KPIs</h2>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={kpiData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" angle={-45} textAnchor="end" interval={0} height={80} />
+            <YAxis label={{ value: 'Count / Units', angle: -90, position: 'insideLeft', dy: 60 }} />
+            <Tooltip />
+            <Bar dataKey="value" fill="#2e7d32" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </AdminLayout>
   );
 };
 

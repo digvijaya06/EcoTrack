@@ -35,6 +35,7 @@ const leaderboardRoutes = require('./routes/leaderboard');
 app.use('/api/blogs', blogRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/contact-submissions', contactRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/leaderboard', leaderboardRoutes);
 

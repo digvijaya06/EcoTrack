@@ -85,7 +85,7 @@ const About = () => {
           <h2 className="text-3xl font-display font-bold text-neutral-900 mb-4">
             How GreenPoint Works
           </h2>
-          <p className="text-lg text-neutral-600 max-w-3xl mx-auto">
+          <p className="text-lg text-neutral-900 max-w-3xl mx-auto">
             Our platform makes it easy to incorporate sustainability into your daily life
           </p>
         </motion.div>
@@ -96,26 +96,26 @@ const About = () => {
             variants={itemVariants}
             whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
             transition={{ type: "spring", stiffness: 300 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
+            className="bg-green-600 rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
           >
             <div className="w-12 h-12 flex items-center justify-center bg-primary-100 text-green-600 rounded-full mb-4">
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900 mb-2">Track Actions</h3>
-            <p className="text-neutral-600 mb-4">
+            <p className="text-gray-900 mb-4">
               Complete eco-friendly actions from our curated list, from recycling to reducing energy consumption.
             </p>
-            <ul className="space-y-2 text-neutral-700">
+            <ul className="space-y-2 text-gray-900">
               <li className="flex items-start">
-                <span className="mr-2 text-green-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Daily, weekly, and one-time actions
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-green-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Various difficulty levels
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-green-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Earn points for each completed action
               </li>
             </ul>
@@ -126,30 +126,30 @@ const About = () => {
             variants={itemVariants}
             whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
             transition={{ type: "spring", stiffness: 300 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
+            className="bg-green-600 rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
           >
-            <div className="w-12 h-12 flex items-center justify-center bg-secondary-100 text-secondary-600 rounded-full mb-4">
+            <div className="w-12 h-12 flex items-center justify-center bg-primary-100 text-blue-600 rounded-full mb-4">
               <Activity className="h-6 w-6" />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900 mb-2">Measure Impact</h3>
-            <p className="text-neutral-600 mb-4">
+            <p className="text-gray-900 mb-4">
               See the real environmental effect of your actions with precise impact metrics.
             </p>
-            <ul className="space-y-2 text-neutral-700">
+            <ul className="space-y-2 text-gray-900">
               <li className="flex items-start">
-                <span className="mr-2 text-secondary-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 CO2 emissions reduction
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-secondary-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Water conservation
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-secondary-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Energy savings
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-secondary-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Waste diverted from landfills
               </li>
             </ul>
@@ -160,30 +160,30 @@ const About = () => {
             variants={itemVariants}
             whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
             transition={{ type: "spring", stiffness: 300 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
+            className="bg-green-600 rounded-xl shadow-sm p-6 border border-neutral-100 cursor-pointer"
           >
             <div className="w-12 h-12 flex items-center justify-center bg-accent-100 text-accent-600 rounded-full mb-4">
               <Award className="h-6 w-6" />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900 mb-2">Grow & Connect</h3>
-            <p className="text-neutral-600 mb-4">
+            <p className="text-gray-900 mb-4">
               Level up, earn achievements, and join a community of eco-conscious individuals.
             </p>
-            <ul className="space-y-2 text-neutral-700">
+            <ul className="space-y-2 text-gray-900">
               <li className="flex items-start">
-                <span className="mr-2 text-accent-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Progress through levels
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-accent-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Unlock achievements and badges
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-accent-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Compare your impact on leaderboards
               </li>
               <li className="flex items-start">
-                <span className="mr-2 text-accent-500">•</span>
+                <span className="mr-2 text-eco-900">•</span>
                 Learn with educational resources
               </li>
             </ul>
@@ -214,9 +214,9 @@ const About = () => {
             variants={itemVariants}
             whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
             transition={{ type: "spring", stiffness: 300 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
+            className="bg-green-600 rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
           >
-            <div className="w-24 h-24 rounded-full bg-neutral-200 mx-auto mb-4 overflow-hidden">
+            <div className="w-24 h-24 rounded-full bg-green-600 mx-auto mb-4 overflow-hidden">
               <img 
                 src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                 alt="Sarah Johnson" 
@@ -224,8 +224,8 @@ const About = () => {
               />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900">Nakul Choubisa</h3>
-            <p className="text-green-600 mb-3">Founder & CEO</p>
-            <p className="text-neutral-600 mb-4">
+            <p className="text-gray-800 mb-3">Founder & CEO</p>
+            <p className="text-gray-900 mb-4">
               Environmental scientist with 10+ years of experience in sustainability initiatives.
             </p>
           </motion.div>
@@ -235,9 +235,9 @@ const About = () => {
             variants={itemVariants}
             whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
             transition={{ type: "spring", stiffness: 300 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
+            className="bg-green-600 rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
           >
-            <div className="w-24 h-24 rounded-full bg-neutral-200 mx-auto mb-4 overflow-hidden">
+            <div className="w-24 h-24 rounded-full bg-green-600 mx-auto mb-4 overflow-hidden">
               <img 
                 src="https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                 alt="Michael Chen" 
@@ -245,8 +245,8 @@ const About = () => {
               />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900">Michael Chen</h3>
-            <p className="text-green-600 mb-3">CTO</p>
-            <p className="text-neutral-600 mb-4">
+            <p className="text-gray-800 mb-3">CTO</p>
+            <p className="text-gray-900 mb-4">
               Software engineer with expertise in building ethical tech solutions for environmental challenges.
             </p>
           </motion.div>
@@ -256,9 +256,9 @@ const About = () => {
             variants={itemVariants}
             whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
             transition={{ type: "spring", stiffness: 300 }}
-            className="bg-white rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
+            className="bg-green-600 rounded-xl shadow-sm p-6 border border-neutral-100 text-center cursor-pointer"
           >
-            <div className="w-24 h-24 rounded-full bg-neutral-200 mx-auto mb-4 overflow-hidden">
+            <div className="w-24 h-24 rounded-full bg-green-600 mx-auto mb-4 overflow-hidden">
               <img 
                 src="https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                 alt="Emma Rodriguez" 
@@ -266,8 +266,8 @@ const About = () => {
               />
             </div>
             <h3 className="text-xl font-semibold text-neutral-900">Misthi Shah</h3>
-            <p className="text-green-600 mb-3">Head of Content</p>
-            <p className="text-neutral-600 mb-4">
+            <p className="text-gray-800 mb-3">Head Of Content </p>
+            <p className="text-gray-900 mb-4">
               Environmental educator specializing in engaging sustainability content and community building.
             </p>
           </motion.div>

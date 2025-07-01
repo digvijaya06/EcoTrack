@@ -21,10 +21,12 @@ import RewardList from './components/rewards/RewardList';
 import LeaderboardTable from './components/leaderboard/LeaderboardTable';
 import About from './pages/About';
 import VisitorProfiles from './pages/VisitorProfiles';
-import Actions from './pages/Actions';  // Updated import to Actions page
+import Actions from './pages/Actions';  
 import Analytics from './pages/Analytics';
+import AdminAnalytics from './pages/admin/Analytics';
 import BlogDetails from './pages/BlogDetails';
-import AdminActions from './pages/admin/Actions';  // Import Admin Actions page
+import AdminActions from './pages/admin/Actions';  
+import Users from './pages/admin/Users'; 
 
 // Lazy-loaded components
 const Contact = lazy(() => import('./pages/Contact'));
@@ -33,6 +35,7 @@ const Blog = lazy(() => import('./pages/Blog'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const CookiePolicy = lazy(() => import('./pages/CookiePolicy'));
+const Feedback = lazy(() => import('./pages/admin/Feedback'));
 
 // Roles
 const ROLES = {
@@ -81,6 +84,13 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={[ROLES.Admin]} />}>
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/actions" element={<AdminActions />} />
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin/feedback" element={
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Feedback />
+                </Suspense>
+              } />
             </Route>
             {/* Public Community Route */}
             <Route path="/community" element={<Community />} />
