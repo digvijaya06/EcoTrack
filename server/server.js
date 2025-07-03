@@ -62,6 +62,9 @@ app.use('/api/goals', goalRoutes);
 const reward = require('./routes/reward');
 app.use('/api/rewards', reward); 
 
+const actionRewardMapping = require('./routes/actionRewardMapping');
+app.use('/api/action-reward-mapping', actionRewardMapping);
+
 // Action Routes
 const action = require('./routes/action');
 app.use('/api/actions', action); 

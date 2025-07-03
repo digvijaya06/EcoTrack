@@ -274,6 +274,8 @@ const Dashboard = () => {
           })}
         </div>
 
+       
+
         {/* Main Charts and Distribution */}
         <div className="grid lg:grid-cols-3 gap-8 mb-8">
           {/* Weekly Chart */}
@@ -390,33 +392,16 @@ const Dashboard = () => {
 
           {/* Achievements */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-xl p-6 shadow-lg">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Achievements</h3>
-            <div className="space-y-4">
-              {achievements.map((achievement) => {
-                const Icon = achievement.icon;
-                return (
-                  <div key={achievement.id}
-                    className={`flex items-center space-x-3 p-3 rounded-lg transition-all ${
-                      achievement.earned ? 'bg-eco-50 border border-eco-200' : 'bg-gray-50 border border-gray-200 opacity-60'
-                    }`}
-                  >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      achievement.earned ? 'bg-eco-100' : 'bg-gray-200'
-                    }`}>
-                      {achievement.earned ? (
-                        <CheckCircle className="w-5 h-5 text-eco-600" />
-                      ) : (
-                        <Icon className="w-5 h-5 text-gray-400" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900 text-sm">{achievement.title}</p>
-                      <p className="text-xs text-gray-500">{achievement.description}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">How to Earn Rewards</h3>
+            <p className="text-gray-700 mb-2">
+              Earn points by performing eco-friendly actions such as recycling, saving energy, planting trees, and reducing waste.
+            </p>
+            <p className="text-gray-700 mb-2">
+              Accumulate points to reach the thresholds for various rewards. Once you have enough points, you become eligible to claim those rewards.
+            </p>
+            <p className="text-gray-700">
+              Track your progress and see your achievements below. Keep up the great work to unlock more rewards!
+            </p>
           </motion.div>
         </div>
       </div>

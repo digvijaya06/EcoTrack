@@ -94,7 +94,7 @@ const updateGoalProgress = async (goalId, newValue) => {
   if (newValue >= goal.targetValue && goal.status !== 'completed') {
     updated.status = 'completed';
 
-    updatePoints(100); // reward points
+    updatePoints(100); 
   }
 
   try {
@@ -218,25 +218,7 @@ const updateGoalProgress = async (goalId, newValue) => {
         </div>
       )}
 
-      {/* Goal Analytics or List */}
-      {activeTab === 'analytics' ? (
-        <GoalAnalytics goals={goals} />
-      ) : activeTab === 'active' && (
-        <div className="space-y-6">
-          {filteredGoals.map(goal => (
-            <GoalCardDetailed
-              key={goal._id}
-              goal={goal}
-              updateProgress={updateGoalProgress}
-              onEdit={(goal) => {
-                console.log('Edit goal', goal);
-              }}
-              onDelete={(goal) => deleteGoalHandler(goal._id)}
-            />
-          ))}
-        </div>
-      )}
-
+      
       {/* Add Goal Button */}
       {activeTab === 'active' && (
         <div className="mt-6">

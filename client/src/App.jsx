@@ -15,9 +15,10 @@ import Goals from './pages/Goals';
 import Community from './pages/Community';
 import ActionsList from './pages/ActionsList';
 import Profile from './pages/Profile';
-import Resources from './pages/Resources';
+
 import NotFound from './pages/NotFound';
 import RewardList from './components/rewards/RewardList';
+import Rewards from './pages/admin/Rewards';
 import LeaderboardTable from './components/leaderboard/LeaderboardTable';
 import About from './pages/About';
 import VisitorProfiles from './pages/VisitorProfiles';
@@ -67,9 +68,9 @@ function App() {
             <Route path='/analytics' element={<Analytics/>}/>
            
             {/* Protected for Registered & Admin */}
-            <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered, ROLES.Admin]} />}>
+            <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered]} />}>
               <Route path="/profile" element={<Profile />} />
-              <Route path="/resources" element={<Resources />} />
+             
               <Route path="/rewards" element={<RewardList />} />
             </Route>
 
@@ -91,6 +92,7 @@ function App() {
                   <Feedback />
                 </Suspense>
               } />
+              <Route path="/admin/rewards" element={<Rewards />} />
             </Route>
             {/* Public Community Route */}
             <Route path="/community" element={<Community />} />

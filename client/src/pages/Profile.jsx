@@ -23,12 +23,20 @@ import NotificationSettings from '../components/profile/NotificationSettings';
 import PrivacySettings from '../components/profile/PrivacySettings';
 import AccountActions from '../components/profile/AccountActions';
 
+import { useNavigate } from 'react-router-dom';
 const Profile = () => {
   const { user, token, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
-  
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      navigate('/admin/dashboard', { replace: true });
+      return;
+    }
+  }, [user, navigate]);
+
   React.useEffect(() => {
     if (user && (!user.avatar || user.avatar === '' || !user.bio || user.bio === '')) {
       setIsEditing(false);

@@ -10,10 +10,9 @@ const Login = () => {
   const [loginError, setLoginError] = useState(null);
 
   // Context & Routing
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-  const redirectTo = location.state?.from?.pathname || "/profile";
 
   // Validation function
   const validate = () => {
@@ -53,7 +52,14 @@ const Login = () => {
     setIsSubmitting(true);
     try {
       await login(formData.email, formData.password);
-      navigate(redirectTo, { replace: true });
+      // After login, get user from localStorage to check role
+      const loggedInUser = JSON.parse(localStorage.getItem('user'));
+      if (loggedInUser && loggedInUser.role === 'admin') {
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        const redirectTo = location.state?.from?.pathname || '/profile';
+        navigate(redirectTo, { replace: true });
+      }
     } catch (err) {
       setLoginError("Invalid email or password.");
     } finally {

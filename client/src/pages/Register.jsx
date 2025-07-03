@@ -32,7 +32,11 @@ const Register = () => {
       alert('Registration successful! Please complete your profile.');
       navigate('/profile'); // Redirect to profile creation form
     } catch (err) {
-      // Error already handled via authError in context
+      if (err.response && err.response.data && err.response.data.message) {
+        setAuthError(err.response.data.message);
+      } else {
+        setAuthError('Registration failed. Please try again.');
+      }
     }
   };
 

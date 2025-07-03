@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import maleAvatar from '../assets/user-male-alt-svgrepo-com.svg';
 import femaleAvatar from '../assets/user-female-svgrepo-com.svg';
-import { guessGender } from '../utils/genderGuess';
+
 
 const isValidAvatarUrl = (url) => {
   try {

@@ -41,6 +41,10 @@ exports.getImpactTrends = async (req, res) => {
 
     console.log('Impact Trends matchFilter:', matchFilter);
 
+    // Log count of matching Actions
+    const actionCount = await Action.countDocuments(matchFilter);
+    console.log('Matching Actions count:', actionCount);
+
     // Aggregate from Actions
     const actionImpact = await Action.aggregate([
       { $match: matchFilter },

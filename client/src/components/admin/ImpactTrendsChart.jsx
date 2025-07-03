@@ -1,45 +1,96 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
 import ExportButton from './ExportButton';
 
-const ImpactTrendsChart = ({ data, onExport }) => {
-  // Format month-year label
+const ImpactTrendsChart = ({ data = [], onExport }) => {
+  // Format label as "Month Year" (e.g., Jun 2025)
   const formatMonthYear = (year, month) => {
     const date = new Date(year, month - 1);
     return date.toLocaleString('default', { month: 'short', year: 'numeric' });
   };
 
-  // Defensive check: ensure data is an array
-  const safeData = Array.isArray(data) ? data : [];
-
-  // Map data to include formatted monthYear label
-  const chartData = safeData.map(item => ({
-    monthYear: formatMonthYear(item.year, item.month),
-    carbonSaved: item.carbonSaved,
-    energySaved: item.energySaved,
-    waterSaved: item.waterSaved,
-    wasteReduced: item.wasteReduced,
-  }));
+  // Safe data mapping with fallbacks
+  const chartData = Array.isArray(data)
+    ? data.map((item) => ({
+        monthYear: formatMonthYear(item.year, item.month),
+        carbonSaved: item.carbonSaved || 0,
+        energySaved: item.energySaved || 0,
+        waterSaved: item.waterSaved || 0,
+        wasteReduced: item.wasteReduced || 0,
+      }))
+    : [];
 
   return (
-    <div className="bg-white p-4 rounded shadow">
+    <div
+      className="bg-white p-4 rounded shadow"
+      aria-label="Environmental Impact Trends Chart"
+    >
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Time-Based Environmental Impact Trends</h3>
+        <h3 className="text-lg font-semibold text-gray-800">
+          Time-Based Environmental Impact Trends
+        </h3>
         <ExportButton onExport={onExport} />
       </div>
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={chartData}>
-          <XAxis dataKey="monthYear" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Line type="monotone" dataKey="carbonSaved" stroke="#22c55e" name="Carbon Saved (kg)" />
-          <Line type="monotone" dataKey="energySaved" stroke="#3b82f6" name="Energy Saved (kWh)" />
-          <Line type="monotone" dataKey="waterSaved" stroke="#06b6d4" name="Water Saved (liters)" />
-          <Line type="monotone" dataKey="wasteReduced" stroke="#f59e0b" name="Waste Reduced (kg)" />
-        </LineChart>
-      </ResponsiveContainer>
+
+      {chartData.length === 0 ? (
+        <p className="text-gray-500 text-sm text-center">
+          No impact data available for the selected range.
+        </p>
+      ) : (
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={chartData}>
+            <XAxis dataKey="monthYear" stroke="#4B5563" />
+            <YAxis
+              stroke="#4B5563"
+              tickFormatter={(value) => `${value}`}
+              allowDecimals={false}
+            />
+            <Tooltip />
+            <Legend verticalAlign="top" height={36} />
+            <Line
+              type="monotone"
+              dataKey="carbonSaved"
+              stroke="#22c55e"
+              name="Carbon Saved (kg)"
+              dot={false}
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="energySaved"
+              stroke="#3b82f6"
+              name="Energy Saved (kWh)"
+              dot={false}
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="waterSaved"
+              stroke="#06b6d4"
+              name="Water Saved (liters)"
+              dot={false}
+              strokeWidth={2}
+            />
+            <Line
+              type="monotone"
+              dataKey="wasteReduced"
+              stroke="#f59e0b"
+              name="Waste Reduced (kg)"
+              dot={false}
+              strokeWidth={2}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 };

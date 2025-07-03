@@ -51,7 +51,16 @@ const registerUser = async (req, res) => {
 
   } catch (error) {
     console.error('Register Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    // Return detailed error message if available
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
+    }
+    if (error.code && error.code === 11000) {
+      // Duplicate key error
+      const field = Object.keys(error.keyValue)[0];
+      return res.status(400).json({ message: `${field} already exists` });
+    }
+    res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
 

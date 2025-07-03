@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
-import { getRewards, createReward, updateReward, deleteReward } from '../../api/rewardActions';
+import { fetchRewards, createReward, updateReward, deleteReward } from '../../api/rewardActions';
+import { AuthContext } from '../../context/AuthContext';
 
 const Rewards = () => {
+  const { token } = useContext(AuthContext);
   const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newReward, setNewReward] = useState({ title: '', description: '', points: 0, image: '' });
+  const [newReward, setNewReward] = useState({ title: '', description: '', cost: 0, imageUrl: '' });
   const [editingRewardId, setEditingRewardId] = useState(null);
-  const [editingReward, setEditingReward] = useState({ title: '', description: '', points: 0, image: '' });
+  const [editingReward, setEditingReward] = useState({ title: '', description: '', cost: 0, imageUrl: '' });
 
   useEffect(() => {
-    async function fetchRewards() {
-      const data = await getRewards();
+    async function fetchRewardsData() {
+      const data = await fetchRewards(token);
       setRewards(data);
       setLoading(false);
     }
-    fetchRewards();
-  }, []);
+    fetchRewardsData();
+  }, [token]);
 
   const handleInputChange = (e, isEditing = false) => {
     const { name, value } = e.target;
@@ -28,9 +30,9 @@ const Rewards = () => {
   };
 
   const handleCreate = async () => {
-    const created = await createReward(newReward);
+    const created = await createReward(newReward, token);
     setRewards([...rewards, created]);
-    setNewReward({ title: '', description: '', points: 0, image: '' });
+    setNewReward({ title: '', description: '', cost: 0, imageUrl: '' });
   };
 
   const startEdit = (reward) => {
@@ -40,18 +42,18 @@ const Rewards = () => {
 
   const cancelEdit = () => {
     setEditingRewardId(null);
-    setEditingReward({ title: '', description: '', points: 0, image: '' });
+    setEditingReward({ title: '', description: '', cost: 0, imageUrl: '' });
   };
 
   const handleUpdate = async () => {
-    const updated = await updateReward(editingRewardId, editingReward);
+    const updated = await updateReward(editingRewardId, editingReward, token);
     setRewards(rewards.map(r => (r._id === editingRewardId ? updated : r)));
     cancelEdit();
   };
 
   const handleDelete = async (rewardId) => {
     if (window.confirm('Are you sure you want to delete this reward?')) {
-      await deleteReward(rewardId);
+      await deleteReward(rewardId, token);
       setRewards(rewards.filter(r => r._id !== rewardId));
     }
   };
@@ -82,17 +84,17 @@ const Rewards = () => {
           />
           <input
             type="number"
-            name="points"
-            placeholder="Points"
-            value={newReward.points}
+            name="cost"
+            placeholder="Points Required"
+            value={newReward.cost}
             onChange={handleInputChange}
             className="border p-2 mr-2 rounded w-20"
           />
           <input
             type="text"
-            name="image"
+            name="imageUrl"
             placeholder="Image URL"
-            value={newReward.image}
+            value={newReward.imageUrl}
             onChange={handleInputChange}
             className="border p-2 mr-2 rounded"
           />
@@ -108,7 +110,7 @@ const Rewards = () => {
             <tr>
               <th className="py-2 px-4 border-b">Title</th>
               <th className="py-2 px-4 border-b">Description</th>
-              <th className="py-2 px-4 border-b">Points</th>
+              <th className="py-2 px-4 border-b" title="Users need to accumulate at least this many points to claim the reward.">Points Required</th>
               <th className="py-2 px-4 border-b">Image</th>
               <th className="py-2 px-4 border-b">Actions</th>
             </tr>
@@ -136,11 +138,11 @@ const Rewards = () => {
                         className="border p-1 rounded w-full"
                       />
                     </td>
-                    <td className="py-2 px-4 border-b">
+                    <td className="py-2 px-4 border-b" title={`Users need to accumulate at least ${editingReward.cost} points to claim this reward.`}>
                       <input
                         type="number"
-                        name="points"
-                        value={editingReward.points}
+                        name="cost"
+                        value={editingReward.cost}
                         onChange={(e) => handleInputChange(e, true)}
                         className="border p-1 rounded w-full"
                       />
@@ -148,8 +150,8 @@ const Rewards = () => {
                     <td className="py-2 px-4 border-b">
                       <input
                         type="text"
-                        name="image"
-                        value={editingReward.image}
+                        name="imageUrl"
+                        value={editingReward.imageUrl}
                         onChange={(e) => handleInputChange(e, true)}
                         className="border p-1 rounded w-full"
                       />
@@ -173,10 +175,10 @@ const Rewards = () => {
                   <>
                     <td className="py-2 px-4 border-b">{reward.title}</td>
                     <td className="py-2 px-4 border-b">{reward.description}</td>
-                    <td className="py-2 px-4 border-b">{reward.points}</td>
+                    <td className="py-2 px-4 border-b" title={`Users need to accumulate at least ${reward.cost} points to claim this reward.`}>{reward.cost}</td>
                     <td className="py-2 px-4 border-b">
-                      {reward.image ? (
-                        <img src={reward.image} alt={reward.title} className="h-10 mx-auto" />
+                      {reward.imageUrl ? (
+                        <img src={reward.imageUrl} alt={reward.title} className="h-10 mx-auto" />
                       ) : (
                         'N/A'
                       )}

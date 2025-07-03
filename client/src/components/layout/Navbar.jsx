@@ -38,21 +38,20 @@ const visitorHomeLinks = [
 
 const getLoggedInLinks = (user) => {
   if (user?.isAdmin) {
-    // Admin user: exclude Log Actions and Goals, add Actions page
+    // Admin user: exclude Log Actions and Goals, add Actions page, remove Profile link
     return [
-      { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
+      { name: 'Dashboard', path: '/admin/dashboard', icon: <BarChart2 size={20} /> },
       { name: 'Actions', path: '/admin/actions', icon: <Calendar size={20} /> },
       { name: 'Community', path: '/community', icon: <Users size={20} /> },
-      { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
     ];
   } else {
-    // Non-admin user: show all links
+    // Non-admin user: show all links including Profile
     return [
       { name: 'Dashboard', path: '/dashboard', icon: <BarChart2 size={20} /> },
       { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
       { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
       { name: 'Community', path: '/community', icon: <Users size={20} /> },
-      { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
+      { name: 'Profile', path: '/profile', icon: <User size={20} /> },
     ];
   }
 };
@@ -66,7 +65,7 @@ const getLoggedInLinks = (user) => {
     { name: 'Log Actions', path: '/log-action', icon: <Calendar size={20} /> },
     { name: 'Goals', path: '/goals', icon: <Target size={20} /> },
     { name: 'Community', path: '/community', icon: <Users size={20} /> },
-    { name: 'Resources', path: '/resources', icon: <BookOpen size={20} /> },
+    
     { name: 'Profile', path: '/profile', icon: <User size={20} /> },
   ];
 

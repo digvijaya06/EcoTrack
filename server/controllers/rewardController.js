@@ -1,4 +1,6 @@
+
 const Reward = require('../models/Reward');
+const RewardClaim = require('../models/RewardClaim');
 
 // Get all rewards (admin only)
 exports.getRewards = async (req, res) => {
@@ -55,6 +57,18 @@ exports.deleteReward = async (req, res) => {
     res.json({ message: 'Reward deleted' });
   } catch (error) {
     console.error('Delete Reward Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Create a reward claim (user)
+exports.createRewardClaim = async (req, res) => {
+  try {
+    const rewardClaim = new RewardClaim(req.body);
+    await rewardClaim.save();
+    res.status(201).json(rewardClaim);
+  } catch (error) {
+    console.error('Create Reward Claim Error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

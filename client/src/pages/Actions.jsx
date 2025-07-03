@@ -15,6 +15,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { fetchUserActions, addAction, deleteAction, updateAction } from '../api/userActions';
+import axios from 'axios';
 
 const Actions = () => {
   const { user } = useAuth();
@@ -24,6 +25,7 @@ const Actions = () => {
   const [showAddAction, setShowAddAction] = useState(false);
   const [actions, setActions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [actionRewardMappings, setActionRewardMappings] = useState([]);
 
   const categories = [
     { id: 'all', name: 'All Actions', icon: CheckCircle, color: 'gray' },
@@ -62,8 +64,11 @@ const Actions = () => {
       try {
         const data = await fetchUserActions();
         setActions(data);
+        // Fetch action-reward mappings
+        const mappingResponse = await axios.get('/api/action-reward-mapping');
+        setActionRewardMappings(mappingResponse.data);
       } catch (error) {
-        console.error('Failed to fetch user actions:', error);
+        console.error('Failed to fetch user actions or mappings:', error);
       } finally {
         setLoading(false);
       }
@@ -225,6 +230,8 @@ const Actions = () => {
           ) : (
             filteredActions.map((action, index) => {
               const color = getCategoryColor(action.category);
+              // Find reward mapping for this action
+              const rewardMapping = actionRewardMappings.find(mapping => mapping.action._id === action._id || mapping.action._id === action.id);
               return (
                 <motion.div
                   key={action._id || action.id || index}
@@ -259,6 +266,11 @@ const Actions = () => {
                       </h3>
                     </div>
                     <p className="text-gray-600 mb-3">{action.description}</p>
+                    {rewardMapping && (
+                      <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded text-green-700 text-sm">
+                        Reward: {rewardMapping.reward.title} (+{rewardMapping.points} points)
+                      </div>
+                    )}
                     <div className="flex items-center space-x-6 text-sm text-gray-500">
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
