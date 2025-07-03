@@ -45,69 +45,81 @@ const ROLES = {
   Admin: 'admin',
 };
 
+import { ChallengeProvider } from './context/ChallengeContext';
+
 function App() {
   return (
-    <Router>
-      <Suspense fallback={<div className="text-center mt-10 text-xl">Loading...</div>}>
-        <Routes>
-          <Route element={<Layout />}>
-          
-            {/* Public Routes */}
-            <Route path='/members' element= {<VisitorProfiles/>} />
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogDetails />} />
-            <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered, ROLES.Admin]} />}>
-              <Route path="/log-action" element={<Actions />} />
-            </Route>
-            <Route path='/analytics' element={<Analytics/>}/>
-           
-            {/* Protected for Registered & Admin */}
-            <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered]} />}>
-              <Route path="/profile" element={<Profile />} />
+    <ChallengeProvider>
+      <Router>
+        <Suspense fallback={<div className="text-center mt-10 text-xl">Loading...</div>}>
+          <Routes>
+            <Route element={<Layout />}>
+            
+              {/* Public Routes */}
+              <Route path='/members' element= {<VisitorProfiles/>} />
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogDetails />} />
+              <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered, ROLES.Admin]} />}>
+                <Route path="/log-action" element={<Actions />} />
+              </Route>
+              <Route path='/analytics' element={<Analytics/>}/>
              
-              <Route path="/rewards" element={<RewardList />} />
+              {/* Protected for Registered & Admin */}
+              <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered]} />}>
+                <Route path="/profile" element={<Profile />} />
+               
+                <Route path="/rewards" element={<RewardList />} />
+              </Route>
+
+
+              {/* Admin and Registered Routes */}
+              <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered, ROLES.Admin]} />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/goals" element={<Goals />} />
+                <Route path="/actions" element={<ActionsList />} />
+                <Route path="/leaderboard" element={<LeaderboardTable />} />
+              </Route>
+              <Route element={<ProtectedRoute allowedRoles={[ROLES.Admin]} />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/actions" element={<AdminActions />} />
+                <Route path="/admin/users" element={<Users />} />
+                <Route path="/admin/analytics" element={<AdminAnalytics />}>
+                  <Route path="challenge-participations" element={
+                    <React.Suspense fallback={<div>Loading...</div>}>
+                      <React.lazy>
+                        {() => import('./pages/admin/ChallengeParticipations')}
+                      </React.lazy>
+                    </React.Suspense>
+                  } />
+                </Route>
+                <Route path="/admin/feedback" element={
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <Feedback />
+                  </Suspense>
+                } />
+                <Route path="/admin/rewards" element={<Rewards />} />
+              </Route>
+              {/* Public Community Route */}
+              <Route path="/community" element={<Community />} />
+
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
+
+              {/* Legal Pages */}
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/cookie-policy" element={<CookiePolicy />} />
             </Route>
-
-
-            {/* Admin and Registered Routes */}
-            <Route element={<ProtectedRoute allowedRoles={[ROLES.Registered, ROLES.Admin]} />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/goals" element={<Goals />} />
-              <Route path="/actions" element={<ActionsList />} />
-              <Route path="/leaderboard" element={<LeaderboardTable />} />
-            </Route>
-            <Route element={<ProtectedRoute allowedRoles={[ROLES.Admin]} />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/actions" element={<AdminActions />} />
-              <Route path="/admin/users" element={<Users />} />
-              <Route path="/admin/analytics" element={<AdminAnalytics />} />
-              <Route path="/admin/feedback" element={
-                <Suspense fallback={<div>Loading...</div>}>
-                  <Feedback />
-                </Suspense>
-              } />
-              <Route path="/admin/rewards" element={<Rewards />} />
-            </Route>
-            {/* Public Community Route */}
-            <Route path="/community" element={<Community />} />
-
-            <Route path="/404" element={<NotFound />} />
-            <Route path="*" element={<Navigate to="/404" replace />} />
-
-            {/* Legal Pages */}
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/cookie-policy" element={<CookiePolicy />} />
-          </Route>
-        </Routes>
-      </Suspense>
-    </Router>
+          </Routes>
+        </Suspense>
+      </Router>
+    </ChallengeProvider>
   );
 }
 

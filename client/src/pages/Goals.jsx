@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { useUser } from '../context/UserContext';
+import { useChallenge } from '../context/ChallengeContext';
 import {
   fetchGoals,
   createGoal,
@@ -8,13 +9,15 @@ import {
   deleteGoal
 } from '../api/goalService';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-import GoalCardDetailed from '../components/goals/GoalCardDetailed';
-import GoalAnalytics from '../components/goals/GoalAnalytics';
 import Modal from '../components/ui/Modal';
 
 const Goals = () => {
   const { user, updatePoints } = useUser();
+  const { setSelectedChallenge } = useChallenge();
+  const navigate = useNavigate();
+
   const [goals, setGoals] = useState([]);
   const [activeTab, setActiveTab] = useState('active');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -39,6 +42,11 @@ const Goals = () => {
   ]);
   const [questionFeedback, setQuestionFeedback] = useState(null);
   const [questionLoading, setQuestionLoading] = useState(false);
+
+  const [challenges, setChallenges] = useState([]);
+  const [challengesLoading, setChallengesLoading] = useState(false);
+  const [challengesError, setChallengesError] = useState(null);
+  const [approvedChallengeIds, setApprovedChallengeIds] = useState([]);
 
   const handleAddGoal = async (e) => {
     e.preventDefault();
@@ -79,32 +87,64 @@ const Goals = () => {
     }
   };
 
-  useEffect(() => {
-    if (user) loadGoals();
-  }, [user]);
-
-const updateGoalProgress = async (goalId, newValue) => {
-  const goal = goals.find(g => g._id === goalId);
-  if (!goal) return;
-
-  const updated = {
-    progress: newValue,
+  const loadChallenges = async () => {
+    setChallengesLoading(true);
+    setChallengesError(null);
+    try {
+      const response = await axios.get('/api/challenges');
+      setChallenges(response.data);
+    } catch (err) {
+      console.error('Failed to load challenges', err);
+      setChallengesError('Failed to load challenges');
+    } finally {
+      setChallengesLoading(false);
+    }
   };
 
-  if (newValue >= goal.targetValue && goal.status !== 'completed') {
-    updated.status = 'completed';
+  const loadApprovedParticipations = async () => {
+    try {
+      const response = await axios.get('/api/challenges/joinedOrApprovedParticipations');
+      // Filter out any null or undefined challenge objects before mapping
+      const approvedIds = response.data
+        .filter(p => p.challenge != null)
+        .map(p => p.challenge._id);
+      console.log('Loaded approved challenge IDs:', approvedIds);
+      setApprovedChallengeIds(approvedIds);
+    } catch (err) {
+      console.error('Failed to load approved participations', err);
+    }
+  };
 
-    updatePoints(100); 
-  }
+  useEffect(() => {
+    if (user) {
+      loadGoals();
+      loadChallenges();
+      loadApprovedParticipations();
+    }
+  }, [user]);
 
-  try {
-    const response = await updateGoal(goalId, updated);
-    setGoals(goals.map(g => g._id === goalId ? response.data : g));
-  } catch (err) {
-    console.error('Failed to update goal', err);
-    setError('Failed to update goal');
-  }
-};
+  const updateGoalProgress = async (goalId, newValue) => {
+    const goal = goals.find(g => g._id === goalId);
+    if (!goal) return;
+
+    const updated = {
+      progress: newValue,
+    };
+
+    if (newValue >= goal.targetValue && goal.status !== 'completed') {
+      updated.status = 'completed';
+
+      updatePoints(100); 
+    }
+
+    try {
+      const response = await updateGoal(goalId, updated);
+      setGoals(goals.map(g => g._id === goalId ? response.data : g));
+    } catch (err) {
+      console.error('Failed to update goal', err);
+      setError('Failed to update goal');
+    }
+  };
 
   const deleteGoalHandler = async (goalId) => {
     try {
@@ -116,7 +156,7 @@ const updateGoalProgress = async (goalId, newValue) => {
     }
   };
   const filteredGoals = goals.filter(goal => {
-    const matchTab = activeTab === 'analytics' || goal.status === activeTab;
+    const matchTab = goal.status === activeTab;
     const matchCategory = selectedCategory === 'all' || goal.category === selectedCategory;
     return matchTab && matchCategory;
   });
@@ -146,7 +186,7 @@ const updateGoalProgress = async (goalId, newValue) => {
 
       {/* Tabs */}
       <div className="flex space-x-4 mb-4">
-        {['active', 'impact', 'analytics'].map(tab => (
+        {['active', 'impact','challenges'].map(tab => (
           <button
             key={tab}
             className={`px-4 py-2 rounded ${activeTab === tab ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
@@ -218,7 +258,62 @@ const updateGoalProgress = async (goalId, newValue) => {
         </div>
       )}
 
-      
+      {/* Challenges Tab */}
+      {activeTab === 'challenges' && (
+        <div className="mb-8 p-4 border rounded bg-gray-50">
+          <h2 className="text-lg font-semibold mb-4">Challenges</h2>
+          {challengesLoading && <p>Loading challenges...</p>}
+          {challengesError && <p className="text-red-600">{challengesError}</p>}
+          {!challengesLoading && !challengesError && (
+            <ul className="space-y-4">
+              {challenges.length === 0 ? (
+                <li>No challenges available.</li>
+              ) : (
+                challenges.map((challenge) => (
+                  <li key={challenge._id} className="border p-4 rounded bg-white shadow-sm">
+                    <h3 className="text-xl font-semibold">{challenge.title}</h3>
+                    <p className="text-gray-700 mb-2">{challenge.description}</p>
+                    <p className="text-sm text-gray-600">Points Required: {challenge.cost}</p>
+                    <button
+                    onClick={async () => {
+                      if (user) {
+                        try {
+                          const response = await fetch('/api/challenges/join', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ userId: user._id, challengeId: challenge._id }),
+                          });
+                          if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || 'Failed to join challenge');
+                          }
+                          setSelectedChallenge(challenge);
+                          // Immediately add challenge._id to approvedChallengeIds to disable button
+                          setApprovedChallengeIds(prev => [...prev, challenge._id]);
+                          navigate('/log-action', { state: { challenge } });
+                        } catch (error) {
+                          console.error('Failed to join challenge:', error);
+                          alert('Failed to join challenge: ' + error.message);
+                        }
+                      } else {
+                        navigate('/login');
+                      }
+                    }}
+                      className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                      disabled={approvedChallengeIds.includes(challenge._id)}
+                    >
+                      Join Challenge
+                    </button>
+                  </li>
+                ))
+              )}
+            </ul>
+          )}
+        </div>
+      )}
+
       {/* Add Goal Button */}
       {activeTab === 'active' && (
         <div className="mt-6">

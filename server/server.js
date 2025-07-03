@@ -14,8 +14,8 @@ if (!process.env.JWT_SECRET) {
 }
 
 // ====== MIDDLEWARE ======
-app.use(cors());                // Enable CORS for frontend
-app.use(express.json());       // Parse JSON bodies
+app.use(cors());                
+app.use(express.json());      
 
 // ====== ROUTES ======
 
@@ -25,6 +25,10 @@ app.use('/api/admin', adminRoutes);
 
 const adminActionsRoutes =require('./routes/adminActions')
 app.use('/api/admin/actions', adminActionsRoutes);
+
+// Admin Challenge Participation Routes
+const adminChallengeParticipationRoutes = require('./routes/adminChallengeParticipation');
+app.use('/api/adminChallengeParticipation', adminChallengeParticipationRoutes);
 
 const blogRoutes = require('./routes/blog');
 const communityRoutes = require('./routes/community');
@@ -64,6 +68,9 @@ app.use('/api/rewards', reward);
 
 const actionRewardMapping = require('./routes/actionRewardMapping');
 app.use('/api/action-reward-mapping', actionRewardMapping);
+
+const challengeRoutes = require('./routes/challenges');
+app.use('/api/challenges', challengeRoutes);
 
 // Action Routes
 const action = require('./routes/action');

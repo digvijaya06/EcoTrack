@@ -10,6 +10,7 @@ const actionSchema = new mongoose.Schema({
   energySaved: { type: Number, default: 0 }, // Energy saved in kWh
   wasteReduced: { type: Number, default: 0 }, // Waste reduced in kg
   notes: { type: String },
+  linkedReward: { type: mongoose.Schema.Types.ObjectId, ref: 'Reward', required: false },
   createdAt: { type: Date, default: Date.now }
 });
 

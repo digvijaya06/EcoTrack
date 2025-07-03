@@ -6,8 +6,11 @@ import ImpactTrendsChart from '../../components/admin/ImpactTrendsChart';
 import TopUsersTable from '../../components/admin/TopUsersTable';
 import CategoryEngagementHeatmap from '../../components/admin/CategoryEngagementHeatmap';
 import FilterBar from '../../components/admin/FilterBar';
+import { Route, Routes, Outlet, useLocation } from 'react-router-dom';
+import ChallengeParticipations from './ChallengeParticipations';
 
 const Analytics = () => {
+  const location = useLocation();
   const [impactTrends, setImpactTrends] = useState([]);
   const [topUsers, setTopUsers] = useState([]);
   const [categorySummary, setCategorySummary] = useState([]);
@@ -85,24 +88,30 @@ const Analytics = () => {
 
   return (
     <AdminLayout>
-      <div className="p-6 space-y-8">
-        <h1 className="text-3xl font-bold mb-6">Admin Analytics</h1>
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={
+          <div className="p-6 space-y-8">
+            <h1 className="text-3xl font-bold mb-6">Admin Analytics</h1>
 
-        <FilterBar filters={filters} setFilters={setFilters} />
+            <FilterBar filters={filters} setFilters={setFilters} />
 
-        <section>
-          <ImpactTrendsChart data={impactTrends} />
-        </section>
+            <section>
+              <ImpactTrendsChart data={impactTrends} />
+            </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <TopUsersTable users={topUsers} />
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                <TopUsersTable users={topUsers} />
+              </div>
+              <div>
+                <CategoryEngagementHeatmap data={categorySummary} />
+              </div>
+            </section>
           </div>
-          <div>
-            <CategoryEngagementHeatmap data={categorySummary} />
-          </div>
-        </section>
-      </div>
+        } />
+        <Route path="challenge-participations" element={<ChallengeParticipations />} />
+      </Routes>
+      <Outlet />
     </AdminLayout>
   );
 };
