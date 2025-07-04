@@ -8,8 +8,8 @@ const challengeParticipationSchema = new mongoose.Schema({
   },
   challenge: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Challenge',
-    required: true,
+    ref: 'Reward',
+    required: false,
   },
   joinedAt: {
     type: Date,

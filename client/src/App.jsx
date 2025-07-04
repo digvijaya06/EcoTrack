@@ -37,6 +37,7 @@ const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const CookiePolicy = lazy(() => import('./pages/CookiePolicy'));
 const Feedback = lazy(() => import('./pages/admin/Feedback'));
+const ChallengeParticipations = lazy(() => import('./pages/admin/ChallengeParticipations'));
 
 // Roles
 const ROLES = {
@@ -89,13 +90,11 @@ function App() {
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/actions" element={<AdminActions />} />
                 <Route path="/admin/users" element={<Users />} />
-                <Route path="/admin/analytics" element={<AdminAnalytics />}>
+                <Route path="/admin/analytics/*" element={<AdminAnalytics />}>
                   <Route path="challenge-participations" element={
-                    <React.Suspense fallback={<div>Loading...</div>}>
-                      <React.lazy>
-                        {() => import('./pages/admin/ChallengeParticipations')}
-                      </React.lazy>
-                    </React.Suspense>
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <ChallengeParticipations />
+                    </Suspense>
                   } />
                 </Route>
                 <Route path="/admin/feedback" element={
@@ -122,5 +121,4 @@ function App() {
     </ChallengeProvider>
   );
 }
-
 export default App;

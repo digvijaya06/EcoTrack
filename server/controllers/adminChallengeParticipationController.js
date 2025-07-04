@@ -1,24 +1,15 @@
 const ChallengeParticipation = require('../models/ChallengeParticipation');
-const Challenge = require('../models/Challenge');
 
-// Get all challenge participations (for admin)
 exports.getAllParticipations = async (req, res) => {
   try {
-    // Find participations where user is not admin
+    // Find all participations without filtering user or challenge
     const participations = await ChallengeParticipation.find()
-      .populate({
-        path: 'user',
-        select: 'name email isAdmin',
-        match: { isAdmin: false }
-      })
+      .populate('user', 'name email isAdmin')
       .populate('challenge', 'title description cost')
       .exec();
 
-    // Filter out participations where user is null (i.e., admin users filtered out)
-    const filteredParticipations = participations.filter(p => p.user !== null);
-
-    console.log('Fetched participations:', JSON.stringify(filteredParticipations, null, 2));
-    res.json(filteredParticipations);
+    console.log('Fetched participations:', JSON.stringify(participations, null, 2));
+    res.json(participations);
   } catch (error) {
     console.error('Error fetching participations:', error);
     res.status(500).json({ message: 'Server error' });

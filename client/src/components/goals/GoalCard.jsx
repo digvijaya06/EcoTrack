@@ -109,6 +109,10 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
 
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{goal.title}</h3>
 
+        {goal.completed && (
+          <p className="text-green-600 text-sm font-semibold mb-2">Completed</p>
+        )}
+
         {goal.description && (
           <p className="text-gray-600 text-sm mb-4 line-clamp-2">{goal.description}</p>
         )}

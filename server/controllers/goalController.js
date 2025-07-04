@@ -14,8 +14,8 @@ const getGoalsByUser = async (req, res) => {
 
 const createGoal = async (req, res) => {
   try {
-    const { title, category, targetValue, userId } = req.body;
-    if (!title || !category || !targetValue || !userId) {
+    const { title, category, target, userId } = req.body;
+    if (!title || !category || !target || !userId) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -120,10 +120,24 @@ const getGoalsImpact = async (req, res) => {
   }
 };
 
+const getAllGoals = async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+    const goals = await Goal.find().sort({ createdAt: -1 });
+    res.json(goals);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch all goals' });
+  }
+};
+
 module.exports = {
   getGoalsByUser,
   createGoal,
   updateGoal,
   deleteGoal,
-  getGoalsImpact
+  getGoalsImpact,
+  getAllGoals
 };

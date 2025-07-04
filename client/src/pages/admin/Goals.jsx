@@ -1,13 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
-import { getGoals, updateGoal, deleteGoal } from '../../api/goalService';
+import { getGoals, updateGoal, deleteGoal, createGoal } from '../../api/goalService';
+import { AuthContext } from '../../context/AuthContext';
 
 const Goals = () => {
+  const { user } = useContext(AuthContext);
   const [goals, setGoals] = useState([]);
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [editingGoal, setEditingGoal] = useState(null);
   const [editedTitle, setEditedTitle] = useState('');
+  const [newGoalTitle, setNewGoalTitle] = useState('');
+  const [newGoalCategory, setNewGoalCategory] = useState('');
+  const [newGoalTargetValue, setNewGoalTargetValue] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchGoals() {
@@ -52,12 +59,86 @@ const Goals = () => {
     cancelEditing();
   };
 
+  const handleAddGoal = async (e) => {
+    e.preventDefault();
+    setError(null);
+    if (!newGoalTitle || !newGoalCategory || !newGoalTargetValue) {
+      setError('Please fill in all fields');
+      return;
+    }
+    if (!user || !user._id) {
+      setError('User not authenticated');
+      return;
+    }
+    setAdding(true);
+    try {
+      const goalData = {
+        title: newGoalTitle,
+        category: newGoalCategory,
+        targetValue: newGoalTargetValue,
+        userId: user._id,
+      };
+      const createdGoal = await createGoal(goalData);
+      setGoals([createdGoal, ...goals]);
+      setNewGoalTitle('');
+      setNewGoalCategory('');
+      setNewGoalTargetValue('');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to add goal');
+    } finally {
+      setAdding(false);
+    }
+  };
+
   if (loading) return <AdminLayout><div>Loading goals...</div></AdminLayout>;
 
   return (
     <AdminLayout>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">Goals Management</h1>
+
+        <form onSubmit={handleAddGoal} className="mb-6 border p-4 rounded bg-gray-50">
+          <h2 className="text-xl font-semibold mb-4">Add New Goal</h2>
+          {error && <div className="mb-4 text-red-600">{error}</div>}
+          <div className="mb-2">
+            <label className="block mb-1">Title</label>
+            <input
+              type="text"
+              value={newGoalTitle}
+              onChange={e => setNewGoalTitle(e.target.value)}
+              className="border px-2 py-1 rounded w-full"
+              disabled={adding}
+            />
+          </div>
+          <div className="mb-2">
+            <label className="block mb-1">Category</label>
+            <input
+              type="text"
+              value={newGoalCategory}
+              onChange={e => setNewGoalCategory(e.target.value)}
+              className="border px-2 py-1 rounded w-full"
+              disabled={adding}
+            />
+          </div>
+          <div className="mb-2">
+            <label className="block mb-1">Target Value</label>
+            <input
+              type="number"
+              value={newGoalTargetValue}
+              onChange={e => setNewGoalTargetValue(e.target.value)}
+              className="border px-2 py-1 rounded w-full"
+              disabled={adding}
+            />
+          </div>
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+            disabled={adding}
+          >
+            {adding ? 'Adding...' : 'Add Goal'}
+          </button>
+        </form>
+
         <div className="mb-4">
           <label className="mr-4">Filter:</label>
           <select value={filter} onChange={e => setFilter(e.target.value)} className="border px-2 py-1 rounded">

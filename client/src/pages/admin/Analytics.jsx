@@ -111,7 +111,8 @@ const Analytics = () => {
         } />
         <Route path="challenge-participations" element={<ChallengeParticipations />} />
       </Routes>
-      <Outlet />
+      {/* Removed Outlet to prevent duplicate rendering of nested routes */}
+      {/* <Outlet /> */}
     </AdminLayout>
   );
 };

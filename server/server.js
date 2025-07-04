@@ -28,7 +28,9 @@ app.use('/api/admin/actions', adminActionsRoutes);
 
 // Admin Challenge Participation Routes
 const adminChallengeParticipationRoutes = require('./routes/adminChallengeParticipation');
+const debugRoutes = require('./routes/debug');
 app.use('/api/adminChallengeParticipation', adminChallengeParticipationRoutes);
+app.use('/api', debugRoutes);
 
 const blogRoutes = require('./routes/blog');
 const communityRoutes = require('./routes/community');

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
-import { useUser } from '../context/UserContext';
+import { useAuth } from '../context/AuthContext';
 import { useChallenge } from '../context/ChallengeContext';
 import {
   fetchGoals,
@@ -10,11 +10,11 @@ import {
 } from '../api/goalService';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import GoalCard from '../components/goals/GoalCard';
 import Modal from '../components/ui/Modal';
 
 const Goals = () => {
-  const { user, updatePoints } = useUser();
+  const { user } = useAuth();
   const { setSelectedChallenge } = useChallenge();
   const navigate = useNavigate();
 
@@ -50,11 +50,26 @@ const Goals = () => {
 
   const handleAddGoal = async (e) => {
     e.preventDefault();
+    if (!user || !user._id) {
+      setError('User not authenticated. Please login.');
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const response = await createGoal(newGoal);
-      setGoals([...goals, response.data]);
+      const { targetValue, ...rest } = newGoal;
+      const goalData = {
+        ...rest,
+        target: Number(targetValue),
+        userId: user._id,
+      };
+      const response = await createGoal(goalData);
+      console.log('Created goal:', response.data);
+      setGoals(prevGoals => {
+        const updatedGoals = [response.data, ...prevGoals];
+        console.log('Updated goals list:', updatedGoals);
+        return updatedGoals;
+      });
       setNewGoal({
         title: '',
         description: '',
@@ -78,7 +93,9 @@ const Goals = () => {
     setError(null);
     try {
       const response = await fetchGoals();
+      console.log('Fetched goals from server:', response.data);
       setGoals(response.data);
+      console.log('Updated goals state:', response.data);
     } catch (err) {
       console.error('Failed to load goals', err);
       setError('Failed to load goals');
@@ -116,6 +133,7 @@ const Goals = () => {
   };
 
   useEffect(() => {
+    console.log('User changed or component mounted, user:', user);
     if (user) {
       loadGoals();
       loadChallenges();
@@ -146,6 +164,21 @@ const Goals = () => {
     }
   };
 
+  const toggleGoalCompletion = async (goalId) => {
+    const goal = goals.find(g => g._id === goalId);
+    if (!goal) return;
+
+    const newStatus = goal.status === 'completed' ? 'active' : 'completed';
+
+    try {
+      const response = await updateGoal(goalId, { status: newStatus });
+      setGoals(goals.map(g => g._id === goalId ? response.data : g));
+    } catch (err) {
+      console.error('Failed to toggle goal completion', err);
+      setError('Failed to update goal status');
+    }
+  };
+
   const deleteGoalHandler = async (goalId) => {
     try {
       await deleteGoal(goalId);
@@ -156,9 +189,18 @@ const Goals = () => {
     }
   };
   const filteredGoals = goals.filter(goal => {
-    const matchTab = goal.status === activeTab;
-    const matchCategory = selectedCategory === 'all' || goal.category === selectedCategory;
-    return matchTab && matchCategory;
+    const status = goal.status?.toLowerCase() || '';
+    const activeTabLower = activeTab.toLowerCase();
+    let matchTab = false;
+    if (activeTabLower === 'active') {
+      matchTab = (status === 'active' || status === 'in progress' || status === 'completed');
+    } else {
+      matchTab = status === activeTabLower;
+    }
+    const matchCategory = selectedCategory === 'all' || goal.category.toLowerCase() === selectedCategory.toLowerCase();
+    const result = matchTab && matchCategory;
+    console.log(`Filtering goal: ${goal.title}, category: ${goal.category}, status: ${goal.status}, match: ${result}`);
+    return result;
   });
 
   const handleQuestionSubmit = async (e) => {
@@ -184,7 +226,7 @@ const Goals = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Goals</h1>
 
-      {/* Tabs */}
+      {/* Tabs */} 
       <div className="flex space-x-4 mb-4">
         {['active', 'impact','challenges'].map(tab => (
           <button
@@ -197,23 +239,40 @@ const Goals = () => {
         ))}
       </div>
 
-      {/* Category Filter - Show only for Active tab */}
-      {activeTab === 'active' && (
-        <div className="mb-6">
-          <select
-            value={selectedCategory}
-            onChange={e => setSelectedCategory(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value="all">All Categories</option>
-            <option value="carbon">Carbon</option>
-            <option value="water">Water</option>
-            <option value="energy">Energy</option>
-            <option value="waste">Waste</option>
-            <option value="transportation">Transportation</option>
-            <option value="food">Food</option>
-          </select>
-        </div>
+      {/* Category Filter - Show only for Active or Completed tab */}
+      {(activeTab === 'active' || activeTab === 'completed') && (
+        <>
+          <div className="mb-6">
+            <select
+              value={selectedCategory}
+              onChange={e => setSelectedCategory(e.target.value)}
+              className="border p-2 rounded"
+            >
+              <option value="all">All Categories</option>
+              <option value="carbon">Carbon</option>
+              <option value="water">Water</option>
+              <option value="energy">Energy</option>
+              <option value="waste">Waste</option>
+              <option value="transportation">Transportation</option>
+              <option value="food">Food</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredGoals.length === 0 ? (
+              <p>No goals found.</p>
+            ) : (
+              filteredGoals.map(goal => (
+                <GoalCard
+                  key={goal._id}
+                  goal={goal}
+                  updateProgress={updateGoalProgress}
+                  onClick={toggleGoalCompletion}
+                />
+              ))
+            )}
+          </div>
+        </>
       )}
 
       {/* Environmental Impact Questions */}
@@ -302,7 +361,7 @@ const Goals = () => {
                       }
                     }}
                       className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
-                      disabled={approvedChallengeIds.includes(challenge._id)}
+                    disabled={approvedChallengeIds.includes(challenge._id.toString())}
                     >
                       Join Challenge
                     </button>

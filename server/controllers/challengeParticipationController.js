@@ -1,10 +1,13 @@
 
+const mongoose = require('mongoose');
 const ChallengeParticipation = require('../models/ChallengeParticipation');
 
 // User joins a challenge
 exports.joinChallenge = async (req, res) => {
   try {
     const { userId, challengeId } = req.body;
+
+    console.log('joinChallenge received userId:', userId, 'challengeId:', challengeId);
 
     if (!userId || !challengeId) {
       return res.status(400).json({ message: 'User ID and Challenge ID are required' });
@@ -16,14 +19,18 @@ exports.joinChallenge = async (req, res) => {
       return res.status(400).json({ message: 'User already joined this challenge' });
     }
 
+    const ObjectId = mongoose.Types.ObjectId;
+
     const participation = new ChallengeParticipation({
-      user: userId,
-      challenge: challengeId,
+      user: new ObjectId(userId),
+      challenge: new ObjectId(challengeId),
     });
 
-    await participation.save();
+    const savedParticipation = await participation.save();
 
-    res.status(201).json(participation);
+    console.log('Saved participation:', savedParticipation);
+
+    res.status(201).json(savedParticipation);
   } catch (error) {
     console.error('Join Challenge Error:', error);
     res.status(500).json({ message: 'Server error' });

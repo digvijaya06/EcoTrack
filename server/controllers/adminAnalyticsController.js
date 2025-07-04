@@ -132,6 +132,22 @@ exports.getImpactTrends = async (req, res) => {
   }
 };
 
+// New endpoint to get total goals created and completed counts
+exports.getGoalsSummary = async (req, res) => {
+  try {
+    const totalGoalsCreated = await Goal.countDocuments({});
+    const totalGoalsCompleted = await Goal.countDocuments({ completed: true });
+
+    res.json({
+      totalGoalsCreated,
+      totalGoalsCompleted
+    });
+  } catch (error) {
+    console.error('Get Goals Summary Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 exports.getTopUsers = async (req, res) => {
   try {
     const { timeRange, userType } = req.query;
