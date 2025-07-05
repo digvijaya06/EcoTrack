@@ -221,14 +221,18 @@ exports.getTopUsers = async (req, res) => {
   }
 };
 
-// GET /admin/analytics/category-summary
 exports.getCategorySummary = async (req, res) => {
   try {
     // Aggregate goals count and completion rate per category
     const categoryStatsAgg = await Goal.aggregate([
       {
+        $match: {
+          category: { $exists: true, $ne: null, $ne: '' }
+        }
+      },
+      {
         $group: {
-          _id: '$category',
+          _id: { $toUpper: '$category' },
           total: { $sum: 1 },
           completed: { $sum: { $cond: ['$completed', 1, 0] } }
         }
@@ -236,7 +240,7 @@ exports.getCategorySummary = async (req, res) => {
     ]);
 
     const categoryStats = categoryStatsAgg.map(cat => ({
-      category: cat._id,
+      category: cat._id || 'Other',
       total: cat.total,
       completed: cat.completed,
       completionRate: cat.total > 0 ? (cat.completed / cat.total) * 100 : 0

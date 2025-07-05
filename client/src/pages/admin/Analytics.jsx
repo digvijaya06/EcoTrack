@@ -7,7 +7,7 @@ import TopUsersTable from '../../components/admin/TopUsersTable';
 import CategoryEngagementHeatmap from '../../components/admin/CategoryEngagementHeatmap';
 import FilterBar from '../../components/admin/FilterBar';
 import { Route, Routes, Outlet, useLocation } from 'react-router-dom';
-
+import GoalsCategoryPieChart from '../../components/admin/GoalsCategoryPieChart'; // New import
 
 const Analytics = () => {
   const location = useLocation();
@@ -80,9 +80,17 @@ const Analytics = () => {
     try {
       const res = await axios.get('/admin/analytics/category-summary', { headers: getAuthHeader() });
       console.log('Category Summary Data:', res.data);
-      setCategorySummary(res.data);
+      // Defensive check to ensure data is an array
+      if (Array.isArray(res.data)) {
+        setCategorySummary(res.data);
+      } else if (res.data && Array.isArray(res.data.categoryStats)) {
+        setCategorySummary(res.data.categoryStats);
+      } else {
+        setCategorySummary([]);
+      }
     } catch (error) {
       console.error('Failed to fetch category summary:', error);
+      setCategorySummary([]);
     }
   };
 
@@ -105,11 +113,12 @@ const Analytics = () => {
               </div>
               <div>
                 <CategoryEngagementHeatmap data={categorySummary} />
+                <GoalsCategoryPieChart data={categorySummary} /> {/* New pie chart component */}
               </div>
             </section>
           </div>
         } />
-        <Route path="challenge-participations" element={<ChallengeParticipations />} />
+        
       </Routes>
       {/* Removed Outlet to prevent duplicate rendering of nested routes */}
       {/* <Outlet /> */}

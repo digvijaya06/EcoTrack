@@ -17,6 +17,10 @@ if (!process.env.JWT_SECRET) {
 app.use(cors());                
 app.use(express.json());      
 
+// Serve static files from public folder (for uploaded images)
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
 // ====== ROUTES ======
 
 // Admin Routes

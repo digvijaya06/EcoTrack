@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-
 import {
   fetchGoals,
+  fetchGoalsImpact,
   createGoal,
   updateGoal,
   deleteGoal
@@ -11,17 +11,21 @@ import {
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import GoalCard from '../components/goals/GoalCard';
+import GoalAnalytics from '../components/goals/GoalAnalytics';
 import Modal from '../components/ui/Modal';
 
 const Goals = () => {
   const { user } = useAuth();
-
   const navigate = useNavigate();
 
   const [goals, setGoals] = useState([]);
+  const [impactGoals, setImpactGoals] = useState([]);
   const [activeTab, setActiveTab] = useState('active');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showAddGoal, setShowAddGoal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const [newGoal, setNewGoal] = useState({
     title: '',
     description: '',
@@ -31,8 +35,6 @@ const Goals = () => {
     deadline: '',
     priority: 'medium'
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const [questions, setQuestions] = useState([
     { id: 1, text: 'How much total carbon saved?', value: '', unit: 'kg CO₂' },
@@ -43,10 +45,34 @@ const Goals = () => {
   const [questionFeedback, setQuestionFeedback] = useState(null);
   const [questionLoading, setQuestionLoading] = useState(false);
 
-  const [challenges, setChallenges] = useState([]);
-  const [challengesLoading, setChallengesLoading] = useState(false);
-  const [challengesError, setChallengesError] = useState(null);
-  const [approvedChallengeIds, setApprovedChallengeIds] = useState([]);
+  const loadGoals = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetchGoals();
+      setGoals(response.data);
+    } catch {
+      setError('Failed to load goals');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadImpactGoals = async () => {
+    try {
+      const response = await fetchGoalsImpact();
+      setImpactGoals(response.data || []);
+    } catch (err) {
+      console.error('Failed to load impact goals', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      loadGoals();
+      loadImpactGoals();
+    }
+  }, [user]);
 
   const handleAddGoal = async (e) => {
     e.preventDefault();
@@ -57,19 +83,13 @@ const Goals = () => {
     setLoading(true);
     setError(null);
     try {
-      const { targetValue, ...rest } = newGoal;
       const goalData = {
-        ...rest,
-        target: Number(targetValue),
-        userId: user._id,
+        ...newGoal,
+        target: Number(newGoal.targetValue),
+        userId: user._id
       };
       const response = await createGoal(goalData);
-      console.log('Created goal:', response.data);
-      setGoals(prevGoals => {
-        const updatedGoals = [response.data, ...prevGoals];
-        console.log('Updated goals list:', updatedGoals);
-        return updatedGoals;
-      });
+      setGoals(prev => [response.data, ...prev]);
       setNewGoal({
         title: '',
         description: '',
@@ -80,86 +100,30 @@ const Goals = () => {
         priority: 'medium'
       });
       setShowAddGoal(false);
-    } catch (err) {
-      console.error('Failed to add goal', err);
+    } catch {
       setError('Failed to add goal');
     } finally {
       setLoading(false);
     }
   };
 
-  const loadGoals = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetchGoals();
-      console.log('Fetched goals from server:', response.data);
-      setGoals(response.data);
-      console.log('Updated goals state:', response.data);
-    } catch (err) {
-      console.error('Failed to load goals', err);
-      setError('Failed to load goals');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadChallenges = async () => {
-    setChallengesLoading(true);
-    setChallengesError(null);
-    try {
-      const response = await axios.get('/api/challenges');
-      setChallenges(response.data);
-    } catch (err) {
-      console.error('Failed to load challenges', err);
-      setChallengesError('Failed to load challenges');
-    } finally {
-      setChallengesLoading(false);
-    }
-  };
-
-  const loadApprovedParticipations = async () => {
-    try {
-      const response = await axios.get('/api/challenges/joinedOrApprovedParticipations');
-      // Filter out any null or undefined challenge objects before mapping
-      const approvedIds = response.data
-        .filter(p => p.challenge != null)
-        .map(p => p.challenge._id);
-      console.log('Loaded approved challenge IDs:', approvedIds);
-      setApprovedChallengeIds(approvedIds);
-    } catch (err) {
-      console.error('Failed to load approved participations', err);
-    }
-  };
-
-  useEffect(() => {
-    console.log('User changed or component mounted, user:', user);
-    if (user) {
-      loadGoals();
-      loadChallenges();
-      loadApprovedParticipations();
-    }
-  }, [user]);
-
-  const updateGoalProgress = async (goalId, newValue) => {
+  const updateGoalProgress = async (goalId, newValue, updatedHistory) => {
     const goal = goals.find(g => g._id === goalId);
     if (!goal) return;
 
     const updated = {
       progress: newValue,
+      progressHistory: updatedHistory
     };
 
     if (newValue >= goal.targetValue && goal.status !== 'completed') {
       updated.status = 'completed';
-
-      updatePoints(100); 
     }
 
     try {
       const response = await updateGoal(goalId, updated);
       setGoals(goals.map(g => g._id === goalId ? response.data : g));
-    } catch (err) {
-      console.error('Failed to update goal', err);
+    } catch {
       setError('Failed to update goal');
     }
   };
@@ -173,8 +137,7 @@ const Goals = () => {
     try {
       const response = await updateGoal(goalId, { status: newStatus });
       setGoals(goals.map(g => g._id === goalId ? response.data : g));
-    } catch (err) {
-      console.error('Failed to toggle goal completion', err);
+    } catch {
       setError('Failed to update goal status');
     }
   };
@@ -183,24 +146,25 @@ const Goals = () => {
     try {
       await deleteGoal(goalId);
       setGoals(goals.filter(goal => goal._id !== goalId));
-    } catch (err) {
-      console.error('Failed to delete goal', err);
+    } catch {
       setError('Failed to delete goal');
     }
   };
-  const filteredGoals = goals.filter(goal => {
-    const status = goal.status?.toLowerCase() || '';
-    const activeTabLower = activeTab.toLowerCase();
-    let matchTab = false;
-    if (activeTabLower === 'active') {
-      matchTab = (status === 'active' || status === 'in progress' || status === 'completed');
-    } else {
-      matchTab = status === activeTabLower;
-    }
-    const matchCategory = selectedCategory === 'all' || goal.category.toLowerCase() === selectedCategory.toLowerCase();
-    const result = matchTab && matchCategory;
-    console.log(`Filtering goal: ${goal.title}, category: ${goal.category}, status: ${goal.status}, match: ${result}`);
-    return result;
+
+  // Add completed boolean property derived from status
+  const goalsWithCompleted = goals.map(goal => ({
+    ...goal,
+    completed: goal.status === 'completed'
+  }));
+
+  const filteredGoals = goalsWithCompleted.filter(goal => {
+    const status = (goal.status || '').toLowerCase();
+    const matchTab = activeTab === 'active'
+      ? ['active', 'in progress', 'completed'].includes(status)
+      : status === activeTab;
+    const matchCategory = selectedCategory === 'all'
+      || goal.category.toLowerCase() === selectedCategory;
+    return matchTab && matchCategory;
   });
 
   const handleQuestionSubmit = async (e) => {
@@ -215,7 +179,7 @@ const Goals = () => {
       await axios.post('/api/analytics/user-question-response/batch', { responses: payload });
       setQuestionFeedback({ type: 'success', message: 'Responses saved successfully!' });
       setQuestions(questions.map(q => ({ ...q, value: '' })));
-    } catch (error) {
+    } catch {
       setQuestionFeedback({ type: 'error', message: 'Failed to save responses.' });
     } finally {
       setQuestionLoading(false);
@@ -226,9 +190,9 @@ const Goals = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Goals</h1>
 
-      {/* Tabs */} 
+      {/* Tabs */}
       <div className="flex space-x-4 mb-4">
-        {['active', 'impact','challenges'].map(tab => (
+        {['active', 'impact', 'analytics'].map(tab => (
           <button
             key={tab}
             className={`px-4 py-2 rounded ${activeTab === tab ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
@@ -239,7 +203,7 @@ const Goals = () => {
         ))}
       </div>
 
-      {/* Category Filter - Show only for Active or Completed tab */}
+      {/* Category Filter */}
       {(activeTab === 'active' || activeTab === 'completed') && (
         <>
           <div className="mb-6">
@@ -259,18 +223,17 @@ const Goals = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredGoals.length === 0 ? (
-              <p>No goals found.</p>
-            ) : (
-              filteredGoals.map(goal => (
+            {filteredGoals.length === 0
+              ? <p>No goals found.</p>
+              : filteredGoals.map(goal => (
                 <GoalCard
                   key={goal._id}
                   goal={goal}
                   updateProgress={updateGoalProgress}
                   onClick={toggleGoalCompletion}
+                  onDelete={deleteGoalHandler}
                 />
-              ))
-            )}
+              ))}
           </div>
         </>
       )}
@@ -317,65 +280,8 @@ const Goals = () => {
         </div>
       )}
 
-      {/* Challenges Tab */}
-      {activeTab === 'challenges' && (
-        <div className="mb-8 p-4 border rounded bg-gray-50">
-          <h2 className="text-lg font-semibold mb-4">Challenges</h2>
-          {challengesLoading && <p>Loading challenges...</p>}
-          {challengesError && <p className="text-red-600">{challengesError}</p>}
-          {!challengesLoading && !challengesError && (
-            <ul className="space-y-4">
-              {challenges.length === 0 ? (
-                <li>No challenges available.</li>
-              ) : (
-                challenges.map((challenge) => (
-                  <li key={challenge._id} className="border p-4 rounded bg-white shadow-sm">
-                    <h3 className="text-xl font-semibold">{challenge.title}</h3>
-                    <p className="text-gray-700 mb-2">{challenge.description}</p>
-                    <p className="text-sm text-gray-600">Points Required: {challenge.cost}</p>
-                    <button
-                    onClick={async () => {
-                      if (user) {
-                        try {
-                          const response = await fetch('/api/challenges/join', {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ userId: user._id, challengeId: challenge._id }),
-                          });
-                          if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.message || 'Failed to join challenge');
-                          }
-                          setSelectedChallenge(challenge);
-                          // Immediately add challenge._id to approvedChallengeIds to disable button
-                          setApprovedChallengeIds(prev => [...prev, challenge._id]);
-                          navigate('/log-action', { state: { challenge } });
-                        } catch (error) {
-                          console.error('Failed to join challenge:', error);
-                          alert('Failed to join challenge: ' + error.message);
-                        }
-                      } else {
-                        navigate('/login');
-                      }
-                    }}
-                      className={`mt-2 px-4 py-2 rounded transition-colors ${
-                        approvedChallengeIds.includes(challenge._id.toString())
-                          ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
-                          : 'bg-green-600 text-white hover:bg-green-700'
-                      }`}
-                    disabled={approvedChallengeIds.includes(challenge._id.toString())}
-                    >
-                      Join Challenge
-                    </button>
-                  </li>
-                ))
-              )}
-            </ul>
-          )}
-        </div>
-      )}
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && <GoalAnalytics goals={impactGoals} />}
 
       {/* Add Goal Button */}
       {activeTab === 'active' && (
@@ -390,12 +296,7 @@ const Goals = () => {
       )}
 
       {/* Add Goal Modal */}
-      <Modal
-        isOpen={showAddGoal}
-        onClose={() => setShowAddGoal(false)}
-        title="Create New Goal"
-      >
-        {/* Original shorter form content placeholder */}
+      <Modal isOpen={showAddGoal} onClose={() => setShowAddGoal(false)} title="Create New Goal">
         <form onSubmit={handleAddGoal}>
           <input
             type="text"
@@ -445,7 +346,6 @@ const Goals = () => {
           />
           <input
             type="date"
-            placeholder="Deadline"
             value={newGoal.deadline}
             onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
             required
@@ -462,17 +362,10 @@ const Goals = () => {
             <option value="high">High</option>
           </select>
           <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={() => setShowAddGoal(false)}
-              className="px-4 py-2 border rounded"
-            >
+            <button type="button" onClick={() => setShowAddGoal(false)} className="px-4 py-2 border rounded">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
+            <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
               Add Goal
             </button>
           </div>

@@ -45,24 +45,30 @@ exports.createAction = async (req, res) => {
       return res.status(400).json({ message: "Content is required" });
     }
 
-    // Infer category and type from tags (simple example)
+    // Normalize tags: trim and lowercase each tag
+    let normalizedTags = [];
+    if (tags && Array.isArray(tags)) {
+      normalizedTags = tags.map(tag => tag.trim().toLowerCase());
+    }
+
+    // Infer category and type from normalized tags (simple example)
     let category = "plantation";
     let type = "Tree Plantation";
 
-    if (tags && Array.isArray(tags)) {
-      if (tags.includes("bicycle")) {
+    if (normalizedTags.length > 0) {
+      if (normalizedTags.includes("bicycle")) {
         category = "transport";
         type = "Bicycle Commute";
-      } else if (tags.includes("carpool")) {
+      } else if (normalizedTags.includes("carpool")) {
         category = "transport";
         type = "Carpool";
-      } else if (tags.includes("energy")) {
+      } else if (normalizedTags.includes("energy")) {
         category = "energy";
         type = "Energy Saving";
-      } else if (tags.includes("water")) {
+      } else if (normalizedTags.includes("water")) {
         category = "water";
         type = "Water Conservation";
-      } else if (tags.includes("recycling")) {
+      } else if (normalizedTags.includes("recycling")) {
         category = "recycling";
         type = "Recycling";
       }

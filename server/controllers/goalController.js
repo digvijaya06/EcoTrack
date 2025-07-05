@@ -112,7 +112,8 @@ const deleteGoal = async (req, res) => {
 // Returns progress data for goals for progress bars
 const getGoalsImpact = async (req, res) => {
   try {
-    const goals = await Goal.find({ userId: req.user._id }).select('title progress target');
+    // Include category field to support Analytics tab grouping
+    const goals = await Goal.find({ userId: req.user._id }).select('title progress target category');
     res.json(goals);
   } catch (error) {
     console.error('Get Goals Impact Error:', error);

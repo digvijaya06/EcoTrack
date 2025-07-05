@@ -194,6 +194,7 @@ const AdminActions = () => {
               <td className="border px-6 py-4">{action.user?.name || 'N/A'}</td>
               <td className="border px-6 py-4 capitalize">{action.category}</td>
               <td className="border px-6 py-4">{action.description}</td>
+              <td className="border px-6 py-4">{action.points || 0}</td>
               <td className="border px-6 py-4">
                 <span
                   className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
@@ -232,8 +233,8 @@ const AdminActions = () => {
               </td>
             </tr>
           ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
 
       {/* Pagination */}
       <div className="mt-6 flex justify-center space-x-3">
