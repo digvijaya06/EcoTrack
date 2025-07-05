@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const RewardClaim = require('../models/RewardClaim');
 const Reward = require('../models/Reward');
-const CategoryTarget = require('../models/CategoryTarget');
+
 const nodemailer = require('nodemailer');
 const multer = require('multer');
 const path = require('path');

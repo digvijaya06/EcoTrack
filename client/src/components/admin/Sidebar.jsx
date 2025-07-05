@@ -34,16 +34,7 @@ const Sidebar = () => {
             </NavLink>
           </li>
           <li className="mb-2">
-            <NavLink
-              to="/admin/analytics"
-              className={({ isActive }) =>
-                isActive
-                  ? 'block px-4 py-2 text-white bg-green-400 rounded'
-                  : 'block px-4 py-2 text-white bg-green-400 hover:bg-green-500 rounded'
-              }
-            >
-              Analytics
-            </NavLink>
+          
             <ul className="ml-4 mt-2">
               <li className="mb-2">
                 

@@ -175,64 +175,30 @@ const AdminActions = () => {
             <th className="border px-6 py-3 text-left font-semibold">Description</th>
             <th className="border px-6 py-3 text-left font-semibold">Status</th>
             <th className="border px-6 py-3 text-left font-semibold">Date</th>
-            <th className="border px-6 py-3 text-left font-semibold">Actions</th>
           </tr>
         </thead>
         <tbody>
           {paginatedActions.length === 0 && (
             <tr>
-              <td colSpan="6" className="text-center py-6 text-green-900 font-semibold">
+              <td colSpan="5" className="text-center py-6 text-green-900 font-semibold">
                 No actions found.
               </td>
             </tr>
           )}
-          {paginatedActions.map((action) => (
-            <tr
-              key={action._id}
-              className="hover:bg-green-50 transition-colors duration-200"
-            >
-              <td className="border px-6 py-4">{action.user?.name || 'N/A'}</td>
-              <td className="border px-6 py-4 capitalize">{action.category}</td>
-              <td className="border px-6 py-4">{action.description}</td>
-              <td className="border px-6 py-4">{action.points || 0}</td>
-              <td className="border px-6 py-4">
-                <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
-                    action.status === 'Approved'
-                      ? 'bg-green-200 text-green-800'
-                      : action.status === 'Rejected'
-                      ? 'bg-red-200 text-red-800'
-                      : 'bg-yellow-200 text-yellow-800'
-                  }`}
-                >
-                  {action.status}
-                </span>
-              </td>
-              <td className="border px-6 py-4">{new Date(action.createdAt).toLocaleDateString()}</td>
-              <td className="border px-6 py-4 space-x-3">
-                {action.status === 'Pending' ? (
-                  <>
-                    <button
-                      onClick={() => handleApprove(action._id)}
-                      className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
-                      aria-label={`Approve action ${action._id}`}
-                    >
-                      ✅ Approve
-                    </button>
-                    <button
-                      onClick={() => handleReject(action._id)}
-                      className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
-                      aria-label={`Reject action ${action._id}`}
-                    >
-                      ❌ Reject
-                    </button>
-                  </>
-                ) : (
-                  <span className="text-gray-500 font-semibold">—</span>
-                )}
-              </td>
-            </tr>
-          ))}
+          {paginatedActions
+            .filter((action) => action && action._id) // filter out empty or invalid rows
+            .map((action) => (
+              <tr
+                key={action._id}
+                className="hover:bg-green-50 transition-colors duration-200"
+              >
+                <td className="border px-6 py-4">{action.user?.name || 'N/A'}</td>
+                <td className="border px-6 py-4 capitalize">{action.category}</td>
+                <td className="border px-6 py-4">{action.description}</td>
+                <td className="border px-6 py-4">{action.points || 0}</td>
+                <td className="border px-6 py-4">{new Date(action.createdAt).toLocaleDateString()}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
 

@@ -14,7 +14,12 @@ if (!process.env.JWT_SECRET) {
 }
 
 // ====== MIDDLEWARE ======
-app.use(cors());                
+app.use(cors({
+  origin: ['http://localhost:5174', 'http://localhost:5173'], // allow both origins
+  credentials: true
+}));
+
+
 app.use(express.json());      
 
 // Serve static files from public folder (for uploaded images)
@@ -30,9 +35,7 @@ app.use('/api/admin', adminRoutes);
 const adminActionsRoutes =require('./routes/adminActions')
 app.use('/api/admin/actions', adminActionsRoutes);
 
-// Admin Analytics Routes
-const adminAnalyticsRoutes = require('./routes/adminAnalytics');
-app.use('/admin/analytics', adminAnalyticsRoutes);
+
 
 
 
@@ -113,7 +116,7 @@ mongoose.connect(process.env.MONGO_URI)
 .then(() => {
   console.log("MongoDB connected");
 
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
   });
 })

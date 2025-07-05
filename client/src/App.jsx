@@ -19,7 +19,7 @@ import Dashboard from './pages/Dashboard';
 // Admin Pages (not lazy to avoid route nesting issues)
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminActions from './pages/admin/Actions';
-import AdminAnalytics from './pages/admin/Analytics';
+
 import AdminUsers from './pages/admin/Users';
 import AdminRewards from './pages/admin/Rewards';
 
@@ -87,7 +87,7 @@ function App() {
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/actions" element={<AdminActions />} />
               <Route path="/admin/users" element={<AdminUsers />} />
-              <Route path="/admin/analytics/*" element={<AdminAnalytics />} />
+              
               <Route path="/admin/feedback" element={<Feedback />} />
               <Route path="/admin/rewards" element={<AdminRewards />} />
             </Route>
