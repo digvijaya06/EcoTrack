@@ -119,15 +119,6 @@ className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-co
           <div className="hidden md:flex md:items-center">
 {isAuthenticated ? (
               <>
-                <Link to="/profile">
-                  <Button
-                    variant="ghost"
-                    className="flex items-center"
-                    leftIcon={<User size={18} />}
-                  >
-                    Profile
-                  </Button>
-                </Link>
                 <Button variant="green" className="ml-4 bg-green-600 hover:bg-green-700 border-green-600" onClick={() => { logout(); navigate('/login'); }}>
                   Sign Out
                 </Button>
@@ -179,16 +170,8 @@ className={`inline-flex items-center px-1 pt-1 text-sm font-medium transition-co
                 </Link>
               ))}
             <hr className="my-2" />
-            {isAuthenticated ? (
+{isAuthenticated ? (
               <>
-                <Link
-                  to="/profile"
-                  className="flex items-center pl-3 pr-4 py-3 text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-l-4 hover:border-primary-300 hover:text-primary-600"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <User size={20} className="mr-3" />
-                  Profile
-                </Link>
                 <Button variant="green" className="w-full" onClick={() => { logout(); navigate('/login'); }}>
                   Sign Out
                 </Button>

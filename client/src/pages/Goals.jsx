@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useChallenge } from '../context/ChallengeContext';
+
 import {
   fetchGoals,
   createGoal,
@@ -15,7 +15,7 @@ import Modal from '../components/ui/Modal';
 
 const Goals = () => {
   const { user } = useAuth();
-  const { setSelectedChallenge } = useChallenge();
+
   const navigate = useNavigate();
 
   const [goals, setGoals] = useState([]);
@@ -360,7 +360,11 @@ const Goals = () => {
                         navigate('/login');
                       }
                     }}
-                      className="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                      className={`mt-2 px-4 py-2 rounded transition-colors ${
+                        approvedChallengeIds.includes(challenge._id.toString())
+                          ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
                     disabled={approvedChallengeIds.includes(challenge._id.toString())}
                     >
                       Join Challenge

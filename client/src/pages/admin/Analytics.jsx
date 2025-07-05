@@ -7,7 +7,7 @@ import TopUsersTable from '../../components/admin/TopUsersTable';
 import CategoryEngagementHeatmap from '../../components/admin/CategoryEngagementHeatmap';
 import FilterBar from '../../components/admin/FilterBar';
 import { Route, Routes, Outlet, useLocation } from 'react-router-dom';
-import ChallengeParticipations from './ChallengeParticipations';
+
 
 const Analytics = () => {
   const location = useLocation();
