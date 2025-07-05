@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const isAdmin = require('../middleware/isAdmin');
-const adminAnalyticsController = require('../controllers/adminAnalyticsController');
 const authenticate = require('../middleware/authMiddleware');
+const adminAnalyticsController = require('../controllers/adminAnalyticsController');
 
 // Protect all routes with authentication and isAdmin middleware
 router.use(authenticate);
@@ -17,10 +17,14 @@ router.get('/top-users', adminAnalyticsController.getTopUsers);
 // GET goals/actions count per category with completion rates
 router.get('/category-summary', adminAnalyticsController.getCategorySummary);
 
-// GET export data (CSV/PDF) - optional stub
-router.get('/export', adminAnalyticsController.exportAnalytics);
+// Optional: GET export data (CSV/PDF)
+if (adminAnalyticsController.exportAnalytics) {
+  router.get('/export', adminAnalyticsController.exportAnalytics);
+}
 
-// GET suspicious activity detection - optional stub
-router.get('/outliers', adminAnalyticsController.getSuspiciousActivity);
+// Optional: GET suspicious activity detection
+if (adminAnalyticsController.getSuspiciousActivity) {
+  router.get('/outliers', adminAnalyticsController.getSuspiciousActivity);
+}
 
 module.exports = router;

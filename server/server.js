@@ -30,6 +30,10 @@ app.use('/api/admin', adminRoutes);
 const adminActionsRoutes =require('./routes/adminActions')
 app.use('/api/admin/actions', adminActionsRoutes);
 
+// Admin Analytics Routes
+const adminAnalyticsRoutes = require('./routes/adminAnalytics');
+app.use('/admin/analytics', adminAnalyticsRoutes);
+
 
 
 const blogRoutes = require('./routes/blog');

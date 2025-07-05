@@ -44,7 +44,7 @@ const Analytics = () => {
     try {
       const params = {};
       if (filters.timeRange) params.timeRange = filters.timeRange;
-      if (filters.category) params.category = filters.category;
+      if (filters.category) params.category = filters.category.toUpperCase();  // Normalize category to uppercase
       const res = await axios.get('/admin/analytics/impact', { params, headers: getAuthHeader() });
       console.log('Impact Trends Data:', res.data);
       if (res.data && res.data.length > 0) {
