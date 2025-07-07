@@ -52,6 +52,13 @@ const updateGoal = async (req, res) => {
       });
     }
 
+    // Sync completed boolean with status string
+    if (req.body.status === 'completed') {
+      goal.completed = true;
+    } else if (req.body.status === 'active') {
+      goal.completed = false;
+    }
+
     Object.assign(goal, req.body);
     const updatedGoal = await goal.save();
 

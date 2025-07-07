@@ -30,11 +30,12 @@ export const fetchUserDashboardData = async () => {
 // Add new action
 export const addAction = async (actionData) => {
   try {
-    if (!actionData.tags) {
-      actionData.tags = [];
-    }
+    const payload = {
+      ...actionData,
+      tags: actionData.tags || [],
+    };
 
-    const response = await API.post('/actions', actionData, {
+    const response = await API.post('/actions', payload, {
       headers: getAuthHeader(),
     });
     return response.data;
@@ -83,7 +84,7 @@ export const fetchUserAchievements = async () => {
   }
 };
 
-// Fetch all admin actions
+// Fetch admin actions
 export const fetchAdminActions = async () => {
   try {
     const response = await API.get('/admin/actions', {

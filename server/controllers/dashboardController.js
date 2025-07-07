@@ -12,7 +12,7 @@ exports.getDashboardStats = async (req, res) => {
 
     if (isAdmin) {
       // Admin: return platform-wide stats
-      const totalUsers = await User.countDocuments();
+      const totalUsers = await User.countDocuments({ isAdmin: false });
       const totalActions = await Action.countDocuments();
       const totalGoals = await Goal.countDocuments();
       const completedGoals = await Goal.countDocuments({ completed: true });
@@ -142,8 +142,13 @@ exports.getDashboardStats = async (req, res) => {
         }));
       }
 
-      const actionDates = actions.map(a => a.createdAt).sort((a, b) => new Date(b) - new Date(a));
-      const streak = calculateStreak(actionDates);
+      // Calculate total unique days with actions for total days streak
+      const uniqueDatesSet = new Set();
+      actions.forEach(action => {
+        const dateStr = new Date(action.createdAt).toISOString().slice(0, 10);
+        uniqueDatesSet.add(dateStr);
+      });
+      const streak = uniqueDatesSet.size; // total unique days with actions as total days streak
       const totalPoints = calculatePoints(actions);
 
       // Aggregate total CO2 saved

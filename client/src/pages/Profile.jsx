@@ -168,9 +168,6 @@ const Profile = () => {
                   alt={user?.name}
                   className="w-32 h-32 rounded-full border-4 border-white shadow-xl"
                 />
-                <button className="absolute bottom-2 right-2 w-8 h-8 bg-eco-700 rounded-full flex items-center justify-center text-white hover:bg-eco-800 transition-colors duration-300">
-                  <Camera className="w-4 h-4" />
-                </button>
               </div>
               <div className="flex-1 relative">
                 <h1 className="text-3xl font-extrabold text-gray-900">{user?.name}</h1>

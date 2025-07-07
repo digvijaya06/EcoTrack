@@ -94,96 +94,100 @@ const Goals = () => {
 
   return (
     <AdminLayout>
-      <div className="p-6">
-        <h1 className="text-2xl font-bold mb-6">Goals Management</h1>
+      <div className="p-6 bg-white rounded-lg shadow-lg animate-fadeIn">
+        <h1 className="text-3xl font-extrabold mb-6 text-green-900">Goals Management</h1>
 
-        <form onSubmit={handleAddGoal} className="mb-6 border p-4 rounded bg-gray-50">
-          <h2 className="text-xl font-semibold mb-4">Add New Goal</h2>
-          {error && <div className="mb-4 text-red-600">{error}</div>}
-          <div className="mb-2">
-            <label className="block mb-1">Title</label>
+        <form onSubmit={handleAddGoal} className="mb-8 border border-green-300 p-6 rounded-lg bg-green-50">
+          <h2 className="text-2xl font-semibold mb-6 text-green-800">Add New Goal</h2>
+          {error && <div className="mb-6 text-red-600">{error}</div>}
+          <div className="mb-4">
+            <label className="block mb-2 font-semibold text-green-900">Title</label>
             <input
               type="text"
               value={newGoalTitle}
               onChange={e => setNewGoalTitle(e.target.value)}
-              className="border px-2 py-1 rounded w-full"
+              className="border border-green-300 px-4 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
               disabled={adding}
             />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">Category</label>
+          <div className="mb-4">
+            <label className="block mb-2 font-semibold text-green-900">Category</label>
             <input
               type="text"
               value={newGoalCategory}
               onChange={e => setNewGoalCategory(e.target.value)}
-              className="border px-2 py-1 rounded w-full"
+              className="border border-green-300 px-4 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
               disabled={adding}
             />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">Target Value</label>
+          <div className="mb-4">
+            <label className="block mb-2 font-semibold text-green-900">Target Value</label>
             <input
               type="number"
               value={newGoalTargetValue}
               onChange={e => setNewGoalTargetValue(e.target.value)}
-              className="border px-2 py-1 rounded w-full"
+              className="border border-green-300 px-4 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
               disabled={adding}
             />
           </div>
           <button
             type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded"
+            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition"
             disabled={adding}
           >
             {adding ? 'Adding...' : 'Add Goal'}
           </button>
         </form>
 
-        <div className="mb-4">
-          <label className="mr-4">Filter:</label>
-          <select value={filter} onChange={e => setFilter(e.target.value)} className="border px-2 py-1 rounded">
+        <div className="mb-6">
+          <label className="mr-6 font-semibold text-green-900">Filter:</label>
+          <select
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            className="border border-green-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+          >
             <option value="all">All</option>
             <option value="completed">Completed</option>
             <option value="active">Active</option>
           </select>
         </div>
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
+        <table className="min-w-full bg-white border border-green-300 rounded-lg shadow-md overflow-hidden">
+          <thead className="bg-green-100 text-green-900">
             <tr>
-              <th className="py-2 px-4 border-b">Title</th>
-              <th className="py-2 px-4 border-b">User</th>
-              <th className="py-2 px-4 border-b">Status</th>
-              <th className="py-2 px-4 border-b">Actions</th>
+              <th className="py-3 px-6 border-b font-semibold text-left">Title</th>
+              <th className="py-3 px-6 border-b font-semibold text-left">User</th>
+              <th className="py-3 px-6 border-b font-semibold text-left">Status</th>
+              <th className="py-3 px-6 border-b font-semibold text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredGoals.map(goal => (
-              <tr key={goal._id} className="text-center">
-                <td className="py-2 px-4 border-b">
+              <tr key={goal._id} className="text-center hover:bg-green-50 transition-colors duration-200">
+                <td className="py-3 px-6 border-b">
                   {editingGoal && editingGoal._id === goal._id ? (
                     <input
                       type="text"
                       value={editedTitle}
                       onChange={e => setEditedTitle(e.target.value)}
-                      className="border px-2 py-1 rounded w-full"
+                      className="border border-green-300 px-4 py-2 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
                     />
                   ) : (
                     goal.title
                   )}
                 </td>
-                <td className="py-2 px-4 border-b">{goal.user?.name || 'N/A'}</td>
-                <td className="py-2 px-4 border-b">{goal.completed ? 'Completed' : 'Active'}</td>
-                <td className="py-2 px-4 border-b">
+                <td className="py-3 px-6 border-b">{goal.user?.name || 'N/A'}</td>
+                <td className="py-3 px-6 border-b">{goal.completed ? 'Completed' : 'Active'}</td>
+                <td className="py-3 px-6 border-b space-x-2">
                   {editingGoal && editingGoal._id === goal._id ? (
                     <>
                       <button
-                        className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition"
                         onClick={saveEdit}
                       >
                         Save
                       </button>
                       <button
-                        className="bg-gray-500 text-white px-3 py-1 rounded"
+                        className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition"
                         onClick={cancelEditing}
                       >
                         Cancel
@@ -193,20 +197,20 @@ const Goals = () => {
                     <>
                       {!goal.completed && (
                         <button
-                          className="bg-green-500 text-white px-3 py-1 rounded mr-2"
+                          className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition"
                           onClick={() => markComplete(goal._id)}
                         >
                           Mark Complete
                         </button>
                       )}
                       <button
-                        className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition"
                         onClick={() => startEditing(goal)}
                       >
                         Edit
                       </button>
                       <button
-                        className="bg-red-500 text-white px-3 py-1 rounded"
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
                         onClick={() => handleDelete(goal._id)}
                       >
                         Delete

@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const rewardController = require('../controllers/rewardController');
-const protect = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 
 // Get all rewards (admin only)
 router.get('/', protect, rewardController.fetchRewards);

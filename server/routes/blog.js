@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authenticate = require('../middleware/authMiddleware'); // JWT middleware
+const { protect } = require('../middleware/authMiddleware'); // JWT middleware
 const isAdmin = require('../middleware/isAdmin'); // Admin check middleware
 const blogController = require('../controllers/blogController');
 
@@ -11,12 +11,12 @@ router.get('/', blogController.getBlogs);
 router.get('/:slug', blogController.getBlogBySlug);
 
 // POST / - create new blog (admin only)
-router.post('/', authenticate, isAdmin, blogController.createBlog);
+router.post('/', protect, isAdmin, blogController.createBlog);
 
 // PUT /:id - update blog (admin only)
-router.put('/:id', authenticate, isAdmin, blogController.updateBlog);
+router.put('/:id', protect, isAdmin, blogController.updateBlog);
 
 // DELETE /:id - delete blog (admin only)
-router.delete('/:id', authenticate, isAdmin, blogController.deleteBlog);
+router.delete('/:id', protect, isAdmin, blogController.deleteBlog);
 
 module.exports = router;

@@ -78,6 +78,11 @@ app.use('/api/rewards', reward);
 const actionRewardMapping = require('./routes/actionRewardMapping');
 app.use('/api/action-reward-mapping', actionRewardMapping);
 
+// Reward Milestone Routes
+const rewardMilestoneRoutes = require('./routes/rewardMilestone');
+app.use('/api/reward-milestone', rewardMilestoneRoutes);
+
+
 
 
 // Action Routes
@@ -122,4 +127,6 @@ mongoose.connect(process.env.MONGO_URI)
 })
 .catch((err) => {
   console.error('MongoDB connection failed:', err);
+  console.error('Detailed error:', err.message, err.stack);
+  process.exit(1); // Exit process on DB connection failure to avoid undefined behavior
 });

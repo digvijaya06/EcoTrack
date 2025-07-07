@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const protect = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 const goalController = require('../controllers/goalController');
 
 // Consolidated routes from both goal.js and goals.js

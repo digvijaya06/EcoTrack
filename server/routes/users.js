@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const protect = require('../middleware/authMiddleware');
+const { protect } = require('../middleware/authMiddleware');
 const User = require('../models/User');
 const { getBadges, getAchievements } = require('../controllers/userController');
 
