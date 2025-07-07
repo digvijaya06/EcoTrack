@@ -40,13 +40,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-import { 
-  getOverallMonthlyImpact, 
-  getActionCategories, 
-  getAchievements, 
-  getSummary, 
-  getGoals 
-} from '../api/analytics';
 
 const Analytics = () => {
   const [timeRange, setTimeRange] = useState('month');
@@ -62,7 +55,7 @@ const Analytics = () => {
     
     { name: 'Energy Conserved', value: 15, color: '#3b82f6', count: 18 }
   ]);
-  const [achievements, setAchievements] = useState([]);
+  
 
   useEffect(() => {
     const fetchAggregatedResponses = async () => {

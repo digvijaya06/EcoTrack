@@ -4,9 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "vite",
+    "build": "npm run build --prefix client",
+    "preview":"vite preview",
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon server/server.js",
-    "client": "npm run dev --prefix client"
+    "client": "npm run dev --prefix client",
+    "install": "npm install --prefix client && npm install" 
   },
   "keywords": [],
   "author": "",
@@ -24,6 +28,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-async-handler": "^1.2.0",
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",

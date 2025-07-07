@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create a reusable Axios instance with the base API URL
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: '/api',
 });
 
 // Utility to attach JWT token from localStorage to headers
