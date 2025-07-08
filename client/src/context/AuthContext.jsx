@@ -1,7 +1,9 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/$/, '') : 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL
+  ? import.meta.env.VITE_API_URL.replace(/\/$/, '')
+  : 'http://localhost:5000';
 
 export const AuthContext = createContext({
   user: null,
@@ -24,7 +26,6 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
 
-  // Sync token with axios headers
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -33,7 +34,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [token]);
 
-  // Function to verify and fetch current user info
   const refreshUser = async () => {
     if (!token) {
       setIsLoading(false);
@@ -41,8 +41,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await axios.get(`/api/users/me`);
-      console.log('refreshUser response:', response.data);
+      const response = await axios.get(`${API_URL}/api/users/me`);
       setUser(response.data);
       setIsAuthenticated(true);
     } catch (error) {
@@ -53,33 +52,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Initial effect on mount
   useEffect(() => {
     refreshUser();
   }, [token]);
 
-  // Login method
   const login = async (email, password) => {
     try {
       setAuthError(null);
       setIsLoading(true);
-      console.log('AuthContext: Attempting login for', email);
-      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
-      console.log('AuthContext: Login response', response.data);
+      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
       const { token, user } = response.data;
 
       if (token) {
-        // Set role based on isAdmin
         user.role = user.isAdmin ? 'admin' : 'registered';
 
         localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user)); // store full user object in localStorage
-        console.log('AuthContext: Stored user in localStorage:', user);
+        localStorage.setItem('user', JSON.stringify(user));
         setToken(token);
         setUser(user);
         setIsAuthenticated(true);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        return true; // explicitly return true on success
+        return true;
       } else {
         throw new Error('Invalid token received');
       }
@@ -92,20 +85,23 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Register method
   const register = async (name, username, email, password) => {
     try {
       setAuthError(null);
       setIsLoading(true);
-      const response = await axios.post(`${API_URL}/auth/register`, { name, username, email, password });
+      const response = await axios.post(`${API_URL}/api/auth/register`, {
+        name,
+        username,
+        email,
+        password,
+      });
       const { token, user } = response.data;
 
       if (token) {
-        // Set role based on isAdmin
         user.role = user.isAdmin ? 'admin' : 'registered';
 
         localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user)); // store full user object in localStorage
+        localStorage.setItem('user', JSON.stringify(user));
         setToken(token);
         setUser(user);
         setIsAuthenticated(true);
@@ -122,20 +118,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout method
   const logout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('username'); // remove username from localStorage
+    localStorage.removeItem('user');
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
     delete axios.defaults.headers.common['Authorization'];
   };
 
-  // Update user state locally
   const updateUser = (userData) => {
     if (user) {
-      setUser(prev => ({ ...prev, ...userData }));
+      setUser((prev) => ({ ...prev, ...userData }));
     }
   };
 
@@ -160,5 +154,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook to consume the context
 export const useAuth = () => useContext(AuthContext);

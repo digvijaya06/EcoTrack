@@ -33,9 +33,14 @@ const getAllRewardMilestones = asyncHandler(async (req, res) => {
 // @desc    Get user rewards
 // @route   GET /api/rewardMilestone/user-rewards
 // @access  Private/Admin
+const UserReward = require('../models/UserReward');
+
 const getUserRewards = asyncHandler(async (req, res) => {
-  // Placeholder implementation - adjust as needed
-  res.json({ message: 'User rewards endpoint - to be implemented' });
+  const userRewards = await UserReward.find({})
+    .populate('userId', 'name')
+    .populate('rewardMilestoneId', 'title category target')
+    .exec();
+  res.json(userRewards);
 });
 
 module.exports = {

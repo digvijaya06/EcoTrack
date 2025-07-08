@@ -27,7 +27,12 @@ const Rewards = () => {
   const fetchUserRewards = async () => {
     try {
       const res = await axios.get('/api/reward-milestone/user-rewards', { headers: getAuthHeader() });
-      setUserRewards(res.data);
+      if (Array.isArray(res.data)) {
+        setUserRewards(res.data);
+      } else {
+        console.warn('Expected array for userRewards but got:', res.data);
+        setUserRewards([]);
+      }
     } catch (err) {
       setError('Failed to fetch user rewards');
     }
@@ -164,7 +169,7 @@ const Rewards = () => {
               </tr>
             </thead>
             <tbody>
-              {userRewards.map((ur) => (
+              {Array.isArray(userRewards) ? userRewards.map((ur) => (
                 <tr key={ur._id} className="hover:bg-green-50 transition-colors duration-200">
                   <td className="border border-green-300 p-3">{ur.userId?.name || 'N/A'}</td>
                   <td className="border border-green-300 p-3">{ur.rewardMilestoneId?.title || 'N/A'}</td>
@@ -172,7 +177,7 @@ const Rewards = () => {
                   <td className="border border-green-300 p-3">{ur.rewardMilestoneId?.target || 'N/A'}</td>
                   <td className="border border-green-300 p-3">{new Date(ur.earnedAt).toLocaleString()}</td>
                 </tr>
-              ))}
+              )) : null}
             </tbody>
           </table>
           {error && <p className="text-red-600 mt-2">{error}</p>}
