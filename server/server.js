@@ -15,10 +15,9 @@ if (!process.env.JWT_SECRET) {
 
 // ====== MIDDLEWARE ======
 app.use(cors({
-  origin: ['http://localhost:5174', 'http://localhost:5173'], // allow both origins
+  origin: ['http://localhost:5174', 'http://localhost:5173', 'https://eco-track-frontend.onrender.com'],
   credentials: true
 }));
-
 
 app.use(express.json());      
 
