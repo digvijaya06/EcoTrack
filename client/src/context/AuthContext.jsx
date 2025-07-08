@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
       setAuthError(null);
       setIsLoading(true);
       console.log('AuthContext: Attempting login for', email);
-      const response = await axios.post(`/api/auth/login`, { email, password });
+      const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       console.log('AuthContext: Login response', response.data);
       const { token, user } = response.data;
 
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setAuthError(null);
       setIsLoading(true);
-      const response = await axios.post(`/api/auth/register`, { name, username, email, password });
+      const response = await axios.post(`${API_URL}/auth/register`, { name, username, email, password });
       const { token, user } = response.data;
 
       if (token) {

@@ -11,7 +11,7 @@ export const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-// Add a response interceptor to handle 401 errors globally
+
 API.interceptors.response.use(
   response => response,
   error => {

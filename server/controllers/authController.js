@@ -30,7 +30,18 @@ const registerUser = async (req, res) => {
 
     await user.save();
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    if (!process.env.JWT_SECRET) {
+      console.warn('JWT_SECRET is not set. Using default secret.');
+      process.env.JWT_SECRET = 'default_jwt_secret_key_change_me';
+    }
+
+    let token;
+    try {
+      token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    } catch (jwtError) {
+      console.error('JWT signing error during registration:', jwtError);
+      return res.status(500).json({ message: 'Token generation failed during registration' });
+    }
 
     res.status(201).json({
       token,
