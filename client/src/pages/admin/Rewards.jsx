@@ -2,15 +2,29 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getAuthHeader } from '../../api/api';
 
+import carbon from '../../assets/carbon.png';
+import ecoWarrior from '../../assets/Eco Warrior.jpg';
+import recycleChampion from '../../assets/recycle-champion.jpeg';
+import saveEnergy from '../../assets/save-energy-.jpg';
+import saveWater from '../../assets/save-water-.jpg';
+
+const imageMap = {
+  'carbon.png': carbon,
+  'Eco Warrior.jpg': ecoWarrior,
+  'recycle-champion.jpeg': recycleChampion,
+  'save-energy-.jpg': saveEnergy,
+  'save-water-.jpg': saveWater,
+};
+
 const Rewards = () => {
   const [activeTab, setActiveTab] = useState('setup');
   const [rewards, setRewards] = useState([]);
   const [userRewards, setUserRewards] = useState([]);
   const [formData, setFormData] = useState({
     title: '',
-    cost: '',
+    Points: '',
     description: '',
-    imageUrl: ''
+    imageUrl: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -53,7 +67,7 @@ const Rewards = () => {
     setError(null);
     try {
       await axios.post('/api/rewards', formData, { headers: getAuthHeader() });
-      setFormData({ title: '', cost: '', description: '', imageUrl: '' });
+      setFormData({ title: '', Points: '', description: '' });
       fetchRewards();
     } catch (err) {
       setError('Failed to create reward');
@@ -81,77 +95,115 @@ const Rewards = () => {
       </div>
 
       {activeTab === 'setup' && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-4 text-green-800">Add New Reward</h2>
-          <form onSubmit={handleCreateReward} className="mb-8 space-y-5 max-w-md">
-            <input
-              type="text"
-              name="title"
-              placeholder="Title"
-              value={formData.title}
-              onChange={handleInputChange}
-              required
-              className="border border-green-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-            <input
-              type="number"
-              name="cost"
-              placeholder="Cost"
-              value={formData.cost}
-              onChange={handleInputChange}
-              required
-              className="border border-green-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-              min="1"
-            />
-            <input
-              type="text"
-              name="description"
-              placeholder="Description"
-              value={formData.description}
-              onChange={handleInputChange}
-              className="border border-green-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-            <input
-              type="text"
-              name="imageUrl"
-              placeholder="Image URL"
-              value={formData.imageUrl}
-              onChange={handleInputChange}
-              className="border border-green-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition"
-            >
-              {loading ? 'Creating...' : 'Create Reward'}
-            </button>
-            {error && <p className="text-red-600 mt-2">{error}</p>}
-          </form>
+        <div className="flex space-x-8">
+          <div className="w-1/3">
+            <h2 className="text-2xl font-semibold mb-4 text-green-800">Add New Reward</h2>
+            <form onSubmit={handleCreateReward} className="space-y-5">
+              <input
+                type="text"
+                name="title"
+                placeholder="Title"
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+                className="border border-green-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+              />
+              <input
+                type="number"
+                name="Points"
+                placeholder="Points"
+                value={formData.Points}
+                onChange={handleInputChange}
+                required
+                className="border border-green-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                min="1"
+              />
+              <input
+                type="text"
+                name="description"
+                placeholder="Description"
+                value={formData.description}
+                onChange={handleInputChange}
+                className="border border-green-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+              />
+              <div className="flex flex-col space-y-1">
+                <label
+                  htmlFor="image-upload"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Choose Image
+                </label>
+                <input
+                  id="image-upload"
+                  type="file"
+                  name="image"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    setFormData((prev) => ({ ...prev, imageUrl: file.name }));
+                  }}
+                  className="border border-green-300 p-3 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-green-400 transition"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg disabled:opacity-50 transition"
+              >
+                {loading ? 'Creating...' : 'Create Reward'}
+              </button>
+              {error && <p className="text-red-600 mt-2">{error}</p>}
+            </form>
+          </div>
 
-          <h2 className="text-2xl font-semibold mb-4 text-green-800">Existing Rewards</h2>
-          <table className="w-full border-collapse border border-green-300 rounded-lg shadow-md overflow-hidden">
-            <thead className="bg-green-100 text-green-900">
-              <tr>
-                <th className="border border-green-300 p-3 text-left font-semibold">Title</th>
-                <th className="border border-green-300 p-3 text-left font-semibold">Cost</th>
-                <th className="border border-green-300 p-3 text-left font-semibold">Description</th>
-                <th className="border border-green-300 p-3 text-left font-semibold">Image</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rewards.map((reward) => (
-                <tr key={reward._id} className="hover:bg-green-50 transition-colors duration-200">
-                  <td className="border border-green-300 p-3">{reward.title}</td>
-                  <td className="border border-green-300 p-3">{reward.cost}</td>
-                  <td className="border border-green-300 p-3">{reward.description}</td>
-                  <td className="border border-green-300 p-3">
-                    {reward.imageUrl && <img src={reward.imageUrl} alt={reward.title} className="h-10 w-10 object-contain rounded" />}
-                  </td>
+          <div className="w-2/3 max-h-[600px] overflow-y-auto rounded-lg border border-green-300 shadow-md">
+            <h2 className="text-2xl font-semibold mb-4 p-4 text-green-800 bg-green-50 sticky top-0 z-10">Existing Rewards</h2>
+            <table className="w-full border-collapse">
+              <thead className="bg-green-100 text-green-900 sticky top-12 z-10">
+                <tr>
+                  <th className="border border-green-300 p-3 text-left font-semibold">Title</th>
+                  <th className="border border-green-300 p-3 text-left font-semibold">Points</th>
+                  <th className="border border-green-300 p-3 text-left font-semibold">Description</th>
+                  <th className="border border-green-300 p-3 text-left font-semibold">Image</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rewards.map((reward) => (
+                  <tr key={reward._id} className="hover:bg-green-50 transition-colors duration-200">
+                    <td className="border border-green-300 p-3">{reward.title}</td>
+                    <td className="border border-green-300 p-3">{reward.Points}</td>
+                    <td className="border border-green-300 p-3">{reward.description}</td>
+                    <td className="border border-green-300 p-3">
+                      {reward.imageUrl && (() => {
+                        const isFullUrl = (url) => {
+                          return url.startsWith('http') || url.startsWith('/');
+                        };
+                        const getFileName = (url) => {
+                          return url.split('/').pop();
+                        };
+                        let src = null;
+                        if (isFullUrl(reward.imageUrl)) {
+                          src = reward.imageUrl;
+                        } else {
+                          const fileName = getFileName(reward.imageUrl);
+                          src = imageMap[fileName] || null;
+                        }
+                        if (!src) return null;
+                        return (
+                          <img
+                            src={src}
+                            alt={reward.title}
+                            className="h-10 w-10 object-contain rounded"
+                          />
+                        );
+                      })()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

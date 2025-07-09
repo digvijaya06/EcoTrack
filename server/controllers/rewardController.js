@@ -82,12 +82,16 @@ exports.updateReward = async (req, res) => {
 exports.createReward = async (req, res) => {
   try {
     const rewardData = req.body;
+    // Map Points to cost for backward compatibility if needed
+    if (rewardData.Points !== undefined) {
+      rewardData.Points = Number(rewardData.Points);
+    }
     const newReward = new Reward(rewardData);
     await newReward.save();
     res.status(201).json(newReward);
   } catch (error) {
-    console.error('Create Reward Error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Create Reward Error:', error.message, error.stack);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
 

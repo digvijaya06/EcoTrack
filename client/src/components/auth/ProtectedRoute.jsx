@@ -6,19 +6,19 @@ const ProtectedRoute = ({ allowedRoles }) => {
   const { isAuthenticated, isLoading, user } = useContext(AuthContext);
   const location = useLocation();
 
- 
+  // While auth state is loading, render null or a loading indicator
+  if (isLoading) {
+    return null; // or a spinner component
+  }
 
   // If user is not authenticated, redirect to login 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
- 
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
-  
     return <Navigate to="/" replace />;
   }
-
 
   return <Outlet />;
 };

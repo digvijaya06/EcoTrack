@@ -1,10 +1,18 @@
 import React from 'react';
 import Sidebar from './Sidebar';
+import { useLocation } from 'react-router-dom';
 
 const AdminLayout = ({ children }) => {
+  const location = useLocation();
+  const isDashboard = location.pathname === '/admin/dashboard';
+
+  // Hide sidebar on dashboard and admin panel dropdown routes
+  const hideSidebarRoutes = ['/admin/dashboard', '/admin/users', '/admin/feedback', '/admin/rewards'];
+  const isDashboardOrAdminPanelRoute = hideSidebarRoutes.includes(location.pathname);
+
   return (
     <div className="flex min-h-screen bg-gradient-to-r from-green-50 to-green-100">
-      <Sidebar />
+      {!isDashboardOrAdminPanelRoute && <Sidebar />}
       <main className="flex-1 p-12 bg-white rounded-xl shadow-2xl border border-green-200">
         {children}
       </main>

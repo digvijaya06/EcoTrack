@@ -8,7 +8,7 @@ const rewardSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  cost: {
+  Points: {
     type: Number,
     required: true,
   },

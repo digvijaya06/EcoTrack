@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Button from '../components/ui/Button';
+
 import {
   User,
   Mail,
@@ -11,9 +11,7 @@ import {
   TrendingUp,
   Settings,
   Edit,
-  Camera,
-  Save,
-  X
+  
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
@@ -125,30 +123,25 @@ const Profile = () => {
     { label: 'Community Rank', value: communityRank ? `#${communityRank}` : 'Loading...', icon: TrendingUp, color: 'orange' }
   ];
 
-  const badges = [
-    { id: 1, name: 'Eco Warrior', description: 'Completed 100+ environmental actions', icon: '🌍', earned: true, rarity: 'Epic' },
-    { id: 2, name: 'Carbon Neutral', description: 'Offset 1 ton of CO₂ emissions', icon: '🌱', earned: true, rarity: 'Rare' },
-    { id: 3, name: 'Energy Saver', description: 'Saved 500kWh of energy', icon: '⚡', earned: false, rarity: 'Common' },
-    { id: 4, name: 'Recycling Champion', description: 'Recycled 1000+ items', icon: '♻️', earned: true, rarity: 'Epic' },
-    { id: 5, name: 'Community Leader', description: 'Led 5+ community challenges', icon: '👥', earned: false, rarity: 'Legendary' },
-    { id: 6, name: 'Water Guardian', description: 'Saved 10,000L of water', icon: '💧', earned: true, rarity: 'Rare' }
-  ];
-
-  const [fetchedBadges, setFetchedBadges] = React.useState([]);
+  const [userRewards, setUserRewards] = React.useState([]);
 
   React.useEffect(() => {
-    const fetchBadges = async () => {
+    const fetchUserRewards = async () => {
       try {
-        const data = await fetchUserAchievements();
-        if (data && data.badges) {
-          setFetchedBadges(data.badges);
+        const response = await axios.get('/api/reward-milestone/user-rewards', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (Array.isArray(response.data)) {
+          setUserRewards(response.data);
+        } else {
+          setUserRewards([]);
         }
       } catch (error) {
-        console.error('Error fetching badges:', error);
+        console.error('Error fetching user rewards:', error);
       }
     };
-    fetchBadges();
-  }, []);
+    fetchUserRewards();
+  }, [token]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-eco-50 via-white to-earth-50 py-8">
@@ -182,8 +175,8 @@ const Profile = () => {
                     <span className="text-sm">Joined {new Date(user?.joinDate || user?.joinedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
+              {/* Removed duplicate Level display */}
               <div className="flex justify-between items-center mt-4 md:mt-0">
-                <p className="text-lg text-eco-700 font-semibold">Level {user?.level || 1}</p>
               </div>
               </div>
             </div>
@@ -312,21 +305,32 @@ const Profile = () => {
 
           {activeTab === 'achievements' && (
             <div className="bg-white rounded-xl p-6 shadow-xl">
-          <h2 className="text-xl font-semibold mb-6">Your Badges</h2>
+          <h2 className="text-xl font-semibold mb-6">Your Rewards</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-{(fetchedBadges.length > 0 ? fetchedBadges : badges).map((badge, index) => (
-  <div key={index} className={`p-4 rounded-lg text-center cursor-default select-none ${
-    badge.pointsRequired ? 'bg-green-100 text-green-900 shadow-md' : 'bg-gray-100 text-gray-400'
-  }`}>
-    {badge.imageUrl ? (
-      <img src={badge.imageUrl} alt={badge.title} className="mx-auto mb-2 w-12 h-12" />
-    ) : (
-      <div className="text-3xl mb-2">{badge.icon || '🏅'}</div>
-    )}
-    <div className="font-semibold">{badge.title || badge.name || badge}</div>
-    <div className="text-xs">{badge.description || badge.rarity || ''}</div>
-  </div>
-))}
+            {userRewards.length > 0 ? (
+              userRewards.map((reward, index) => (
+                <div
+                  key={index}
+                  className={`p-4 rounded-lg text-center cursor-default select-none ${
+                    reward.approved ? 'bg-green-100 text-green-900 shadow-md' : 'bg-gray-100 text-gray-400'
+                  }`}
+                >
+                  {reward.rewardMilestoneId?.imageUrl ? (
+                    <img
+                      src={reward.rewardMilestoneId.imageUrl}
+                      alt={reward.rewardMilestoneId.title}
+                      className="mx-auto mb-2 w-12 h-12"
+                    />
+                  ) : (
+                    <div className="text-3xl mb-2">🏅</div>
+                  )}
+                  <div className="font-semibold">{reward.rewardMilestoneId?.title || 'Reward'}</div>
+                  <div className="text-xs">{reward.rewardMilestoneId?.description || ''}</div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center text-gray-500 col-span-full">No rewards earned yet.</div>
+            )}
           </div>
             </div>
           )}

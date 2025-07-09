@@ -86,12 +86,21 @@ const RewardList = () => {
               key={reward._id}
               className="bg-white shadow-md p-4 rounded-lg flex justify-between items-center"
             >
-              <div>
-                <h3 className="text-lg font-semibold text-gray-800">{reward.title}</h3>
-                <p className="text-sm text-gray-600">{reward.description}</p>
-                <p className="text-sm text-blue-600 font-semibold mt-1">
-                  🎯 Points Required: {reward.pointsRequired}
-                </p>
+              <div className="flex items-center space-x-4">
+                {reward.imageUrl && (
+                  <img
+                    src={reward.imageUrl}
+                    alt={reward.title}
+                    className="h-12 w-12 object-contain rounded"
+                  />
+                )}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">{reward.title}</h3>
+                  <p className="text-sm text-gray-600">{reward.description}</p>
+                  <p className="text-sm text-blue-600 font-semibold mt-1">
+                    🎯 Points Required: {reward.pointsRequired}
+                  </p>
+                </div>
               </div>
               <div className="flex space-x-2">
                 <button

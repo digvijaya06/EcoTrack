@@ -96,11 +96,13 @@ const Community = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12">
         {/* Community Page Header */}
-        <div className="border-b pb-6 mb-10">
-          <h1 className="text-3xl font-bold text-gray-900">🌿 Community Hub</h1>
-          <p className="mt-2 text-gray-600">
+        <div className="border-b pb-6 mb-12">
+          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">
+            🌿 Community Hub
+          </h1>
+          <p className="mt-3 text-lg text-gray-600 max-w-3xl">
             Connect with like-minded individuals committed to sustainability and
             action.
           </p>
@@ -108,82 +110,80 @@ const Community = () => {
 
         <div>
           {/* Tabs for Posts and Leaderboard */}
-          <div className="bg-white rounded-xl p-2 shadow-xl mb-8 max-w-md">
-            <div className="flex space-x-1">
+          <div className="bg-white rounded-xl p-3 shadow-lg mb-10 max-w-md">
+            <div className="flex space-x-2">
               <button
                 onClick={() => setActiveTab("posts")}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                className={`flex items-center space-x-2 px-5 py-3 rounded-lg font-semibold transition-all duration-300 ${
                   activeTab === "posts"
-                    ? "bg-eco-200 text-eco-800 shadow-md"
+                    ? "bg-eco-600 text-white shadow-lg"
                     : "text-gray-700 hover:text-eco-700 hover:bg-eco-100"
                 }`}
               >
-                <Users className="w-4 h-4" />
+                <Users className="w-5 h-5" />
                 <span>Activity Feed</span>
               </button>
               <button
                 onClick={() => setActiveTab("leaderboard")}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                className={`flex items-center space-x-2 px-5 py-3 rounded-lg font-semibold transition-all duration-300 ${
                   activeTab === "leaderboard"
-                    ? "bg-eco-200 text-eco-800 shadow-md"
+                    ? "bg-eco-600 text-white shadow-lg"
                     : "text-gray-700 hover:text-eco-700 hover:bg-eco-100"
                 }`}
               >
-                <Award className="w-4 h-4" />
+                <Award className="w-5 h-5" />
                 <span>Leaderboard</span>
               </button>
               <button
                 onClick={() => setActiveTab("groups")}
-                className={`flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold transition-all duration-300 ${
+                className={`flex items-center space-x-2 px-5 py-3 rounded-lg font-semibold transition-all duration-300 ${
                   activeTab === "groups"
-                    ? "bg-eco-200 text-eco-800 shadow-md"
+                    ? "bg-eco-600 text-white shadow-lg"
                     : "text-gray-700 hover:text-eco-700 hover:bg-eco-100"
                 }`}
               >
-                <Users className="w-4 h-4" />
+                <Users className="w-5 h-5" />
                 <span>Groups</span>
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Left Section */}
-            <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-10">
               {activeTab === "posts" && (
                 <>
-                  {/* Share Post */}
-                  {/* Removed Share Your Post section from admin panel as per user request */}
                   {!user?.isAdmin && isAuthenticated && (
-                    <Card>
-                      <CardContent className="p-6">
-                        <h2 className="text-xl font-semibold mb-4 text-gray-800">
+                    <Card className="shadow-lg border border-gray-200">
+                      <CardContent className="p-8">
+                        <h2 className="text-2xl font-semibold mb-6 text-gray-800">
                           Share Your Post
                         </h2>
-                        <div className="flex space-x-3">
+                        <div className="flex space-x-4">
                           <img
                             src={user?.avatar}
                             alt="Your profile"
-                            className="h-10 w-10 rounded-full"
+                            className="h-12 w-12 rounded-full border-2 border-eco-600"
                           />
                           <div className="flex-1">
                             <input
                               type="text"
                               placeholder="Title of your action"
-                              className="input mb-2"
+                              className="input mb-3 text-lg"
                               value={newPostTitle}
                               onChange={(e) => setNewPostTitle(e.target.value)}
                               disabled={!isAuthenticated}
                             />
                             <textarea
                               placeholder="Share your eco-friendly actions..."
-                              className="input min-h-[80px]"
+                              className="input min-h-[100px] text-lg"
                               value={newPostContent}
                               onChange={(e) =>
                                 setNewPostContent(e.target.value)
                               }
                               disabled={!isAuthenticated}
                             />
-                            <div className="mt-2 flex space-x-2">
+                            <div className="mt-3 flex space-x-3">
                               <input
                                 type="text"
                                 placeholder="Tags (comma separated)"
@@ -198,7 +198,7 @@ const Community = () => {
                                 }
                                 disabled={!isAuthenticated}
                               />
-                              <label className="text-sm text-gray-700">
+                              <label className="text-sm text-gray-700 cursor-pointer hover:underline">
                                 <input
                                   type="file"
                                   multiple
@@ -207,12 +207,10 @@ const Community = () => {
                                   }
                                   className="hidden"
                                 />
-                                <span className="cursor-pointer hover:underline">
-                                  📷 Add Photo
-                                </span>
+                                📷 Add Photo
                               </label>
                             </div>
-                            <div className="mt-4 text-right">
+                            <div className="mt-5 text-right">
                               <Button
                                 onClick={handlePostSubmit}
                                 disabled={
@@ -220,15 +218,15 @@ const Community = () => {
                                   !newPostContent.trim() ||
                                   !newPostTitle.trim()
                                 }
-                                className="bg-green-600 hover:bg-green-700 text-white"
+                                className="bg-eco-600 hover:bg-eco-700 text-white text-lg px-6 py-3 rounded-lg shadow-md"
                               >
                                 {submitting ? "Sharing..." : "Share Post"}
                               </Button>
                               {error && (
-                                <p className="text-red-600 mt-2">{error}</p>
+                                <p className="text-red-600 mt-3">{error}</p>
                               )}
                               {!isAuthenticated && (
-                                <p className="text-gray-500 mt-2">
+                                <p className="text-gray-500 mt-3">
                                   Please login to post.
                                 </p>
                               )}
@@ -253,52 +251,54 @@ const Community = () => {
                         <p>No posts yet. Be the first to share!</p>
                       ) : (
                         posts.map((post) => (
-                          <div
-                            key={post._id}
-                            className="border border-gray-300 rounded-lg p-4 mb-4 hover:bg-eco-50 transition-colors duration-300 cursor-pointer"
-                          >
-                            <div className="flex items-center space-x-3 mb-2">
-                              <img
-                                src={post.user.avatar}
-                                alt={post.user.name}
-                                className="h-10 w-10 rounded-full"
-                              />
-                              <div>
-                                <p className="font-semibold text-gray-900">
-                                  {post.user.name}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {new Date(
-                                    post.createdAt
-                                  ).toLocaleDateString()}
-                                </p>
-                              </div>
-                            </div>
-                            <p className="text-gray-700 mb-2">{post.content}</p>
-                            <div className="flex space-x-2 text-sm text-gray-600">
-                              <button
-                                onClick={() => handleLike(post._id)}
-                                className="flex items-center space-x-1 hover:text-eco-700"
-                              >
-                                <ThumbsUp size={16} /> <span>{post.likes}</span>
-                              </button>
-                              <button
-                                disabled
-                                className="flex items-center space-x-1 opacity-50 cursor-not-allowed"
-                              >
-                                <MessageSquare size={16} />{" "}
-                                <span>{post.commentsCount}</span>
-                              </button>
-                              <button
-                                disabled
-                                className="flex items-center space-x-1 opacity-50 cursor-not-allowed"
-                              >
-                                <Share2 size={16} /> <span>{post.shares}</span>
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      )}
+                  <div
+                    key={post._id}
+                    className="border border-gray-300 rounded-lg p-6 mb-6 hover:bg-eco-50 transition-colors duration-300 cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-4 mb-3">
+                      <img
+                        src={post.user.avatar}
+                        alt={post.user.name}
+                        className="h-12 w-12 rounded-full border-2 border-eco-600"
+                      />
+                      <div>
+                        <p className="font-semibold text-gray-900 text-lg">
+                          {post.user.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {new Date(
+                            post.createdAt
+                          ).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-gray-700 mb-3 text-lg">
+                      {post.content}
+                    </p>
+                    <div className="flex space-x-4 text-sm text-gray-600">
+                      <button
+                        onClick={() => handleLike(post._id)}
+                        className="flex items-center space-x-1 hover:text-eco-700"
+                      >
+                        <ThumbsUp size={18} /> <span>{post.likes}</span>
+                      </button>
+                      <button
+                        disabled
+                        className="flex items-center space-x-1 opacity-50 cursor-not-allowed"
+                      >
+                        <MessageSquare size={18} />{" "}
+                        <span>{post.commentsCount}</span>
+                      </button>
+                      <button
+                        disabled
+                        className="flex items-center space-x-1 opacity-50 cursor-not-allowed"
+                      >
+                        <Share2 size={18} /> <span>{post.shares}</span>
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
                     </CardContent>
                   </Card>
                 </>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Target, Clock, CheckCircle } from "lucide-react";
+import { Target, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardFooter } from "../ui/Card";
 import { formatDate } from "../../utils/formatterrs";
 import { AuthContext } from "../../context/AuthContext";
@@ -26,7 +26,6 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
   }, [goal.startDate, goal.deadline]);
 
   const toggleCheckbox = (date) => {
-    // Only allow logged-in non-admin members to toggle
     if (!user || user.isAdmin) return;
 
     const dateStr = date.toISOString().split("T")[0];
@@ -47,12 +46,12 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
 
   const getCategoryColor = (category) => {
     switch (category) {
-      case "ENERGY": return "bg-accent-50 text-accent-700 border-accent-200";
-      case "WATER": return "bg-secondary-50 text-secondary-700 border-secondary-200";
-      case "TRANSPORTATION": return "bg-primary-50 text-primary-700 border-primary-200";
-      case "WASTE": return "bg-warning-50 text-warning-700 border-warning-200";
-      case "FOOD": return "bg-success-50 text-success-700 border-success-200";
-      default: return "bg-gray-50 text-gray-700 border-gray-200";
+      case "ENERGY": return "bg-gradient-to-r from-green-300 to-green-500 text-white shadow-md";
+      case "WATER": return "bg-gradient-to-r from-blue-300 to-blue-500 text-white shadow-md";
+      case "TRANSPORTATION": return "bg-gradient-to-r from-purple-300 to-purple-500 text-white shadow-md";
+      case "WASTE": return "bg-gradient-to-r from-yellow-300 to-yellow-500 text-white shadow-md";
+      case "FOOD": return "bg-gradient-to-r from-pink-300 to-pink-500 text-white shadow-md";
+      default: return "bg-gray-100 text-gray-800 border border-gray-300";
     }
   };
 
@@ -75,29 +74,30 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
 
   return (
     <Card
-      className="h-full hover:shadow-md transition-shadow duration-300"
+      className="h-full transform transition duration-500 hover:scale-105 hover:shadow-lg"
       interactive={!!onClick}
       onClick={() => onClick && onClick(goal._id)}
+      style={{ animation: "fadeInScale 0.5s ease forwards" }}
     >
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium ${getCategoryColor(goal.category)}`}>
+          <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold ${getCategoryColor(goal.category)}`}>
             <Target size={14} className="mr-1" />
             <span className="capitalize">{goal.category.toLowerCase()}</span>
           </span>
 
-          <label className="inline-flex items-center space-x-2 cursor-pointer">
+          <label className="inline-flex items-center space-x-2 cursor-pointer select-none">
             <input
               type="checkbox"
               checked={goal.completed}
               onChange={handleCompletionToggle}
-              className="form-checkbox h-5 w-5 text-green-600"
+              className="form-checkbox h-5 w-5 text-green-600 transition duration-300 ease-in-out transform hover:scale-110"
               aria-label="Mark goal as completed"
             />
-            <span className={goal.completed ? "text-success-600 text-sm" : "text-gray-500 text-sm"}>
+            <span className={goal.completed ? "text-green-600 text-sm font-semibold transition-colors duration-300" : "text-gray-500 text-sm"}>
               {goal.completed ? (
                 <>
-                  <CheckCircle size={16} className="inline mr-1" />
+                  <CheckCircle size={16} className="inline mr-1 transition-transform duration-300" />
                   Completed
                 </>
               ) : (
@@ -125,7 +125,7 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
             return (
               <label
                 key={dateStr}
-                className="flex flex-col items-center text-xs cursor-pointer select-none"
+                className="flex flex-col items-center text-xs cursor-pointer select-none transition-colors duration-300 hover:text-green-600"
                 title={`Progress for ${dateStr}`}
               >
                 <input
@@ -133,7 +133,7 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
                   checked={!!isChecked}
                   disabled={!user || user.isAdmin}
                   onChange={() => toggleCheckbox(date)}
-                  className="mb-1"
+                  className="mb-1 cursor-pointer"
                   aria-label={`Progress for ${dateStr}`}
                   title={`Progress for ${dateStr}`}
                 />
@@ -147,6 +147,19 @@ const GoalCard = ({ goal, onClick, updateProgress }) => {
       <CardFooter className="px-6 py-3 bg-gray-50 text-xs text-gray-500 flex justify-between items-center">
         Created on {formatDate(goal.createdAt)}
       </CardFooter>
+
+      <style jsx>{`
+        @keyframes fadeInScale {
+          0% {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </Card>
   );
 };

@@ -12,7 +12,7 @@ export const ACTION_CATEGORIES = [
 export const LEVEL_THRESHOLDS = [
   { level: 1, points: 0, title: 'Eco Beginner' },
   { level: 2, points: 100, title: 'Green Enthusiast' },
-  { level: 3, points: 300, title: 'Eco Warrior' },
+  { level: 3, points: 500, title: 'Eco Warrior' },
   { level: 4, points: 700, title: 'Sustainability Hero' },
   { level: 5, points: 1500, title: 'Planet Guardian' },
   { level: 6, points: 3000, title: 'Earth Champion' },

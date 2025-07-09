@@ -34,6 +34,9 @@ app.use('/api/admin', adminRoutes);
 const adminActionsRoutes =require('./routes/adminActions')
 app.use('/api/admin/actions', adminActionsRoutes);
 
+const uploadRoutes = require('./routes/upload');
+app.use('/api/upload', uploadRoutes);
+
 
 
 

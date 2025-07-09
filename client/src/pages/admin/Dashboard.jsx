@@ -3,12 +3,14 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { AuthContext } from '../../context/AuthContext';
 import { getAdminDashboardData } from '../../api/dashboard';
 import AdminLayout from '../../components/admin/AdminLayout';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const { user, token } = useContext(AuthContext);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchStats = async () => {

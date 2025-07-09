@@ -5,7 +5,7 @@ exports.getAllMappings = async (req, res) => {
   try {
     const mappings = await ActionRewardMapping.find()
       .populate('action', 'title description')
-      .populate('reward', 'title description cost');
+      .populate('reward', 'title description Points');
     res.json(mappings);
   } catch (error) {
     console.error('Get Action-Reward Mappings Error:', error);
