@@ -76,6 +76,7 @@ In today’s world, many individuals and communities wish to take part in enviro
 ## 📸 Screenshots
 
 > Include images for: Home Page, Log Action Page, Rewards Page, Admin Dashboard, Leaderboard, etc.
+> ![image alt](https://github.com/digvijaya06/EcoTrack/blob/b620167f195d3b0c8a5d32b2fcc94cae4f37f271/Rewads.png)
 
 ---
 
