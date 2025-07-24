@@ -79,6 +79,7 @@ In today’s world, many individuals and communities wish to take part in enviro
 > ![image alt](https://github.com/digvijaya06/EcoTrack/blob/b620167f195d3b0c8a5d32b2fcc94cae4f37f271/Rewads.png)
 > ![image alt](https://github.com/digvijaya06/EcoTrack/blob/1a148b61a3dcd02231ea02e01c6d978e37f2b5c0/Analytics.png)
  ![image alt](https://github.com/digvijaya06/EcoTrack/blob/1ac97e9791ff82472db40d0c0e4b82f4e9ec54ca/contact.png)
+> (![image alt](https://github.com/digvijaya06/EcoTrack/blob/47fe8386130389864808128fdfcb3536d65594d0/Home.png)
 ---
 
 ## 📂 Folder Structure
