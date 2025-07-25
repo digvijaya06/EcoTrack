@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useContext } from 'react';
 import { fetchAdminActions, approveAdminAction, rejectAdminAction } from '../../api/userActions';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
 const AdminActions = () => {
@@ -18,6 +18,8 @@ const AdminActions = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const navigate = useNavigate();
 
   // Access control: only admins allowed
   if (!user?.isAdmin) {
@@ -170,6 +172,7 @@ const AdminActions = () => {
       <table className="min-w-full border border-green-300 rounded-lg overflow-hidden shadow-md bg-white">
         <thead>
           <tr className="bg-green-200 text-green-900">
+            <th className="border px-6 py-3 text-left font-semibold">Rewarded</th>
             <th className="border px-6 py-3 text-left font-semibold">User</th>
             <th className="border px-6 py-3 text-left font-semibold">Category</th>
             <th className="border px-6 py-3 text-left font-semibold">Description</th>
@@ -180,7 +183,7 @@ const AdminActions = () => {
         <tbody>
           {paginatedActions.length === 0 && (
             <tr>
-              <td colSpan="5" className="text-center py-6 text-green-900 font-semibold">
+              <td colSpan="6" className="text-center py-6 text-green-900 font-semibold">
                 No actions found.
               </td>
             </tr>
@@ -192,6 +195,20 @@ const AdminActions = () => {
                 key={action._id}
                 className="hover:bg-green-50 transition-colors duration-200"
               >
+                <td className="border px-6 py-4">
+                  <button
+                    onClick={() => {
+                      const params = new URLSearchParams({
+                        userName: action.user?.name || '',
+                        category: action.category || '',
+                      });
+                      navigate(`/admin/rewards?${params.toString()}`);
+                    }}
+                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+                  >
+                    Rewarded
+                  </button>
+                </td>
                 <td className="border px-6 py-4">{action.user?.name || 'N/A'}</td>
                 <td className="border px-6 py-4 capitalize">{action.category}</td>
                 <td className="border px-6 py-4">{action.description}</td>

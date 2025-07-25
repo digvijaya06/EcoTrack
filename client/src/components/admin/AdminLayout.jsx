@@ -6,7 +6,7 @@ const AdminLayout = ({ children }) => {
   const location = useLocation();
   const isDashboard = location.pathname === '/admin/dashboard';
 
-  // Hide sidebar on dashboard and admin panel dropdown routes
+
   const hideSidebarRoutes = ['/admin/dashboard', '/admin/users', '/admin/feedback', '/admin/rewards'];
   const isDashboardOrAdminPanelRoute = hideSidebarRoutes.includes(location.pathname);
 

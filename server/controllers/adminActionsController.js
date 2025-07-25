@@ -1,4 +1,7 @@
 const Action = require('../models/Action');
+const User = require('../models/User');
+const UserReward = require('../models/UserReward');
+const RewardMilestone = require('../models/RewardMilestone');
 
 // GET all actions
 exports.getAllActions = async (req, res) => {
@@ -29,8 +32,6 @@ exports.getAllActions = async (req, res) => {
     res.status(500).json({ message: 'Error fetching actions' });
   }
 };
-
-const User = require('../models/User');
 
 // APPROVE
 exports.approveAction = async (req, res) => {
@@ -76,5 +77,48 @@ exports.rejectAction = async (req, res) => {
   } catch (err) {
     console.error('Error rejecting action:', err);
     res.status(500).json({ message: 'Failed to reject action' });
+  }
+};
+
+// Add user eligibility for rewards (admin only)
+exports.addUserEligibility = async (req, res) => {
+  try {
+    const { userName, category } = req.body;
+
+    // Find user by name
+    const user = await User.findOne({ name: userName });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Find reward milestone by category
+    const rewardMilestone = await RewardMilestone.findOne({ category });
+    if (!rewardMilestone) {
+      return res.status(404).json({ message: 'Reward milestone not found for category' });
+    }
+
+    // Check if user reward already exists
+    const existingUserReward = await UserReward.findOne({
+      userId: user._id,
+      rewardMilestoneId: rewardMilestone._id,
+    });
+
+    if (existingUserReward) {
+      return res.status(400).json({ message: 'User eligibility already exists' });
+    }
+
+    // Create new user reward eligibility
+    const newUserReward = new UserReward({
+      userId: user._id,
+      rewardMilestoneId: rewardMilestone._id,
+      earnedAt: new Date(),
+    });
+
+    await newUserReward.save();
+
+    res.status(201).json({ message: 'User eligibility added successfully', userReward: newUserReward });
+  } catch (error) {
+    console.error('Error adding user eligibility:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 };

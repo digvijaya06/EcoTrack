@@ -6,9 +6,9 @@ const ProtectedRoute = ({ allowedRoles }) => {
   const { isAuthenticated, isLoading, user } = useContext(AuthContext);
   const location = useLocation();
 
-  // While auth state is loading, render null or a loading indicator
+  
   if (isLoading) {
-    return null; // or a spinner component
+    return null; 
   }
 
   // If user is not authenticated, redirect to login 

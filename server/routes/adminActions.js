@@ -1,16 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { getAllActions, approveAction, rejectAction } = require('../controllers/adminActionsController');
-const { protect } = require('../middleware/authMiddleware');
-const isAdmin = require('../middleware/isAdmin');
+const { protect, admin } = require('../middleware/authMiddleware');
+const adminActionsController = require('../controllers/adminActionsController');
 
-// GET all user actions (for admin)
-router.get('/', protect, isAdmin, getAllActions);
+// GET all admin actions
+router.get('/', protect, admin, adminActionsController.getAllActions);
 
-// PUT approve a specific action
-router.put('/:id/approve', protect, isAdmin, approveAction);
+// Approve an action
+router.put('/:id/approve', protect, admin, adminActionsController.approveAction);
 
-// PUT reject a specific action
-router.put('/:id/reject', protect, isAdmin, rejectAction);
+// Reject an action
+router.put('/:id/reject', protect, admin, adminActionsController.rejectAction);
+
+// Add user eligibility for rewards (admin only)
+router.post('/add-user-eligibility', protect, admin, adminActionsController.addUserEligibility);
 
 module.exports = router;

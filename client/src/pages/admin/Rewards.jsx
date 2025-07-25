@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getAuthHeader } from '../../api/api';
+import { useLocation } from 'react-router-dom';
 
 import carbon from '../../assets/carbon.png';
 import ecoWarrior from '../../assets/Eco Warrior.jpg';
@@ -17,6 +18,11 @@ const imageMap = {
 };
 
 const Rewards = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const userName = queryParams.get('userName') || '';
+  const category = queryParams.get('category') || '';
+
   const [activeTab, setActiveTab] = useState('setup');
   const [rewards, setRewards] = useState([]);
   const [userRewards, setUserRewards] = useState([]);
@@ -93,6 +99,15 @@ const Rewards = () => {
           Rewards Eligibility
         </button>
       </div>
+
+      {/* Display userName and category */}
+      {/* Removed display above tabs as per user request */}
+      {/* {(userName || category) && (
+        <div className="mb-6 p-4 bg-green-100 rounded text-green-900 font-semibold">
+          <p>User Name: {userName}</p>
+          <p>Category: {category}</p>
+        </div>
+      )} */}
 
       {activeTab === 'setup' && (
         <div className="flex space-x-8">
@@ -221,6 +236,15 @@ const Rewards = () => {
               </tr>
             </thead>
             <tbody>
+              {(userName && category) && (
+                <tr className="bg-green-200 font-semibold">
+                  <td className="border border-green-300 p-3">{userName}</td>
+                  <td className="border border-green-300 p-3">N/A</td>
+                  <td className="border border-green-300 p-3">{category}</td>
+                  <td className="border border-green-300 p-3">N/A</td>
+                  <td className="border border-green-300 p-3">N/A</td>
+                </tr>
+              )}
               {Array.isArray(userRewards) ? userRewards.map((ur) => (
                 <tr key={ur._id} className="hover:bg-green-50 transition-colors duration-200">
                   <td className="border border-green-300 p-3">{ur.userId?.name || 'N/A'}</td>
